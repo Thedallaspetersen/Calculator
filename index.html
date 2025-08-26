@@ -75,7 +75,9 @@
       <div>
         <label>Weight</label>
         <div class="row">
-          <input id="weight" type="number" inputmode="numeric" placeholder="206">
+          <input id="ft" type="number" inputmode="numeric" placeholder="ft">
+<input id="inch" type="number" inputmode="numeric" placeholder="in">
+<input id="weight" type="number" inputmode="numeric" placeholder="lbs">
           <select id="wUnit"><option value="lb">lb</option><option value="kg">kg</option></select>
         </div>
       </div>
@@ -239,7 +241,7 @@ el('calc').onclick = ()=>{
   const goalWeight_lb = goalWeight_kg / 0.45359237;
 
   const fatToLose_lb = Math.max(0, lb - goalWeight_lb); // lbs
-  const weeklyLossTarget_lb = Math.max(0.4, lb * 0.0075); // ~0.75%/wk, min 0.4 lb/wk
+  const weeklyLossTarget_lb = lb * 0.01; // 1% of body weight per week
   const weeks = fatToLose_lb / weeklyLossTarget_lb;
 
   // calorie target from deficit
