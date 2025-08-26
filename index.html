@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Built With Intention – Macro & Timeline Calculator</title>
+<style>
+  :root{
+    --bg:#0f0f12; --card:#17171b; --ink:#e7e7f0; --muted:#a7a7b3;
+    --accent:#ff3b30; --ok:#2ecc71; --chip:#222228;
+  }
+  *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+  body{margin:0;background:var(--bg);color:var(--ink)}
+  header{padding:22px 18px;text-align:center}
+  header h1{margin:0;font-size:1.6rem}
+  header p{margin:.25rem 0 0;color:var(--muted)}
+
+  .wrap{max-width:980px;margin:0 auto;padding:12px}
+  .grid{display:grid;gap:12px}
+  @media(min-width:880px){ .grid{grid-template-columns:1fr 1fr} }
+
+  .card{background:var(--card);border:1px solid #26262c;border-radius:14px;padding:16px}
+  .card h3{margin:0 0 10px;font-size:1.05rem}
+  label{display:block;margin:.35rem 0 .25rem;color:var(--muted);font-size:.9rem}
+  input, select{width:100%;padding:12px 12px;border-radius:10px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .chips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .chip{background:var(--chip);border:1px solid #2d2d35;border-radius:12px;padding:10px;text-align:center;cursor:pointer;user-select:none}
+  .chip small{display:block;color:var(--muted);margin-top:4px}
+  .chip.active{border-color:var(--accent);outline:2px solid color-mix(in srgb,var(--accent),transparent 70%)}
+
+  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:white;font-weight:700;cursor:pointer}
+  .muted{color:var(--muted)}
+  .result{font-size:1.1rem;line-height:1.7}
+  .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
+  .tile b{display:block;font-size:1.3rem;margin-top:6px}
+  footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Built With Intention • Macro & Timeline Calculator</h1>
+  <p>Answer a few questions. We’ll estimate protein, calories and weeks to reach your goal.</p>
+</header>
+
+<div class="wrap grid">
+  <!-- LEFT: inputs -->
+  <section class="card">
+    <h3>About you</h3>
+    <div class="row">
+      <div>
+        <label>Age</label><input id="age" type="number" inputmode="numeric" min="13" max="90" placeholder="24">
+      </div>
+      <div>
+        <label>Sex</label>
+        <select id="sex"><option value="male">Male</option><option value="female">Female</option></select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Height</label>
+        <select id="heightUnit">
+          <option value="ftin">feet/inches</option>
+          <option value="cm">centimeters</option>
+        </select>
+        <div class="row" id="ftin">
+          <input id="ft" type="number" inputmode="numeric" placeholder="5">
+          <input id="inch" type="number" inputmode="numeric" placeholder="11">
+        </div>
+        <input id="cm" type="number" inputmode="numeric" placeholder="180" style="display:none;margin-top:8px">
+      </div>
+      <div>
+        <label>Weight</label>
+        <div class="row">
+          <input id="weight" type="number" inputmode="numeric" placeholder="206">
+          <select id="wUnit"><option value="lb">lb</option><option value="kg">kg</option></select>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:16px">Activity</h3>
+    <label>Work Activity</label>
+    <select id="work">
+      <option value="sedentary">Mostly seated (desk)</option>
+      <option value="light">On feet sometimes (retail/light)</option>
+      <option value="moderate">On feet often (service/warehouse)</option>
+      <option value="heavy">Manual labor</option>
+    </select>
+
+    <label style="margin-top:8px">Training (gym)</label>
+    <select id="training">
+      <option value="0">No training</option>
+      <option value="1-2">1–2 sessions/week</option>
+      <option value="3-4" selected>3–4 sessions/week</option>
+      <option value="5-6">5–6 sessions/week</option>
+    </select>
+
+    <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
+    <div id="bfCurrent" class="chips"></div>
+    <p class="muted" style="margin:.4rem 0 0">Tip: swap these labels for pics later. Click one.</p>
+
+    <h3 style="margin-top:16px">Pick your goal look</h3>
+    <div id="bfGoal" class="chips"></div>
+
+    <button class="btn" id="calc">Calculate</button>
+  </section>
+
+  <!-- RIGHT: results -->
+  <section class="card">
+    <h3>Your Plan</h3>
+    <div class="result" id="result">
+      Fill the form and tap <b>Calculate</b>.
+    </div>
+    <div class="kpi" id="kpi" style="display:none">
+      <div class="tile"><span class="muted">Protein (g/day)</span><b id="kProtein">—</b></div>
+      <div class="tile"><span class="muted">Calories / day</span><b id="kCals">—</b></div>
+      <div class="tile"><span class="muted">Weeks to goal</span><b id="kWeeks">—</b></div>
+    </div>
+  </section>
+</div>
+
+<footer>© Built With Intention • Educational estimates only</footer>
+
+<script>
+/* ------- helpers ------- */
+const bfOptionsMale   = [8,10,12,15,18,22,26,30,35,40];
+const bfOptionsFemale = [16,18,20,24,28,32,36,40,45,50];
+
+function el(id){ return document.getElementById(id); }
+function round(x, n=0){ const p = Math.pow(10,n); return Math.round(x*p)/p; }
+
+/* tiles for body fat “pictures” (labels now; replace with images later) */
+function buildBFTiles(containerId, sex){
+  const container = el(containerId);
+  container.innerHTML = '';
+  const opts = (sex==='female') ? bfOptionsFemale : bfOptionsMale;
+  opts.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'chip'; d.dataset.value = p;
+    d.innerHTML = `<b>${p}%</b><small>${sex}</small>`;
+    d.onclick = (e)=>{
+      [...container.children].forEach(c=>c.classList.remove('active'));
+      d.classList.add('active');
+    };
+    container.appendChild(d);
+  });
+}
+function getSelected(containerId){
+  const a = el(containerId).querySelector('.active');
+  return a ? Number(a.dataset.value)/100 : null;
+}
+
+/* height switch */
+el('heightUnit').onchange = ()=>{
+  const m = el('heightUnit').value==='cm';
+  el('ftin').style.display = m? 'none':'grid';
+  el('cm').style.display   = m? 'block':'none';
+};
+
+/* initial build */
+buildBFTiles('bfCurrent', el('sex').value);
+buildBFTiles('bfGoal',    el('sex').value);
+el('sex').onchange = ()=>{
+  buildBFTiles('bfCurrent', el('sex').value);
+  buildBFTiles('bfGoal',    el('sex').value);
+};
+
+/* activity multiplier (work + gym) */
+function activityMultiplier(work, training){
+  let base = 1.2; // sedentary baseline
+  if(work==='light') base = 1.35;
+  if(work==='moderate') base = 1.5;
+  if(work==='heavy') base = 1.7;
+
+  let add = 0;
+  if(training==='1-2') add = 0.05;
+  if(training==='3-4') add = 0.10;
+  if(training==='5-6') add = 0.20;
+
+  return base + add;
+}
+
+/* BMR (Mifflin-St Jeor) */
+function bmr(sex, kg, cm, age){
+  return sex==='male'
+    ? 10*kg + 6.25*cm - 5*age + 5
+    : 10*kg + 6.25*cm - 5*age - 161;
+}
+
+/* click: calculate */
+el('calc').onclick = ()=>{
+  // inputs
+  const age   = Number(el('age').value||0);
+  const sex   = el('sex').value;
+
+  // height
+  let cm = 0;
+  if(el('heightUnit').value==='cm'){
+    cm = Number(el('cm').value||0);
+  }else{
+    const ft = Number(el('ft').value||0);
+    const inch = Number(el('inch').value||0);
+    cm = (ft*12 + inch) * 2.54;
+  }
+
+  // weight
+  let kg = Number(el('weight').value||0);
+  if(el('wUnit').value==='lb') kg = kg * 0.45359237;
+  const lb = kg / 0.45359237;
+
+  // activity
+  const mult = activityMultiplier(el('work').value, el('training').value);
+
+  // bodyfat selections
+  const bfCur  = getSelected('bfCurrent');
+  const bfGoal = getSelected('bfGoal');
+
+  if(!age || !cm || !kg || !bfCur || !bfGoal){
+    el('result').innerHTML = "Please complete all fields and select your current and goal looks.";
+    el('kpi').style.display='none';
+    return;
+  }
+  if(bfGoal >= bfCur){
+    el('result').innerHTML = "Goal body-fat must be lower than current for a fat-loss timeline.";
+    el('kpi').style.display='none';
+    return;
+  }
+
+  // calculations
+  const _bmr = bmr(sex, kg, cm, age);
+  const tdee = _bmr * mult;
+
+  // lean mass assumed constant
+  const leanMass_kg = kg * (1 - bfCur);
+  const goalWeight_kg = leanMass_kg / (1 - bfGoal);
+  const goalWeight_lb = goalWeight_kg / 0.45359237;
+
+  const fatToLose_lb = Math.max(0, lb - goalWeight_lb); // lbs
+  const weeklyLossTarget_lb = Math.max(0.4, lb * 0.0075); // ~0.75%/wk, min 0.4 lb/wk
+  const weeks = fatToLose_lb / weeklyLossTarget_lb;
+
+  // calorie target from deficit
+  const dailyDeficit_kcal = (weeklyLossTarget_lb * 3500) / 7;
+  let calories = tdee - dailyDeficit_kcal;
+  // floor so it doesn’t go too low
+  const floor = sex==='male' ? 1600 : 1300;
+  calories = Math.max(floor, calories);
+
+  // protein: 1.0 g per lb of GOAL body weight (or 2.2 g/kg)
+  const protein_g = Math.max(100, goalWeight_lb * 1.0);
+
+  // output
+  el('kProtein').textContent = Math.round(protein_g);
+  el('kCals').textContent    = Math.round(calories);
+  el('kWeeks').textContent   = Math.max(1, Math.round(weeks));
+
+  el('kpi').style.display='grid';
+  el('result').innerHTML = `
+    <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day (includes work + training)</p>
+    <p><b>Current BF:</b> ${Math.round(bfCur*100)}% • <b>Goal BF:</b> ${Math.round(bfGoal*100)}%<br>
+    <b>Start Weight:</b> ${round(lb,1)} lb • <b>Goal Weight (est.):</b> ${round(goalWeight_lb,1)} lb</p>
+    <p class="muted">Assumptions: Mifflin–St Jeor BMR, activity multiplier as chosen, weekly loss ≈ 0.75% BW, lean mass held constant, 3500 kcal/lb.</p>
+  `;
+};
+
+/* default picks to something sensible */
+window.addEventListener('load', ()=>{
+  // preselect middling BF tiles
+  el('bfCurrent').children[5]?.classList.add('active'); // ~22% male / 32% female
+  el('bfGoal').children[2]?.classList.add('active');    // ~12% male / 20% female
+});
+</script>
+</body>
+</html>
