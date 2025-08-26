@@ -86,10 +86,9 @@
     <h3 style="margin-top:16px">Activity</h3>
     <label>Work Activity</label>
     <select id="work">
-      <option value="sedentary" selected>Mostly seated (desk)</option>
-      <option value="light">On feet sometimes (retail/light)</option>
-      <option value="moderate">On feet often (service/warehouse)</option>
-      <option value="heavy">Manual labor</option>
+      <option value="light" selected>Light (Desk job)</option>
+      <option value="moderate">Moderate (Retail / on feet)</option>
+      <option value="high">High (Manual labor)</option>
     </select>
 
     <label style="margin-top:8px">Training (gym)</label>
@@ -172,12 +171,14 @@ el('sex').onchange = ()=>{
   buildBFTiles('bfGoal',    el('sex').value);
 };
 
-/* activity multiplier (work + gym) */
+/* activity multiplier (work + gym)
+   Base (work): Light 1.425, Moderate 1.55, High 1.75
+   Gym add: 1–2 +0.05, 3–4 +0.10, 5–6 +0.20
+*/
 function activityMultiplier(work, training){
-  let base = 1.2; // sedentary baseline
-  if(work==='light') base = 1.35;
-  if(work==='moderate') base = 1.5;
-  if(work==='heavy') base = 1.7;
+  let base = 1.425;           // Light (desk + NEAT)
+  if(work==='moderate') base = 1.55;   // Retail / on feet
+  if(work==='high')     base = 1.75;   // Manual labor
 
   let add = 0;
   if(training==='1-2') add = 0.05;
@@ -245,13 +246,13 @@ el('calc').onclick = ()=>{
 
   const fatToLose_lb = Math.max(0, lb - goalWeight_lb); // lbs
 
-  // === YOUR RULE: exactly 1% per week of current body weight ===
+  // === Rule: exactly 1% per week of current body weight ===
   const weeklyLossTarget_lb = lb * 0.01;
 
   // implied daily deficit from that loss
   const targetDailyDeficit_kcal = (weeklyLossTarget_lb * 3500) / 7;
 
-  // calorie target; respect safety floor
+  // calorie target with safety floor
   const safetyFloor = (sex==='male') ? 1600 : 1300;
   let calories = tdee - targetDailyDeficit_kcal;
   let floorApplied = false;
@@ -260,7 +261,7 @@ el('calc').onclick = ()=>{
     floorApplied = true;
   }
 
-  // If floor applied, achievable weekly loss is less than 1%:
+  // If floor applied, achievable weekly loss is less than 1%
   const achievableWeeklyLoss_lb = floorApplied
     ? Math.max(0, ((tdee - calories) * 7) / 3500)
     : weeklyLossTarget_lb;
@@ -288,7 +289,7 @@ el('calc').onclick = ()=>{
 
   if(floorApplied){
     el('note').style.display='block';
-    el('note').innerHTML = `Note: Calories are capped at ${safetyFloor} kcal/day for safety. That limits weekly loss to about <b>${round(achievableWeeklyLoss_lb,1)} lb/week</b>, which is below the 1% target of <b>${round(weeklyLossTarget_lb,1)} lb/week</b>.`;
+    el('note').innerHTML = `Note: Calories are capped at ${safetyFloor} kcal/day for safety. That limits weekly loss to about <b>${round(achievableWeeklyLoss_lb,1)} lb/week</b>, below the 1% target of <b>${round(weeklyLossTarget_lb,1)} lb/week</b>.`;
   }else{
     el('note').style.display='block';
     el('note').innerHTML = `Weekly loss set to <b>${round(weeklyLossTarget_lb,1)} lb/week</b> (1% of current body weight).`;
