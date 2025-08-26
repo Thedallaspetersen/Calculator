@@ -86,9 +86,9 @@
     <h3 style="margin-top:16px">Activity</h3>
     <label>Work Activity</label>
     <select id="work">
-      <option value="light" selected>Light (Desk job)</option>
-      <option value="moderate">Moderate (Retail / on feet)</option>
-      <option value="high">High (Manual labor)</option>
+      <option value="light" selected>Light Activity – Desk</option>
+      <option value="moderate">Moderate Activity – Retail/Service</option>
+      <option value="high">High Activity – Labor</option>
     </select>
 
     <label style="margin-top:8px">Training (gym)</label>
@@ -97,6 +97,14 @@
       <option value="1-2">1–2 sessions/week</option>
       <option value="3-4" selected>3–4 sessions/week</option>
       <option value="5-6">5–6 sessions/week</option>
+    </select>
+
+    <label style="margin-top:8px">Cardio (hours/week)</label>
+    <select id="cardio">
+      <option value="0" selected>None</option>
+      <option value="1-2">1–2 hours</option>
+      <option value="3-4">3–4 hours</option>
+      <option value="5-6">5–6 hours</option>
     </select>
 
     <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
@@ -171,21 +179,30 @@ el('sex').onchange = ()=>{
   buildBFTiles('bfGoal',    el('sex').value);
 };
 
-/* activity multiplier (work + gym)
-   Base (work): Light 1.425, Moderate 1.55, High 1.75
-   Gym add: 1–2 +0.05, 3–4 +0.10, 5–6 +0.20
+/* activity multiplier (work + gym + cardio)
+   Work base: Light 1.425, Moderate 1.55, High 1.75
+   Gym add:   1–2 +0.05, 3–4 +0.10, 5–6 +0.20
+   Cardio:    None +0.00, 1–2h +0.05, 3–4h +0.10, 5–6h +0.15
 */
-function activityMultiplier(work, training){
-  let base = 1.425;           // Light (desk + NEAT)
-  if(work==='moderate') base = 1.55;   // Retail / on feet
-  if(work==='high')     base = 1.75;   // Manual labor
+function activityMultiplier(work, training, cardio){
+  // Base from work pattern
+  let base = 1.425;                 // Light (desk + NEAT)
+  if(work==='moderate') base = 1.55; // Retail / service
+  if(work==='high')     base = 1.75; // Manual labor
 
-  let add = 0;
-  if(training==='1-2') add = 0.05;
-  if(training==='3-4') add = 0.10;
-  if(training==='5-6') add = 0.20;
+  // Gym
+  let addGym = 0;
+  if(training==='1-2') addGym = 0.05;
+  if(training==='3-4') addGym = 0.10;
+  if(training==='5-6') addGym = 0.20;
 
-  return base + add;
+  // Cardio hours per week
+  let addCardio = 0;
+  if(cardio==='1-2') addCardio = 0.05;
+  if(cardio==='3-4') addCardio = 0.10;
+  if(cardio==='5-6') addCardio = 0.15;
+
+  return base + addGym + addCardio;
 }
 
 /* BMR (Mifflin-St Jeor) */
@@ -216,7 +233,11 @@ el('calc').onclick = ()=>{
   const lb = kg / 0.45359237;
 
   // activity
-  const mult = activityMultiplier(el('work').value, el('training').value);
+  const mult = activityMultiplier(
+    el('work').value,
+    el('training').value,
+    el('cardio').value
+  );
 
   // bodyfat selections
   const bfCur  = getSelected('bfCurrent');
@@ -282,7 +303,7 @@ el('calc').onclick = ()=>{
 
   el('kpi').style.display='grid';
   el('result').innerHTML = `
-    <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day (work + training)</p>
+    <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day (work + training + cardio)</p>
     <p><b>Current BF:</b> ${Math.round(bfCur*100)}% • <b>Goal BF:</b> ${Math.round(bfGoal*100)}%<br>
     <b>Start Weight:</b> ${round(lb,1)} lb • <b>Goal Weight (est.):</b> ${round(goalWeight_lb,1)} lb</p>
   `;
