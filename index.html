@@ -1,109 +1,354 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Select Body Fat %</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f9f9f9;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 20px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    .option {
-      border: 2px solid transparent;
-      border-radius: 8px;
-      padding: 10px;
-      background: #fff;
-      transition: border 0.2s, transform 0.2s;
-      cursor: pointer;
-    }
-    .option:hover {
-      transform: scale(1.05);
-      border: 2px solid #add8e6;
-    }
-    .option.selected {
-      border: 3px solid #1e90ff;
-      background: #f0f8ff;
-    }
-    .option img {
-      width: 100%;
-      border-radius: 6px;
-    }
-    .label {
-      margin-top: 8px;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Built With Intention – Macro & Timeline Calculator</title>
+<style>
+  :root{
+    --bg:#0f0f12; --card:#17171b; --ink:#e7e7f0; --muted:#a7a7b3;
+    --accent:#ff3b30; --ok:#2ecc71; --chip:#222228;
+    --hl:#97c9ff; /* light blue highlight */
+    --hl-strong:#1e90ff;
+  }
+  *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+  body{margin:0;background:var(--bg);color:var(--ink)}
+  header{padding:22px 18px;text-align:center}
+  header h1{margin:0;font-size:1.6rem}
+  header p{margin:.25rem 0 0;color:var(--muted)}
+
+  .wrap{max-width:980px;margin:0 auto;padding:12px}
+  .grid{display:grid;gap:12px}
+  @media(min-width:880px){ .grid{grid-template-columns:1fr 1fr} }
+
+  .card{background:var(--card);border:1px solid #26262c;border-radius:14px;padding:16px}
+  .card h3{margin:0 0 10px;font-size:1.05rem}
+  label{display:block;margin:.35rem 0 .25rem;color:var(--muted);font-size:.9rem}
+  input, select{width:100%;padding:12px 12px;border-radius:10px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* photo picker */
+  .bf-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+  @media(max-width:720px){ .bf-grid{grid-template-columns:repeat(2,1fr)} }
+  .bf-tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;overflow:hidden;cursor:pointer;transition:.18s transform,.18s border,.18s box-shadow}
+  .bf-tile:hover{transform:translateY(-2px);border-color:var(--hl)}
+  .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl),transparent 70%)}
+  .bf-img{display:block;width:100%;height:130px;object-fit:cover}
+  .bf-label{padding:8px 10px;text-align:center;font-weight:600;background:#101015;border-top:1px solid #22232a}
+  .hint{margin:.35rem 0 0;color:var(--muted);font-size:.85rem}
+
+  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:white;font-weight:700;cursor:pointer}
+
+  .result{font-size:1.05rem;line-height:1.65}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
+  .tile b{display:block;font-size:1.3rem;margin-top:6px}
+
+  footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
+</style>
 </head>
 <body>
+<header>
+  <h1>Built With Intention • Macro & Timeline Calculator</h1>
+  <p>Answer a few questions. We’ll estimate protein, calories, weekly loss, and weeks to your goal.</p>
+</header>
 
-  <h1>Select Your Body Fat %</h1>
+<div class="wrap grid">
+  <!-- LEFT: inputs -->
+  <section class="card">
+    <h3>About you</h3>
+    <div class="row">
+      <div>
+        <label>Age</label><input id="age" type="number" inputmode="numeric" placeholder="age">
+      </div>
+      <div>
+        <label>Sex</label>
+        <select id="sex">
+          <option value="male" selected>Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+    </div>
 
-  <div class="gallery">
-    <div class="option" onclick="selectOption(this, '8–10%')">
-      <img src="MaleBody8.jpeg" alt="8-10% BF">
-      <div class="label">8–10%</div>
+    <div class="row">
+      <div>
+        <label>Height</label>
+        <select id="heightUnit">
+          <option value="ftin" selected>feet/inches</option>
+          <option value="cm">centimeters</option>
+        </select>
+        <div class="row" id="ftin">
+          <input id="ft" type="number" inputmode="numeric" placeholder="ft">
+          <input id="inch" type="number" inputmode="numeric" placeholder="in">
+        </div>
+        <input id="cm" type="number" inputmode="numeric" placeholder="cm" style="display:none;margin-top:8px">
+      </div>
+      <div>
+        <label>Weight</label>
+        <div class="row">
+          <input id="weight" type="number" inputmode="numeric" placeholder="weight">
+          <select id="wUnit"><option value="lb" selected>lb</option><option value="kg">kg</option></select>
+        </div>
+      </div>
     </div>
-    <div class="option" onclick="selectOption(this, '11–12%')">
-      <img src="MaleBody10.jpeg" alt="11-12% BF">
-      <div class="label">11–12%</div>
-    </div>
-    <div class="option" onclick="selectOption(this, '13–14%')">
-      <img src="MaleBody13.jpeg" alt="13-14% BF">
-      <div class="label">13–14%</div>
-    </div>
-    <div class="option" onclick="selectOption(this, '15–17%')">
-      <img src="MaleBody15.jpeg" alt="15-17% BF">
-      <div class="label">15–17%</div>
-    </div>
-    <div class="option" onclick="selectOption(this, '18–19%')">
-      <img src="MaleBody18.jpeg" alt="18-19% BF">
-      <div class="label">18–19%</div>
-    </div>
-    <div class="option" onclick="selectOption(this, '20–22%')">
-      <img src="MaleBody20.jpeg" alt="20-22% BF">
-      <div class="label">20–22%</div>
-    </div>
-    <div class="option" onclick="selectOption(this, '25–29%')">
-      <img src="MaleBody25.jpeg" alt="25-29% BF">
-      <div class="label">25–29%</div>
-    </div>
-    <div class="option" onclick="selectOption(this, '30–34%')">
-      <img src="MaleBody30.jpeg" alt="30-34% BF">
-      <div class="label">30–34%</div>
-    </div>
-    <div class="option" onclick="selectOption(this, '35–39%')">
-      <img src="MaleBody35.jpeg" alt="35-39% BF">
-      <div class="label">35–39%</div>
-    </div>
-    <div class="option" onclick="selectOption(this, '40%+')">
-      <img src="MaleBody40.jpeg" alt="40%+ BF">
-      <div class="label">40%+</div>
-    </div>
-  </div>
 
-  <p id="result" style="margin-top:20px; font-size:18px;"></p>
+    <h3 style="margin-top:16px">Activity</h3>
+    <label>Work Activity</label>
+    <select id="work">
+      <option value="light" selected>Light Activity – Desk</option>
+      <option value="moderate">Moderate Activity – Retail/Service</option>
+      <option value="high">High Activity – Labor</option>
+    </select>
 
-  <script>
-    function selectOption(element, value) {
-      document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-      element.classList.add('selected');
-      document.getElementById('result').innerText = "You selected: " + value;
-    }
-  </script>
+    <label style="margin-top:8px">Training (gym)</label>
+    <select id="training">
+      <option value="0">No training</option>
+      <option value="1-2">1–2 sessions/week</option>
+      <option value="3-4" selected>3–4 sessions/week</option>
+      <option value="5-6">5–6 sessions/week</option>
+    </select>
 
+    <label style="margin-top:8px">Cardio (hours/week)</label>
+    <select id="cardio">
+      <option value="0" selected>None</option>
+      <option value="1-2">1–2 hours</option>
+      <option value="3-4">3–4 hours</option>
+      <option value="5-6">5–6 hours</option>
+    </select>
+
+    <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
+    <div id="bfCurrent" class="bf-grid" role="radiogroup" aria-label="Current body fat"></div>
+    <p class="hint">Tip: tap a photo to select. Labels show approximate ranges.</p>
+
+    <h3 style="margin-top:16px">Pick your goal look</h3>
+    <div id="bfGoal" class="bf-grid" role="radiogroup" aria-label="Goal body fat"></div>
+
+    <button class="btn" id="calc">Calculate</button>
+  </section>
+
+  <!-- RIGHT: results -->
+  <section class="card">
+    <h3>Your Plan</h3>
+    <div class="result" id="result">
+      Fill the form and tap <b>Calculate</b>.
+    </div>
+    <div class="kpi" id="kpi" style="display:none">
+      <div class="tile"><span class="muted">Protein (g/day)</span><b id="kProtein">—</b></div>
+      <div class="tile"><span class="muted">Calories / day</span><b id="kCals">—</b></div>
+      <div class="tile"><span class="muted">Weeks to goal</span><b id="kWeeks">—</b></div>
+      <div class="tile"><span class="muted">Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
+    </div>
+    <div class="hint" id="note" style="display:none"></div>
+  </section>
+</div>
+
+<footer>© Built With Intention • Educational estimates only</footer>
+
+<script>
+/* ---------- CONFIG: image sets and labels ---------- */
+/* If your images are inside /images/, prepend 'images/' to each img value. */
+const bfPicsMale = [
+  {pct:0.09, label:'8–10%', img:'MaleBody8.jpeg',  alt:'Male 8–10% body fat'},
+  {pct:0.115,label:'11–12%',img:'MaleBody10.jpeg', alt:'Male 11–12% body fat'},
+  {pct:0.135,label:'13–14%',img:'MaleBody13.jpeg', alt:'Male 13–14% body fat'},
+  {pct:0.16, label:'15–17%',img:'MaleBody15.jpeg', alt:'Male 15–17% body fat'},
+  {pct:0.185,label:'18–19%',img:'MaleBody18.jpeg', alt:'Male 18–19% body fat'},
+  {pct:0.21, label:'20–22%',img:'MaleBody20.jpeg', alt:'Male 20–22% body fat'},
+  {pct:0.26, label:'25–29%',img:'MaleBody25.jpeg', alt:'Male 25–29% body fat'},
+  {pct:0.32, label:'30–34%',img:'MaleBody30.jpeg', alt:'Male 30–34% body fat'},
+  {pct:0.37, label:'35–39%',img:'MaleBody35.jpeg', alt:'Male 35–39% body fat'},
+  {pct:0.41, label:'40%+',  img:'MaleBody40.jpeg', alt:'Male 40%+ body fat'}
+];
+
+const bfPicsFemale = [
+  /* placeholder: mirrors male scale shifted ~+8-10%. Update with your own images later. */
+  {pct:0.18,label:'16–18%',img:'MaleBody8.jpeg',  alt:'Female 16–18%'},
+  {pct:0.20,label:'19–21%',img:'MaleBody10.jpeg', alt:'Female 19–21%'},
+  {pct:0.22,label:'21–23%',img:'MaleBody13.jpeg', alt:'Female 21–23%'},
+  {pct:0.25,label:'24–26%',img:'MaleBody15.jpeg', alt:'Female 24–26%'},
+  {pct:0.28,label:'27–29%',img:'MaleBody18.jpeg', alt:'Female 27–29%'},
+  {pct:0.31,label:'30–32%',img:'MaleBody20.jpeg', alt:'Female 30–32%'},
+  {pct:0.36,label:'35–37%',img:'MaleBody25.jpeg', alt:'Female 35–37%'},
+  {pct:0.41,label:'40–42%',img:'MaleBody30.jpeg', alt:'Female 40–42%'},
+  {pct:0.46,label:'45–47%',img:'MaleBody35.jpeg', alt:'Female 45–47%'},
+  {pct:0.50,label:'50%+',  img:'MaleBody40.jpeg', alt:'Female 50%+'}
+];
+
+/* ---------- helpers ---------- */
+function el(id){ return document.getElementById(id); }
+function round(x,n=0){ const p=Math.pow(10,n); return Math.round(x*p)/p; }
+
+/* Build the photo grids */
+function buildBFGrid(containerId, sex){
+  const list = (sex==='female') ? bfPicsFemale : bfPicsMale;
+  const wrap = el(containerId);
+  wrap.innerHTML = '';
+  list.forEach((o, idx)=>{
+    const card = document.createElement('button');
+    card.type='button';
+    card.className='bf-tile';
+    card.dataset.value = o.pct;
+    card.dataset.index = idx;
+    card.setAttribute('role','radio');
+    card.setAttribute('aria-checked','false');
+
+    const img = document.createElement('img');
+    img.src = o.img; img.alt = o.alt; img.className='bf-img';
+    const lab = document.createElement('div');
+    lab.className='bf-label';
+    lab.textContent = o.label;
+
+    card.appendChild(img); card.appendChild(lab);
+    card.onclick = ()=>{
+      [...wrap.children].forEach(c=>{ c.classList.remove('active'); c.setAttribute('aria-checked','false'); });
+      card.classList.add('active'); card.setAttribute('aria-checked','true');
+    };
+    wrap.appendChild(card);
+  });
+}
+function getSelected(containerId){
+  const a = el(containerId).querySelector('.active');
+  return a ? Number(a.dataset.value) : null;
+}
+
+/* height unit switch */
+el('heightUnit').onchange = ()=>{
+  const m = el('heightUnit').value==='cm';
+  el('ftin').style.display = m? 'none':'grid';
+  el('cm').style.display   = m? 'block':'none';
+};
+
+/* initial build of photo pickers */
+buildBFGrid('bfCurrent', el('sex').value);
+buildBFGrid('bfGoal',    el('sex').value);
+el('sex').onchange = ()=>{
+  buildBFGrid('bfCurrent', el('sex').value);
+  buildBFGrid('bfGoal',    el('sex').value);
+};
+
+/* activity multiplier (work + gym + cardio) */
+function activityMultiplier(work, training, cardio){
+  let base = 1.425;                 // Light (desk + NEAT)
+  if(work==='moderate') base = 1.55; // Retail / service
+  if(work==='high')     base = 1.75; // Manual labor
+  let addGym = 0;
+  if(training==='1-2') addGym = 0.05;
+  if(training==='3-4') addGym = 0.10;
+  if(training==='5-6') addGym = 0.20;
+  let addCardio = 0;
+  if(cardio==='1-2') addCardio = 0.05;
+  if(cardio==='3-4') addCardio = 0.10;
+  if(cardio==='5-6') addCardio = 0.15;
+  return base + addGym + addCardio;
+}
+
+/* BMR (Mifflin-St Jeor) */
+function bmr(sex, kg, cm, age){
+  return sex==='male'
+    ? 10*kg + 6.25*cm - 5*age + 5
+    : 10*kg + 6.25*cm - 5*age - 161;
+}
+
+/* Calculate */
+el('calc').onclick = ()=>{
+  const age   = Number(el('age').value||0);
+  const sex   = el('sex').value;
+
+  // height
+  let cm = 0;
+  if(el('heightUnit').value==='cm'){
+    cm = Number(el('cm').value||0);
+  }else{
+    const ft = Number(el('ft').value||0);
+    const inch = Number(el('inch').value||0);
+    cm = (ft*12 + inch) * 2.54;
+  }
+
+  // weight
+  let kg = Number(el('weight').value||0);
+  if(el('wUnit').value==='lb') kg = kg * 0.45359237;
+  const lb = kg / 0.45359237;
+
+  // activity
+  const mult = activityMultiplier(
+    el('work').value,
+    el('training').value,
+    el('cardio').value
+  );
+
+  // bodyfat selections
+  const bfCur  = getSelected('bfCurrent');
+  const bfGoal = getSelected('bfGoal');
+
+  if(!age || !cm || !kg || !bfCur || !bfGoal){
+    el('result').innerHTML = "Please complete all fields and select your current and goal looks.";
+    el('kpi').style.display='none';
+    el('note').style.display='none';
+    return;
+  }
+  if(bfGoal >= bfCur){
+    el('result').innerHTML = "Goal body-fat must be lower than current for a fat-loss timeline.";
+    el('kpi').style.display='none';
+    el('note').style.display='none';
+    return;
+  }
+
+  // calculations
+  const _bmr = bmr(sex, kg, cm, age);
+  const tdee = _bmr * mult;
+
+  // lean mass assumed constant
+  const leanMass_kg = kg * (1 - bfCur);
+  const goalWeight_kg = leanMass_kg / (1 - bfGoal);
+  const goalWeight_lb = goalWeight_kg / 0.45359237;
+
+  const fatToLose_lb = Math.max(0, lb - goalWeight_lb); // lbs
+
+  // weekly target = 1% of current BW
+  const weeklyLossTarget_lb = lb * 0.01;
+  const targetDailyDeficit_kcal = (weeklyLossTarget_lb * 3500) / 7;
+
+  // calorie target with safety floor
+  const safetyFloor = (sex==='male') ? 1600 : 1300;
+  let calories = tdee - targetDailyDeficit_kcal;
+  let floorApplied = false;
+  if(calories < safetyFloor){
+    calories = safetyFloor;
+    floorApplied = true;
+  }
+
+  // achievable weekly loss (if floor applied it will be < 1%)
+  const achievableWeeklyLoss_lb = floorApplied
+    ? Math.max(0, ((tdee - calories) * 7) / 3500)
+    : weeklyLossTarget_lb;
+
+  // weeks to goal
+  const weeks = achievableWeeklyLoss_lb > 0 ? fatToLose_lb / achievableWeeklyLoss_lb : 0;
+
+  // protein: ~1.0 g per lb of GOAL body weight (min 100 g)
+  const protein_g = Math.max(100, goalWeight_lb * 1.0);
+
+  // output
+  el('kProtein').textContent    = Math.round(protein_g);
+  el('kCals').textContent       = Math.round(calories);
+  el('kWeeks').textContent      = Math.max(1, Math.round(weeks));
+  el('kWeeklyLoss').textContent = round(achievableWeeklyLoss_lb, 1);
+
+  el('kpi').style.display='grid';
+  el('result').innerHTML = `
+    <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day</p>
+    <p><b>Current BF:</b> ${Math.round(bfCur*100)}% • <b>Goal BF:</b> ${Math.round(bfGoal*100)}%<br>
+    <b>Start Weight:</b> ${round(lb,1)} lb • <b>Goal Weight (est.):</b> ${round(goalWeight_lb,1)} lb</p>
+  `;
+
+  if(floorApplied){
+    el('note').style.display='block';
+    el('note').innerHTML = `Note: Calories are capped at ${safetyFloor} kcal/day for safety. That limits weekly loss to about <b>${round(achievableWeeklyLoss_lb,1)} lb/week</b> (below the 1% target of <b>${round(weeklyLossTarget_lb,1)} lb/week</b>).`;
+  }else{
+    el('note').style.display='block';
+    el('note').innerHTML = `Weekly loss set to <b>${round(weeklyLossTarget_lb,1)} lb/week</b> (≈1% of current body weight).`;
+  }
+};
+</script>
 </body>
 </html>
