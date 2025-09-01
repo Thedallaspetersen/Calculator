@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Built With Intention – Macro & Timeline Calculator</title>
 <style>
   :root{
     --bg:#0f0f12; --card:#17171b; --ink:#e7e7f0; --muted:#a7a7b3;
-    --accent:#ff3b30; --ok:#2ecc71; --chip:#222228;
+    --accent:#22d3ee; --warn:#ff3b30; --ok:#2ecc71; --chip:#222228;
   }
   *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
   body{margin:0;background:var(--bg);color:var(--ink)}
@@ -25,20 +25,32 @@
   input, select{width:100%;padding:12px 12px;border-radius:10px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-  .chips{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-  .chip{background:var(--chip);border:1px solid #2d2d35;border-radius:12px;padding:10px;text-align:center;cursor:pointer;user-select:none}
-  .chip small{display:block;color:var(--muted);margin-top:4px}
-  .chip.active{border-color:var(--accent);outline:2px solid color-mix(in srgb,var(--accent),transparent 70%)}
-
-  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:white;font-weight:700;cursor:pointer}
+  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--warn);color:white;font-weight:700;cursor:pointer}
 
   .result{font-size:1.05rem;line-height:1.65}
   .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
   .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
   .tile b{display:block;font-size:1.3rem;margin-top:6px}
-
   .note{margin-top:10px;color:var(--muted);font-size:.9rem}
-  footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
+
+  /* --- Body-fat photo pickers --- */
+  .bf-title{margin:16px 0 8px}
+  .bf-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+  @media(max-width:900px){.bf-grid{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:640px){.bf-grid{grid-template-columns:repeat(3,1fr)}}
+
+  .bf-card{position:relative;border-radius:12px;overflow:hidden;background:#0b0f19;cursor:pointer;
+           outline:2px solid transparent;transition:transform .12s ease, outline-color .12s ease}
+  .bf-card:hover{transform:translateY(-2px)}
+  .bf-card[aria-checked="true"]{outline-color:var(--accent)}
+  .bf-img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
+  .bf-tag{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.55);color:#fff;border-radius:10px;
+          padding:5px 8px;font:600 12px/1 system-ui,Arial}
+  .bf-check{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:999px;
+            border:2px solid rgba(255,255,255,.6);display:grid;place-items:center;
+            background:rgba(0,0,0,.45);color:transparent}
+  .bf-card[aria-checked="true"] .bf-check{background:var(--accent);border-color:var(--accent);color:#001014}
+  .bf-radio{position:absolute;inset:0;opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
@@ -57,7 +69,7 @@
       </div>
       <div>
         <label>Sex</label>
-        <select id="sex"><option value="male">Male</option><option value="female">Female</option></select>
+        <select id="sex"><option value="male" selected>Male</option><option value="female">Female</option></select>
       </div>
     </div>
 
@@ -107,12 +119,20 @@
       <option value="5-6">5–6 hours</option>
     </select>
 
-    <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
-    <div id="bfCurrent" class="chips"></div>
-    <p class="note" style="margin:.4rem 0 0">Tip: swap these labels for pics later. Tap one.</p>
+    <!-- CURRENT LOOK -->
+    <h3 class="bf-title">Pick your current look (body-fat approximation)</h3>
+    <input type="hidden" id="bf_current_value" />
+    <div class="bf-grid" id="bfCurrent" role="radiogroup" aria-label="Current body fat">
+      <!-- Fill from JS -->
+    </div>
+    <p class="note" style="margin:.4rem 0 0">Tip: choose the photo that best matches you today.</p>
 
-    <h3 style="margin-top:16px">Pick your goal look</h3>
-    <div id="bfGoal" class="chips"></div>
+    <!-- GOAL LOOK -->
+    <h3 class="bf-title">Pick your goal look</h3>
+    <input type="hidden" id="bf_goal_value" />
+    <div class="bf-grid" id="bfGoal" role="radiogroup" aria-label="Goal body fat">
+      <!-- Fill from JS -->
+    </div>
 
     <button class="btn" id="calc">Calculate</button>
   </section>
@@ -136,67 +156,95 @@
 <footer>© Built With Intention • Educational estimates only</footer>
 
 <script>
-/* ------- helpers ------- */
-const bfOptionsMale   = [8,10,12,15,18,22,26,30,35,40];
-const bfOptionsFemale = [16,18,20,24,28,32,36,40,45,50];
+/* ----------------- constants & helpers ----------------- */
+const BF_RANGES = [
+  "8-10%","11-12%","13-14%","15-17%","18-19%",
+  "20-22%","23-24%","25-29%","30-34%","35-40%"
+];
+// map to midpoints for the math
+const BF_MIDPOINT = {
+  "8-10%":9, "11-12%":11.5, "13-14%":13.5, "15-17%":16, "18-19%":18.5,
+  "20-22%":21, "23-24%":23.5, "25-29%":27, "30-34%":32, "35-40%":37.5
+};
 
 function el(id){ return document.getElementById(id); }
-function round(x, n=0){ const p = Math.pow(10,n); return Math.round(x*p)/p; }
+function round(x,n=0){ const p=10**n; return Math.round(x*p)/p; }
+function pctToFrac(p){ return (p/100); }
 
-/* tiles for body fat “pictures” (labels now; replace with images later) */
-function buildBFTiles(containerId, sex){
-  const container = el(containerId);
-  container.innerHTML = '';
-  const opts = (sex==='female') ? bfOptionsFemale : bfOptionsMale;
-  opts.forEach(p => {
-    const d = document.createElement('div');
-    d.className = 'chip'; d.dataset.value = p;
-    d.innerHTML = `<b>${p}%</b><small>${sex}</small>`;
-    d.onclick = ()=>{
-      [...container.children].forEach(c=>c.classList.remove('active'));
-      d.classList.add('active');
-    };
-    container.appendChild(d);
+/* ----------------- build photo pickers ----------------- */
+function makeCard(range, src, alt){
+  const label = document.createElement('label');
+  label.className = 'bf-card';
+  label.setAttribute('role','radio');
+  label.setAttribute('aria-checked','false');
+  label.dataset.value = range;
+
+  label.innerHTML = `
+    <input class="bf-radio" type="radio" name="x">
+    <img class="bf-img" src="${src}" alt="${alt}">
+    <span class="bf-tag">${range}</span>
+    <span class="bf-check">✓</span>
+  `;
+  return label;
+}
+
+// Provide your actual image paths here (same order as BF_RANGES)
+const IMG_PATHS = [
+  "images/bf_8_10.jpg",
+  "images/bf_11_12.jpg",
+  "images/bf_13_14.jpg",
+  "images/bf_15_17.jpg",
+  "images/bf_18_19.jpg",
+  "images/bf_20_22.jpg",
+  "images/bf_23_24.jpg",
+  "images/bf_25_29.jpg",
+  "images/bf_30_34.jpg",
+  "images/bf_35_40.jpg"
+];
+
+function buildPicker(containerId, hiddenId){
+  const grid = el(containerId);
+  grid.innerHTML = '';
+  BF_RANGES.forEach((r, i)=>{
+    const c = makeCard(r, IMG_PATHS[i], `${r} body fat example`);
+    grid.appendChild(c);
+  });
+
+  const hidden = el(hiddenId);
+
+  grid.addEventListener('click', e=>{
+    const card = e.target.closest('.bf-card'); if(!card) return;
+    grid.querySelectorAll('.bf-card').forEach(c=>{
+      c.setAttribute('aria-checked','false');
+      c.querySelector('.bf-radio').checked = false;
+    });
+    card.setAttribute('aria-checked','true');
+    card.querySelector('.bf-radio').checked = true;
+    hidden.value = card.dataset.value; // e.g., "23-24%"
   });
 }
-function getSelected(containerId){
-  const a = el(containerId).querySelector('.active');
-  return a ? Number(a.dataset.value)/100 : null;
-}
 
-/* height switch */
+buildPicker('bfCurrent','bf_current_value');
+buildPicker('bfGoal','bf_goal_value');
+
+/* height unit switch */
 el('heightUnit').onchange = ()=>{
-  const m = el('heightUnit').value==='cm';
-  el('ftin').style.display = m? 'none':'grid';
-  el('cm').style.display   = m? 'block':'none';
+  const cmMode = el('heightUnit').value==='cm';
+  el('ftin').style.display = cmMode ? 'none':'grid';
+  el('cm').style.display   = cmMode ? 'block':'none';
 };
 
-/* initial build of BF tiles */
-buildBFTiles('bfCurrent', el('sex').value);
-buildBFTiles('bfGoal',    el('sex').value);
-el('sex').onchange = ()=>{
-  buildBFTiles('bfCurrent', el('sex').value);
-  buildBFTiles('bfGoal',    el('sex').value);
-};
-
-/* activity multiplier (work + gym + cardio)
-   Work base: Light 1.425, Moderate 1.55, High 1.75
-   Gym add:   1–2 +0.05, 3–4 +0.10, 5–6 +0.20
-   Cardio:    None +0.00, 1–2h +0.05, 3–4h +0.10, 5–6h +0.15
-*/
+/* ----------------- activity & BMR ----------------- */
 function activityMultiplier(work, training, cardio){
-  // Base from work pattern
-  let base = 1.425;                 // Light (desk + NEAT)
-  if(work==='moderate') base = 1.55; // Retail / service
-  if(work==='high')     base = 1.75; // Manual labor
+  let base = 1.425; // Light
+  if(work==='moderate') base = 1.55;
+  if(work==='high')     base = 1.75;
 
-  // Gym
   let addGym = 0;
   if(training==='1-2') addGym = 0.05;
   if(training==='3-4') addGym = 0.10;
   if(training==='5-6') addGym = 0.20;
 
-  // Cardio hours per week
   let addCardio = 0;
   if(cardio==='1-2') addCardio = 0.05;
   if(cardio==='3-4') addCardio = 0.10;
@@ -205,15 +253,14 @@ function activityMultiplier(work, training, cardio){
   return base + addGym + addCardio;
 }
 
-/* BMR (Mifflin-St Jeor) */
 function bmr(sex, kg, cm, age){
   return sex==='male'
     ? 10*kg + 6.25*cm - 5*age + 5
     : 10*kg + 6.25*cm - 5*age - 161;
 }
 
+/* ----------------- calculate ----------------- */
 el('calc').onclick = ()=>{
-  // inputs
   const age   = Number(el('age').value||0);
   const sex   = el('sex').value;
 
@@ -239,16 +286,20 @@ el('calc').onclick = ()=>{
     el('cardio').value
   );
 
-  // bodyfat selections
-  const bfCur  = getSelected('bfCurrent');
-  const bfGoal = getSelected('bfGoal');
+  // bodyfat (from photo picks)
+  const curRange  = el('bf_current_value').value; // e.g., "23-24%"
+  const goalRange = el('bf_goal_value').value;
 
-  if(!age || !cm || !kg || !bfCur || !bfGoal){
+  if(!age || !cm || !kg || !curRange || !goalRange){
     el('result').innerHTML = "Please complete all fields and select your current and goal looks.";
     el('kpi').style.display='none';
     el('note').style.display='none';
     return;
   }
+
+  const bfCur  = pctToFrac(BF_MIDPOINT[curRange]);
+  const bfGoal = pctToFrac(BF_MIDPOINT[goalRange]);
+
   if(bfGoal >= bfCur){
     el('result').innerHTML = "Goal body-fat must be lower than current for a fat-loss timeline.";
     el('kpi').style.display='none';
@@ -256,46 +307,39 @@ el('calc').onclick = ()=>{
     return;
   }
 
-  // calculations
   const _bmr = bmr(sex, kg, cm, age);
   const tdee = _bmr * mult;
 
-  // lean mass assumed constant
-  const leanMass_kg = kg * (1 - bfCur);
-  const goalWeight_kg = leanMass_kg / (1 - bfGoal);
-  const goalWeight_lb = goalWeight_kg / 0.45359237;
+  // Lean mass (assume constant), infer goal weight from goal BF
+  const leanMass_kg    = kg * (1 - bfCur);
+  const goalWeight_kg  = leanMass_kg / (1 - bfGoal);
+  const goalWeight_lb  = goalWeight_kg / 0.45359237;
+  const fatToLose_lb   = Math.max(0, lb - goalWeight_lb);
 
-  const fatToLose_lb = Math.max(0, lb - goalWeight_lb); // lbs
-
-  // === Rule: exactly 1% per week of current body weight ===
+  // Default weekly loss target: 1% of current weight
   const weeklyLossTarget_lb = lb * 0.01;
+  const targetDailyDeficit  = (weeklyLossTarget_lb * 3500) / 7;
 
-  // implied daily deficit from that loss
-  const targetDailyDeficit_kcal = (weeklyLossTarget_lb * 3500) / 7;
-
-  // calorie target with safety floor
+  // Safety calorie floor
   const safetyFloor = (sex==='male') ? 1600 : 1300;
-  let calories = tdee - targetDailyDeficit_kcal;
+  let calories = tdee - targetDailyDeficit;
   let floorApplied = false;
   if(calories < safetyFloor){
     calories = safetyFloor;
     floorApplied = true;
   }
 
-  // If floor applied, achievable weekly loss is less than 1%
   const achievableWeeklyLoss_lb = floorApplied
     ? Math.max(0, ((tdee - calories) * 7) / 3500)
     : weeklyLossTarget_lb;
 
-  // weeks to goal based on achievable loss rate
   const weeks = achievableWeeklyLoss_lb > 0
     ? fatToLose_lb / achievableWeeklyLoss_lb
     : 0;
 
-  // protein: ~1.0 g per lb of GOAL body weight (min 100 g)
   const protein_g = Math.max(100, goalWeight_lb * 1.0);
 
-  // output
+  // Output
   el('kProtein').textContent    = Math.round(protein_g);
   el('kCals').textContent       = Math.round(calories);
   el('kWeeks').textContent      = Math.max(1, Math.round(weeks));
@@ -304,16 +348,16 @@ el('calc').onclick = ()=>{
   el('kpi').style.display='grid';
   el('result').innerHTML = `
     <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day (work + training + cardio)</p>
-    <p><b>Current BF:</b> ${Math.round(bfCur*100)}% • <b>Goal BF:</b> ${Math.round(bfGoal*100)}%<br>
+    <p><b>Current BF:</b> ${BF_MIDPOINT[curRange]}% • <b>Goal BF:</b> ${BF_MIDPOINT[goalRange]}%<br>
     <b>Start Weight:</b> ${round(lb,1)} lb • <b>Goal Weight (est.):</b> ${round(goalWeight_lb,1)} lb</p>
   `;
 
   if(floorApplied){
     el('note').style.display='block';
-    el('note').innerHTML = `Note: Calories are capped at ${safetyFloor} kcal/day for safety. That limits weekly loss to about <b>${round(achievableWeeklyLoss_lb,1)} lb/week</b>, below the 1% target of <b>${round(weeklyLossTarget_lb,1)} lb/week</b>.`;
+    el('note').innerHTML = `Note: Calories are capped at ${safetyFloor} kcal/day for safety. That limits weekly loss to about <b>${round(achievableWeeklyLoss_lb,1)} lb/week</b> vs the 1% target of <b>${round(weeklyLossTarget_lb,1)} lb/week</b>.`;
   }else{
     el('note').style.display='block';
-    el('note').innerHTML = `Weekly loss set to <b>${round(weeklyLossTarget_lb,1)} lb/week</b> (1% of current body weight).`;
+    el('note').innerHTML = `Weekly loss set to <b>${round(weeklyLossTarget_lb,1)} lb/week</b> (≈1% of current body weight).`;
   }
 };
 </script>
