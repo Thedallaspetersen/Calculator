@@ -1,306 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Built With Intention – Macro & Timeline Calculator</title>
-<style>
-  :root{
-    --bg:#0f0f12; --card:#17171b; --ink:#e7e7f0; --muted:#a7a7b3;
-    --accent:#ff3b30; --ok:#2ecc71; --chip:#222228;
-  }
-  *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
-  body{margin:0;background:var(--bg);color:var(--ink)}
-  header{padding:22px 18px;text-align:center}
-  header h1{margin:0;font-size:1.6rem}
-  header p{margin:.25rem 0 0;color:var(--muted)}
-  .wrap{max-width:980px;margin:0 auto;padding:12px}
-  .grid{display:grid;gap:12px}
-  @media(min-width:880px){ .grid{grid-template-columns:1fr 1fr} }
-  .card{background:var(--card);border:1px solid #26262c;border-radius:14px;padding:16px}
-  .card h3{margin:0 0 10px;font-size:1.05rem}
-  label{display:block;margin:.35rem 0 .25rem;color:var(--muted);font-size:.9rem}
-  input, select{width:100%;padding:12px 12px;border-radius:10px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:white;font-weight:700;cursor:pointer}
-  .result{font-size:1.05rem;line-height:1.65}
-  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-  .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
-  .tile b{display:block;font-size:1.3rem;margin-top:6px}
-  .note{margin-top:10px;color:var(--muted);font-size:.9rem}
-  footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
-
-  /* --- BF image gallery --- */
-  .bf-grid{display:grid;gap:8px;grid-template-columns:repeat(5,1fr)}
-  @media(max-width:720px){ .bf-grid{grid-template-columns:repeat(3,1fr)} }
-  @media(max-width:460px){ .bf-grid{grid-template-columns:repeat(2,1fr)} }
-  .bf-tile{
-    position:relative; border-radius:12px; overflow:hidden;
-    border:1px solid #2d2d35; background:#1a1a20; cursor:pointer;
-    min-height:120px;
-  }
-  .bf-tile img{width:100%;height:120px;object-fit:cover;display:block}
-  .bf-label{
-    position:absolute;left:6px;bottom:6px;
-    background:rgba(0,0,0,.55);padding:4px 6px;border-radius:6px;font-size:.85rem
-  }
-  .bf-tile.active{outline:3px solid var(--accent);border-color:var(--accent)}
-  .bf-check{
-    position:absolute;top:6px;right:6px;background:rgba(255,59,48,.9);
-    color:#fff;font-weight:700;font-size:.75rem;border-radius:999px;padding:2px 6px;display:none
-  }
-  .bf-tile.active .bf-check{display:inline-block}
-  .bf-placeholder{
-    height:120px;display:flex;align-items:center;justify-content:center;
-    color:#cfcfda;font-weight:700;background:linear-gradient(180deg,#1e1e24,#15151b)
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select Body Fat %</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .option {
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      transition: border 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .option:hover {
+      transform: scale(1.05);
+      border: 2px solid #add8e6;
+    }
+    .option.selected {
+      border: 3px solid #1e90ff;
+      background: #f0f8ff;
+    }
+    .option img {
+      width: 100%;
+      border-radius: 6px;
+    }
+    .label {
+      margin-top: 8px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-<header>
-  <h1>Built With Intention • Macro & Timeline Calculator</h1>
-  <p>Answer a few questions. We’ll estimate protein, calories, weekly loss, and weeks to your goal.</p>
-</header>
 
-<div class="wrap grid">
-  <!-- LEFT: inputs -->
-  <section class="card">
-    <h3>About you</h3>
-    <div class="row">
-      <div>
-        <label>Age</label><input id="age" type="number" inputmode="numeric" placeholder="age">
-      </div>
-      <div>
-        <label>Sex</label>
-        <select id="sex"><option value="male" selected>Male</option><option value="female">Female</option></select>
-      </div>
+  <h1>Select Your Body Fat %</h1>
+
+  <div class="gallery">
+    <div class="option" onclick="selectOption(this, '8–10%')">
+      <img src="MaleBody8.jpeg" alt="8-10% BF">
+      <div class="label">8–10%</div>
     </div>
-
-    <div class="row">
-      <div>
-        <label>Height</label>
-        <select id="heightUnit">
-          <option value="ftin" selected>feet/inches</option>
-          <option value="cm">centimeters</option>
-        </select>
-        <div class="row" id="ftin">
-          <input id="ft" type="number" inputmode="numeric" placeholder="ft">
-          <input id="inch" type="number" inputmode="numeric" placeholder="in">
-        </div>
-        <input id="cm" type="number" inputmode="numeric" placeholder="cm" style="display:none;margin-top:8px">
-      </div>
-      <div>
-        <label>Weight</label>
-        <div class="row">
-          <input id="weight" type="number" inputmode="numeric" placeholder="weight">
-          <select id="wUnit"><option value="lb" selected>lb</option><option value="kg">kg</option></select>
-        </div>
-      </div>
+    <div class="option" onclick="selectOption(this, '11–12%')">
+      <img src="MaleBody10.jpeg" alt="11-12% BF">
+      <div class="label">11–12%</div>
     </div>
-
-    <h3 style="margin-top:16px">Activity</h3>
-    <label>Work Activity</label>
-    <select id="work">
-      <option value="light" selected>Light Activity – Desk</option>
-      <option value="moderate">Moderate Activity – Retail/Service</option>
-      <option value="high">High Activity – Labor</option>
-    </select>
-
-    <label style="margin-top:8px">Training (gym)</label>
-    <select id="training">
-      <option value="0">No training</option>
-      <option value="1-2">1–2 sessions/week</option>
-      <option value="3-4" selected>3–4 sessions/week</option>
-      <option value="5-6">5–6 sessions/week</option>
-    </select>
-
-    <label style="margin-top:8px">Cardio (hours/week)</label>
-    <select id="cardio">
-      <option value="0" selected>None</option>
-      <option value="1-2">1–2 hours</option>
-      <option value="3-4">3–4 hours</option>
-      <option value="5-6">5–6 hours</option>
-    </select>
-
-    <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
-    <div id="bfCurrent" class="bf-grid"></div>
-
-    <h3 style="margin-top:16px">Pick your goal look</h3>
-    <div id="bfGoal" class="bf-grid"></div>
-
-    <button class="btn" id="calc">Calculate</button>
-  </section>
-
-  <!-- RIGHT: results -->
-  <section class="card">
-    <h3>Your Plan</h3>
-    <div class="result" id="result">Fill the form and tap <b>Calculate</b>.</div>
-    <div class="kpi" id="kpi" style="display:none">
-      <div class="tile"><span class="muted">Protein (g/day)</span><b id="kProtein">—</b></div>
-      <div class="tile"><span class="muted">Calories / day</span><b id="kCals">—</b></div>
-      <div class="tile"><span class="muted">Weeks to goal</span><b id="kWeeks">—</b></div>
-      <div class="tile"><span class="muted">Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
+    <div class="option" onclick="selectOption(this, '13–14%')">
+      <img src="MaleBody13.jpeg" alt="13-14% BF">
+      <div class="label">13–14%</div>
     </div>
-    <div class="note" id="note" style="display:none"></div>
-  </section>
-</div>
+    <div class="option" onclick="selectOption(this, '15–17%')">
+      <img src="MaleBody15.jpeg" alt="15-17% BF">
+      <div class="label">15–17%</div>
+    </div>
+    <div class="option" onclick="selectOption(this, '18–19%')">
+      <img src="MaleBody18.jpeg" alt="18-19% BF">
+      <div class="label">18–19%</div>
+    </div>
+    <div class="option" onclick="selectOption(this, '20–22%')">
+      <img src="MaleBody20.jpeg" alt="20-22% BF">
+      <div class="label">20–22%</div>
+    </div>
+    <div class="option" onclick="selectOption(this, '25–29%')">
+      <img src="MaleBody25.jpeg" alt="25-29% BF">
+      <div class="label">25–29%</div>
+    </div>
+    <div class="option" onclick="selectOption(this, '30–34%')">
+      <img src="MaleBody30.jpeg" alt="30-34% BF">
+      <div class="label">30–34%</div>
+    </div>
+    <div class="option" onclick="selectOption(this, '35–39%')">
+      <img src="MaleBody35.jpeg" alt="35-39% BF">
+      <div class="label">35–39%</div>
+    </div>
+    <div class="option" onclick="selectOption(this, '40%+')">
+      <img src="MaleBody40.jpeg" alt="40%+ BF">
+      <div class="label">40%+</div>
+    </div>
+  </div>
 
-<footer>© Built With Intention • Educational estimates only</footer>
+  <p id="result" style="margin-top:20px; font-size:18px;"></p>
 
-<script>
-/* ------------ BF gallery using your exact filenames ------------ */
-const BF_GALLERY = [
-  {label:'8–10%',  value:  9.0, src:'./IMG_0231.jpeg'},
-  {label:'11–12%', value: 11.5, src:'./IMG_0232.jpeg'},
-  {label:'13–14%', value: 13.5, src:'./IMG_0233.jpeg'},
-  {label:'15–17%', value: 16.0, src:'./IMG_0234.jpeg'},
-  {label:'18–19%', value: 18.5, src:'./IMG_0235.jpeg'},
-  {label:'20–22%', value: 21.0, src:'./IMG_0236.jpeg'},
-  {label:'23–24%', value: 23.5, src:'./IMG_0237.jpeg'},
-  {label:'25–29%', value: 27.0, src:'./IMG_0239.jpeg'},
-  {label:'30–34%', value: 32.0, src:'./IMG_0240.jpeg'},
-  {label:'35–40%', value: 37.5, src:null} // shows as labeled tile until you add an image
-];
-
-function el(id){ return document.getElementById(id); }
-function round(x,n=0){ const p=Math.pow(10,n); return Math.round(x*p)/p; }
-
-function buildGallery(containerId){
-  const box = el(containerId);
-  box.innerHTML = '';
-  BF_GALLERY.forEach((opt, idx)=>{
-    const tile = document.createElement('div');
-    tile.className = 'bf-tile';
-    tile.dataset.value = opt.value; // percent (e.g., 21.0)
-
-    if(opt.src){
-      tile.innerHTML = `
-        <img src="${opt.src}" alt="${opt.label} body fat example" loading="lazy">
-        <span class="bf-label">${opt.label}</span>
-        <span class="bf-check">✓</span>
-      `;
-    }else{
-      tile.innerHTML = `
-        <div class="bf-placeholder">${opt.label}</div>
-        <span class="bf-check">✓</span>
-      `;
+  <script>
+    function selectOption(element, value) {
+      document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+      element.classList.add('selected');
+      document.getElementById('result').innerText = "You selected: " + value;
     }
+  </script>
 
-    tile.onclick = ()=>{
-      [...box.children].forEach(c=>c.classList.remove('active'));
-      tile.classList.add('active');
-    };
-    box.appendChild(tile);
-  });
-}
-
-function getSelected(containerId){
-  const a = el(containerId).querySelector('.bf-tile.active');
-  return a ? Number(a.dataset.value)/100 : null; // return as decimal (e.g., 0.21)
-}
-
-/* height unit switch */
-el('heightUnit').onchange = ()=>{
-  const useCm = el('heightUnit').value==='cm';
-  el('ftin').style.display = useCm? 'none':'grid';
-  el('cm').style.display   = useCm? 'block':'none';
-};
-
-/* build both galleries */
-buildGallery('bfCurrent');
-buildGallery('bfGoal');
-
-/* ---------- Calcs (same logic you had) ---------- */
-function activityMultiplier(work, training, cardio){
-  let base = 1.425; if(work==='moderate') base=1.55; if(work==='high') base=1.75;
-  let addGym = 0; if(training==='1-2') addGym=0.05; if(training==='3-4') addGym=0.10; if(training==='5-6') addGym=0.20;
-  let addCardio = 0; if(cardio==='1-2') addCardio=0.05; if(cardio==='3-4') addCardio=0.10; if(cardio==='5-6') addCardio=0.15;
-  return base + addGym + addCardio;
-}
-function bmr(sex, kg, cm, age){
-  return sex==='male' ? 10*kg + 6.25*cm - 5*age + 5
-                      : 10*kg + 6.25*cm - 5*age - 161;
-}
-
-el('calc').onclick = ()=>{
-  const age = Number(el('age').value||0);
-  const sex = el('sex').value;
-
-  // height
-  let cm = 0;
-  if(el('heightUnit').value==='cm'){
-    cm = Number(el('cm').value||0);
-  }else{
-    const ft = Number(el('ft').value||0);
-    const inch = Number(el('inch').value||0);
-    cm = (ft*12 + inch) * 2.54;
-  }
-
-  // weight
-  let kg = Number(el('weight').value||0);
-  if(el('wUnit').value==='lb') kg = kg * 0.45359237;
-  const lb = kg / 0.45359237;
-
-  const mult = activityMultiplier(el('work').value, el('training').value, el('cardio').value);
-
-  const bfCur  = getSelected('bfCurrent'); // decimal
-  const bfGoal = getSelected('bfGoal');    // decimal
-
-  if(!age || !cm || !kg || !bfCur || !bfGoal){
-    el('result').innerHTML = "Please complete all fields and select your current and goal looks.";
-    el('kpi').style.display='none';
-    el('note').style.display='none';
-    return;
-  }
-  if(bfGoal >= bfCur){
-    el('result').innerHTML = "Goal body-fat must be lower than current for a fat-loss timeline.";
-    el('kpi').style.display='none';
-    el('note').style.display='none';
-    return;
-  }
-
-  const _bmr = bmr(sex, kg, cm, age);
-  const tdee = _bmr * mult;
-
-  const leanMass_kg = kg * (1 - bfCur);
-  const goalWeight_kg = leanMass_kg / (1 - bfGoal);
-  const goalWeight_lb = goalWeight_kg / 0.45359237;
-
-  const fatToLose_lb = Math.max(0, lb - goalWeight_lb);
-
-  const weeklyLossTarget_lb = lb * 0.01; // 1% rule
-  const targetDailyDeficit_kcal = (weeklyLossTarget_lb * 3500) / 7;
-
-  const safetyFloor = (sex==='male') ? 1600 : 1300;
-  let calories = tdee - targetDailyDeficit_kcal;
-  let floorApplied = false;
-  if(calories < safetyFloor){ calories = safetyFloor; floorApplied = true; }
-
-  const achievableWeeklyLoss_lb = floorApplied
-    ? Math.max(0, ((tdee - calories) * 7) / 3500)
-    : weeklyLossTarget_lb;
-
-  const weeks = achievableWeeklyLoss_lb > 0 ? fatToLose_lb / achievableWeeklyLoss_lb : 0;
-
-  const protein_g = Math.max(100, goalWeight_lb * 1.0);
-
-  el('kProtein').textContent    = Math.round(protein_g);
-  el('kCals').textContent       = Math.round(calories);
-  el('kWeeks').textContent      = Math.max(1, Math.round(weeks));
-  el('kWeeklyLoss').textContent = round(achievableWeeklyLoss_lb, 1);
-
-  el('kpi').style.display='grid';
-  el('result').innerHTML = `
-    <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day</p>
-    <p><b>Current BF:</b> ${Math.round(bfCur*100)}% • <b>Goal BF:</b> ${Math.round(bfGoal*100)}%<br>
-    <b>Start Weight:</b> ${round(lb,1)} lb • <b>Goal Weight (est.):</b> ${round(goalWeight_lb,1)} lb</p>
-  `;
-
-  el('note').style.display='block';
-  el('note').innerHTML = floorApplied
-    ? `Note: Calories capped at ${safetyFloor} kcal/day. Weekly loss ≈ <b>${round(achievableWeeklyLoss_lb,1)} lb</b> (below 1% rule of <b>${round(weeklyLossTarget_lb,1)} lb</b>).`
-    : `Weekly loss set to <b>${round(weeklyLossTarget_lb,1)} lb</b> (1% of current body weight).`;
-};
-</script>
 </body>
 </html>
