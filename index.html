@@ -7,50 +7,53 @@
 <style>
   :root{
     --bg:#0f0f12; --card:#17171b; --ink:#e7e7f0; --muted:#a7a7b3;
-    --accent:#22d3ee; --warn:#ff3b30; --ok:#2ecc71; --chip:#222228;
+    --accent:#ff3b30; --ok:#2ecc71; --chip:#222228;
   }
   *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
   body{margin:0;background:var(--bg);color:var(--ink)}
   header{padding:22px 18px;text-align:center}
   header h1{margin:0;font-size:1.6rem}
   header p{margin:.25rem 0 0;color:var(--muted)}
-
   .wrap{max-width:980px;margin:0 auto;padding:12px}
   .grid{display:grid;gap:12px}
   @media(min-width:880px){ .grid{grid-template-columns:1fr 1fr} }
-
   .card{background:var(--card);border:1px solid #26262c;border-radius:14px;padding:16px}
   .card h3{margin:0 0 10px;font-size:1.05rem}
   label{display:block;margin:.35rem 0 .25rem;color:var(--muted);font-size:.9rem}
   input, select{width:100%;padding:12px 12px;border-radius:10px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--warn);color:white;font-weight:700;cursor:pointer}
-
+  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:white;font-weight:700;cursor:pointer}
   .result{font-size:1.05rem;line-height:1.65}
   .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
   .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
   .tile b{display:block;font-size:1.3rem;margin-top:6px}
   .note{margin-top:10px;color:var(--muted);font-size:.9rem}
+  footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
 
-  /* --- Body-fat photo pickers --- */
-  .bf-title{margin:16px 0 8px}
-  .bf-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
-  @media(max-width:900px){.bf-grid{grid-template-columns:repeat(4,1fr)}}
-  @media(max-width:640px){.bf-grid{grid-template-columns:repeat(3,1fr)}}
-
-  .bf-card{position:relative;border-radius:12px;overflow:hidden;background:#0b0f19;cursor:pointer;
-           outline:2px solid transparent;transition:transform .12s ease, outline-color .12s ease}
-  .bf-card:hover{transform:translateY(-2px)}
-  .bf-card[aria-checked="true"]{outline-color:var(--accent)}
-  .bf-img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
-  .bf-tag{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.55);color:#fff;border-radius:10px;
-          padding:5px 8px;font:600 12px/1 system-ui,Arial}
-  .bf-check{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:999px;
-            border:2px solid rgba(255,255,255,.6);display:grid;place-items:center;
-            background:rgba(0,0,0,.45);color:transparent}
-  .bf-card[aria-checked="true"] .bf-check{background:var(--accent);border-color:var(--accent);color:#001014}
-  .bf-radio{position:absolute;inset:0;opacity:0;pointer-events:none}
+  /* --- BF image gallery --- */
+  .bf-grid{display:grid;gap:8px;grid-template-columns:repeat(5,1fr)}
+  @media(max-width:720px){ .bf-grid{grid-template-columns:repeat(3,1fr)} }
+  @media(max-width:460px){ .bf-grid{grid-template-columns:repeat(2,1fr)} }
+  .bf-tile{
+    position:relative; border-radius:12px; overflow:hidden;
+    border:1px solid #2d2d35; background:#1a1a20; cursor:pointer;
+    min-height:120px;
+  }
+  .bf-tile img{width:100%;height:120px;object-fit:cover;display:block}
+  .bf-label{
+    position:absolute;left:6px;bottom:6px;
+    background:rgba(0,0,0,.55);padding:4px 6px;border-radius:6px;font-size:.85rem
+  }
+  .bf-tile.active{outline:3px solid var(--accent);border-color:var(--accent)}
+  .bf-check{
+    position:absolute;top:6px;right:6px;background:rgba(255,59,48,.9);
+    color:#fff;font-weight:700;font-size:.75rem;border-radius:999px;padding:2px 6px;display:none
+  }
+  .bf-tile.active .bf-check{display:inline-block}
+  .bf-placeholder{
+    height:120px;display:flex;align-items:center;justify-content:center;
+    color:#cfcfda;font-weight:700;background:linear-gradient(180deg,#1e1e24,#15151b)
+  }
 </style>
 </head>
 <body>
@@ -119,20 +122,11 @@
       <option value="5-6">5–6 hours</option>
     </select>
 
-    <!-- CURRENT LOOK -->
-    <h3 class="bf-title">Pick your current look (body-fat approximation)</h3>
-    <input type="hidden" id="bf_current_value" />
-    <div class="bf-grid" id="bfCurrent" role="radiogroup" aria-label="Current body fat">
-      <!-- Fill from JS -->
-    </div>
-    <p class="note" style="margin:.4rem 0 0">Tip: choose the photo that best matches you today.</p>
+    <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
+    <div id="bfCurrent" class="bf-grid"></div>
 
-    <!-- GOAL LOOK -->
-    <h3 class="bf-title">Pick your goal look</h3>
-    <input type="hidden" id="bf_goal_value" />
-    <div class="bf-grid" id="bfGoal" role="radiogroup" aria-label="Goal body fat">
-      <!-- Fill from JS -->
-    </div>
+    <h3 style="margin-top:16px">Pick your goal look</h3>
+    <div id="bfGoal" class="bf-grid"></div>
 
     <button class="btn" id="calc">Calculate</button>
   </section>
@@ -140,9 +134,7 @@
   <!-- RIGHT: results -->
   <section class="card">
     <h3>Your Plan</h3>
-    <div class="result" id="result">
-      Fill the form and tap <b>Calculate</b>.
-    </div>
+    <div class="result" id="result">Fill the form and tap <b>Calculate</b>.</div>
     <div class="kpi" id="kpi" style="display:none">
       <div class="tile"><span class="muted">Protein (g/day)</span><b id="kProtein">—</b></div>
       <div class="tile"><span class="muted">Calories / day</span><b id="kCals">—</b></div>
@@ -156,113 +148,83 @@
 <footer>© Built With Intention • Educational estimates only</footer>
 
 <script>
-/* ----------------- constants & helpers ----------------- */
-const BF_RANGES = [
-  "8-10%","11-12%","13-14%","15-17%","18-19%",
-  "20-22%","23-24%","25-29%","30-34%","35-40%"
+/* ------------ BF gallery using your exact filenames ------------ */
+const BF_GALLERY = [
+  {label:'8–10%',  value:  9.0, src:'./IMG_0231.jpeg'},
+  {label:'11–12%', value: 11.5, src:'./IMG_0232.jpeg'},
+  {label:'13–14%', value: 13.5, src:'./IMG_0233.jpeg'},
+  {label:'15–17%', value: 16.0, src:'./IMG_0234.jpeg'},
+  {label:'18–19%', value: 18.5, src:'./IMG_0235.jpeg'},
+  {label:'20–22%', value: 21.0, src:'./IMG_0236.jpeg'},
+  {label:'23–24%', value: 23.5, src:'./IMG_0237.jpeg'},
+  {label:'25–29%', value: 27.0, src:'./IMG_0239.jpeg'},
+  {label:'30–34%', value: 32.0, src:'./IMG_0240.jpeg'},
+  {label:'35–40%', value: 37.5, src:null} // shows as labeled tile until you add an image
 ];
-// map to midpoints for the math
-const BF_MIDPOINT = {
-  "8-10%":9, "11-12%":11.5, "13-14%":13.5, "15-17%":16, "18-19%":18.5,
-  "20-22%":21, "23-24%":23.5, "25-29%":27, "30-34%":32, "35-40%":37.5
-};
 
 function el(id){ return document.getElementById(id); }
-function round(x,n=0){ const p=10**n; return Math.round(x*p)/p; }
-function pctToFrac(p){ return (p/100); }
+function round(x,n=0){ const p=Math.pow(10,n); return Math.round(x*p)/p; }
 
-/* ----------------- build photo pickers ----------------- */
-function makeCard(range, src, alt){
-  const label = document.createElement('label');
-  label.className = 'bf-card';
-  label.setAttribute('role','radio');
-  label.setAttribute('aria-checked','false');
-  label.dataset.value = range;
+function buildGallery(containerId){
+  const box = el(containerId);
+  box.innerHTML = '';
+  BF_GALLERY.forEach((opt, idx)=>{
+    const tile = document.createElement('div');
+    tile.className = 'bf-tile';
+    tile.dataset.value = opt.value; // percent (e.g., 21.0)
 
-  label.innerHTML = `
-    <input class="bf-radio" type="radio" name="x">
-    <img class="bf-img" src="${src}" alt="${alt}">
-    <span class="bf-tag">${range}</span>
-    <span class="bf-check">✓</span>
-  `;
-  return label;
-}
+    if(opt.src){
+      tile.innerHTML = `
+        <img src="${opt.src}" alt="${opt.label} body fat example" loading="lazy">
+        <span class="bf-label">${opt.label}</span>
+        <span class="bf-check">✓</span>
+      `;
+    }else{
+      tile.innerHTML = `
+        <div class="bf-placeholder">${opt.label}</div>
+        <span class="bf-check">✓</span>
+      `;
+    }
 
-// Provide your actual image paths here (same order as BF_RANGES)
-const IMG_PATHS = [
-  "images/bf_8_10.jpg",
-  "images/bf_11_12.jpg",
-  "images/bf_13_14.jpg",
-  "images/bf_15_17.jpg",
-  "images/bf_18_19.jpg",
-  "images/bf_20_22.jpg",
-  "images/bf_23_24.jpg",
-  "images/bf_25_29.jpg",
-  "images/bf_30_34.jpg",
-  "images/bf_35_40.jpg"
-];
-
-function buildPicker(containerId, hiddenId){
-  const grid = el(containerId);
-  grid.innerHTML = '';
-  BF_RANGES.forEach((r, i)=>{
-    const c = makeCard(r, IMG_PATHS[i], `${r} body fat example`);
-    grid.appendChild(c);
-  });
-
-  const hidden = el(hiddenId);
-
-  grid.addEventListener('click', e=>{
-    const card = e.target.closest('.bf-card'); if(!card) return;
-    grid.querySelectorAll('.bf-card').forEach(c=>{
-      c.setAttribute('aria-checked','false');
-      c.querySelector('.bf-radio').checked = false;
-    });
-    card.setAttribute('aria-checked','true');
-    card.querySelector('.bf-radio').checked = true;
-    hidden.value = card.dataset.value; // e.g., "23-24%"
+    tile.onclick = ()=>{
+      [...box.children].forEach(c=>c.classList.remove('active'));
+      tile.classList.add('active');
+    };
+    box.appendChild(tile);
   });
 }
 
-buildPicker('bfCurrent','bf_current_value');
-buildPicker('bfGoal','bf_goal_value');
+function getSelected(containerId){
+  const a = el(containerId).querySelector('.bf-tile.active');
+  return a ? Number(a.dataset.value)/100 : null; // return as decimal (e.g., 0.21)
+}
 
 /* height unit switch */
 el('heightUnit').onchange = ()=>{
-  const cmMode = el('heightUnit').value==='cm';
-  el('ftin').style.display = cmMode ? 'none':'grid';
-  el('cm').style.display   = cmMode ? 'block':'none';
+  const useCm = el('heightUnit').value==='cm';
+  el('ftin').style.display = useCm? 'none':'grid';
+  el('cm').style.display   = useCm? 'block':'none';
 };
 
-/* ----------------- activity & BMR ----------------- */
+/* build both galleries */
+buildGallery('bfCurrent');
+buildGallery('bfGoal');
+
+/* ---------- Calcs (same logic you had) ---------- */
 function activityMultiplier(work, training, cardio){
-  let base = 1.425; // Light
-  if(work==='moderate') base = 1.55;
-  if(work==='high')     base = 1.75;
-
-  let addGym = 0;
-  if(training==='1-2') addGym = 0.05;
-  if(training==='3-4') addGym = 0.10;
-  if(training==='5-6') addGym = 0.20;
-
-  let addCardio = 0;
-  if(cardio==='1-2') addCardio = 0.05;
-  if(cardio==='3-4') addCardio = 0.10;
-  if(cardio==='5-6') addCardio = 0.15;
-
+  let base = 1.425; if(work==='moderate') base=1.55; if(work==='high') base=1.75;
+  let addGym = 0; if(training==='1-2') addGym=0.05; if(training==='3-4') addGym=0.10; if(training==='5-6') addGym=0.20;
+  let addCardio = 0; if(cardio==='1-2') addCardio=0.05; if(cardio==='3-4') addCardio=0.10; if(cardio==='5-6') addCardio=0.15;
   return base + addGym + addCardio;
 }
-
 function bmr(sex, kg, cm, age){
-  return sex==='male'
-    ? 10*kg + 6.25*cm - 5*age + 5
-    : 10*kg + 6.25*cm - 5*age - 161;
+  return sex==='male' ? 10*kg + 6.25*cm - 5*age + 5
+                      : 10*kg + 6.25*cm - 5*age - 161;
 }
 
-/* ----------------- calculate ----------------- */
 el('calc').onclick = ()=>{
-  const age   = Number(el('age').value||0);
-  const sex   = el('sex').value;
+  const age = Number(el('age').value||0);
+  const sex = el('sex').value;
 
   // height
   let cm = 0;
@@ -279,27 +241,17 @@ el('calc').onclick = ()=>{
   if(el('wUnit').value==='lb') kg = kg * 0.45359237;
   const lb = kg / 0.45359237;
 
-  // activity
-  const mult = activityMultiplier(
-    el('work').value,
-    el('training').value,
-    el('cardio').value
-  );
+  const mult = activityMultiplier(el('work').value, el('training').value, el('cardio').value);
 
-  // bodyfat (from photo picks)
-  const curRange  = el('bf_current_value').value; // e.g., "23-24%"
-  const goalRange = el('bf_goal_value').value;
+  const bfCur  = getSelected('bfCurrent'); // decimal
+  const bfGoal = getSelected('bfGoal');    // decimal
 
-  if(!age || !cm || !kg || !curRange || !goalRange){
+  if(!age || !cm || !kg || !bfCur || !bfGoal){
     el('result').innerHTML = "Please complete all fields and select your current and goal looks.";
     el('kpi').style.display='none';
     el('note').style.display='none';
     return;
   }
-
-  const bfCur  = pctToFrac(BF_MIDPOINT[curRange]);
-  const bfGoal = pctToFrac(BF_MIDPOINT[goalRange]);
-
   if(bfGoal >= bfCur){
     el('result').innerHTML = "Goal body-fat must be lower than current for a fat-loss timeline.";
     el('kpi').style.display='none';
@@ -310,36 +262,28 @@ el('calc').onclick = ()=>{
   const _bmr = bmr(sex, kg, cm, age);
   const tdee = _bmr * mult;
 
-  // Lean mass (assume constant), infer goal weight from goal BF
-  const leanMass_kg    = kg * (1 - bfCur);
-  const goalWeight_kg  = leanMass_kg / (1 - bfGoal);
-  const goalWeight_lb  = goalWeight_kg / 0.45359237;
-  const fatToLose_lb   = Math.max(0, lb - goalWeight_lb);
+  const leanMass_kg = kg * (1 - bfCur);
+  const goalWeight_kg = leanMass_kg / (1 - bfGoal);
+  const goalWeight_lb = goalWeight_kg / 0.45359237;
 
-  // Default weekly loss target: 1% of current weight
-  const weeklyLossTarget_lb = lb * 0.01;
-  const targetDailyDeficit  = (weeklyLossTarget_lb * 3500) / 7;
+  const fatToLose_lb = Math.max(0, lb - goalWeight_lb);
 
-  // Safety calorie floor
+  const weeklyLossTarget_lb = lb * 0.01; // 1% rule
+  const targetDailyDeficit_kcal = (weeklyLossTarget_lb * 3500) / 7;
+
   const safetyFloor = (sex==='male') ? 1600 : 1300;
-  let calories = tdee - targetDailyDeficit;
+  let calories = tdee - targetDailyDeficit_kcal;
   let floorApplied = false;
-  if(calories < safetyFloor){
-    calories = safetyFloor;
-    floorApplied = true;
-  }
+  if(calories < safetyFloor){ calories = safetyFloor; floorApplied = true; }
 
   const achievableWeeklyLoss_lb = floorApplied
     ? Math.max(0, ((tdee - calories) * 7) / 3500)
     : weeklyLossTarget_lb;
 
-  const weeks = achievableWeeklyLoss_lb > 0
-    ? fatToLose_lb / achievableWeeklyLoss_lb
-    : 0;
+  const weeks = achievableWeeklyLoss_lb > 0 ? fatToLose_lb / achievableWeeklyLoss_lb : 0;
 
   const protein_g = Math.max(100, goalWeight_lb * 1.0);
 
-  // Output
   el('kProtein').textContent    = Math.round(protein_g);
   el('kCals').textContent       = Math.round(calories);
   el('kWeeks').textContent      = Math.max(1, Math.round(weeks));
@@ -347,18 +291,15 @@ el('calc').onclick = ()=>{
 
   el('kpi').style.display='grid';
   el('result').innerHTML = `
-    <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day (work + training + cardio)</p>
-    <p><b>Current BF:</b> ${BF_MIDPOINT[curRange]}% • <b>Goal BF:</b> ${BF_MIDPOINT[goalRange]}%<br>
+    <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day</p>
+    <p><b>Current BF:</b> ${Math.round(bfCur*100)}% • <b>Goal BF:</b> ${Math.round(bfGoal*100)}%<br>
     <b>Start Weight:</b> ${round(lb,1)} lb • <b>Goal Weight (est.):</b> ${round(goalWeight_lb,1)} lb</p>
   `;
 
-  if(floorApplied){
-    el('note').style.display='block';
-    el('note').innerHTML = `Note: Calories are capped at ${safetyFloor} kcal/day for safety. That limits weekly loss to about <b>${round(achievableWeeklyLoss_lb,1)} lb/week</b> vs the 1% target of <b>${round(weeklyLossTarget_lb,1)} lb/week</b>.`;
-  }else{
-    el('note').style.display='block';
-    el('note').innerHTML = `Weekly loss set to <b>${round(weeklyLossTarget_lb,1)} lb/week</b> (≈1% of current body weight).`;
-  }
+  el('note').style.display='block';
+  el('note').innerHTML = floorApplied
+    ? `Note: Calories capped at ${safetyFloor} kcal/day. Weekly loss ≈ <b>${round(achievableWeeklyLoss_lb,1)} lb</b> (below 1% rule of <b>${round(weeklyLossTarget_lb,1)} lb</b>).`
+    : `Weekly loss set to <b>${round(weeklyLossTarget_lb,1)} lb</b> (1% of current body weight).`;
 };
 </script>
 </body>
