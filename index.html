@@ -8,8 +8,8 @@
   :root{
     --bg:#0f0f12; --card:#17171b; --ink:#e7e7f0; --muted:#a7a7b3;
     --accent:#ff3b30; --ok:#2ecc71; --chip:#222228;
-    --hl:#97c9ff; /* light blue highlight */
-    --hl-strong:#1e90ff;
+    --hl:#97c9ff;         /* light blue highlight ring */
+    --hl-strong:#1e90ff;  /* border when active */
   }
   *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
   body{margin:0;background:var(--bg);color:var(--ink)}
@@ -27,14 +27,51 @@
   input, select{width:100%;padding:12px 12px;border-radius:10px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-  /* photo picker */
-  .bf-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
-  @media(max-width:720px){ .bf-grid{grid-template-columns:repeat(2,1fr)} }
-  .bf-tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;overflow:hidden;cursor:pointer;transition:.18s transform,.18s border,.18s box-shadow}
-  .bf-tile:hover{transform:translateY(-2px);border-color:var(--hl)}
-  .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl),transparent 70%)}
-  .bf-img{display:block;width:100%;height:130px;object-fit:cover}
-  .bf-label{padding:8px 10px;text-align:center;font-weight:600;background:#101015;border-top:1px solid #22232a}
+  /* ==== Photo picker polish ==== */
+  .bf-grid{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:10px;
+  }
+  @media(max-width:980px){ .bf-grid{grid-template-columns:repeat(3,1fr)} }
+  @media(max-width:640px){ .bf-grid{grid-template-columns:repeat(2,1fr)} }
+
+  .bf-tile{
+    background:#121217;
+    border:1px solid #2a2a31;
+    border-radius:16px;           /* rounder corners */
+    overflow:hidden;
+    cursor:pointer;
+    transition:.18s transform,.18s border,.18s box-shadow;
+  }
+  .bf-tile:hover{
+    transform:translateY(-2px);
+    border-color:var(--hl);
+    box-shadow:0 6px 18px rgba(0,0,0,.28);
+  }
+  .bf-tile.active{
+    border:2px solid var(--hl-strong);
+    box-shadow:0 0 0 4px color-mix(in srgb,var(--hl),transparent 72%);
+  }
+
+  .bf-img{
+    display:block;width:100%;height:140px;object-fit:cover;
+    transform:scale(1.05);        /* default zoom-in to hide crop edges */
+    will-change:transform;
+    transition:transform .18s ease;
+  }
+  .bf-tile:hover .bf-img{ transform:scale(1.08); } /* gentle hover zoom */
+
+  .bf-label{
+    padding:8px 10px;
+    text-align:center;
+    font-weight:700;
+    background:#101015;
+    border-top:1px solid #22232a;
+    color:#ffffff;                /* white labels */
+    letter-spacing:.2px;
+  }
+
   .hint{margin:.35rem 0 0;color:var(--muted);font-size:.85rem}
 
   .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:white;font-weight:700;cursor:pointer}
@@ -146,22 +183,21 @@
 
 <script>
 /* ---------- CONFIG: image sets and labels ---------- */
-/* If your images are inside /images/, prepend 'images/' to each img value. */
 const bfPicsMale = [
-  {pct:0.09, label:'8–10%', img:'MaleBody8.jpeg',  alt:'Male 8–10% body fat'},
-  {pct:0.115,label:'11–12%',img:'MaleBody10.jpeg', alt:'Male 11–12% body fat'},
-  {pct:0.135,label:'13–14%',img:'MaleBody13.jpeg', alt:'Male 13–14% body fat'},
-  {pct:0.16, label:'15–17%',img:'MaleBody15.jpeg', alt:'Male 15–17% body fat'},
-  {pct:0.185,label:'18–19%',img:'MaleBody18.jpeg', alt:'Male 18–19% body fat'},
-  {pct:0.21, label:'20–22%',img:'MaleBody20.jpeg', alt:'Male 20–22% body fat'},
-  {pct:0.26, label:'25–29%',img:'MaleBody25.jpeg', alt:'Male 25–29% body fat'},
-  {pct:0.32, label:'30–34%',img:'MaleBody30.jpeg', alt:'Male 30–34% body fat'},
-  {pct:0.37, label:'35–39%',img:'MaleBody35.jpeg', alt:'Male 35–39% body fat'},
-  {pct:0.41, label:'40%+',  img:'MaleBody40.jpeg', alt:'Male 40%+ body fat'}
+  {pct:0.09,  label:'8–10%',  img:'MaleBody8.jpeg',  alt:'Male 8–10% body fat'},
+  {pct:0.115, label:'11–12%', img:'MaleBody10.jpeg', alt:'Male 11–12% body fat'},
+  {pct:0.135, label:'13–14%', img:'MaleBody13.jpeg', alt:'Male 13–14% body fat'},
+  {pct:0.16,  label:'15–17%', img:'MaleBody15.jpeg', alt:'Male 15–17% body fat'},
+  {pct:0.185, label:'18–19%', img:'MaleBody18.jpeg', alt:'Male 18–19% body fat'},
+  {pct:0.21,  label:'20–22%', img:'MaleBody20.jpeg', alt:'Male 20–22% body fat'},
+  {pct:0.26,  label:'25–29%', img:'MaleBody25.jpeg', alt:'Male 25–29% body fat'},
+  {pct:0.32,  label:'30–34%', img:'MaleBody30.jpeg', alt:'Male 30–34% body fat'},
+  {pct:0.37,  label:'35–39%', img:'MaleBody35.jpeg', alt:'Male 35–39% body fat'},
+  {pct:0.41,  label:'40%+',   img:'MaleBody40.jpeg', alt:'Male 40%+ body fat'}
 ];
 
 const bfPicsFemale = [
-  /* placeholder: mirrors male scale shifted ~+8-10%. Update with your own images later. */
+  /* Placeholder until you add female photos, shifted +~8–10%. */
   {pct:0.18,label:'16–18%',img:'MaleBody8.jpeg',  alt:'Female 16–18%'},
   {pct:0.20,label:'19–21%',img:'MaleBody10.jpeg', alt:'Female 19–21%'},
   {pct:0.22,label:'21–23%',img:'MaleBody13.jpeg', alt:'Female 21–23%'},
@@ -228,9 +264,9 @@ el('sex').onchange = ()=>{
 
 /* activity multiplier (work + gym + cardio) */
 function activityMultiplier(work, training, cardio){
-  let base = 1.425;                 // Light (desk + NEAT)
-  if(work==='moderate') base = 1.55; // Retail / service
-  if(work==='high')     base = 1.75; // Manual labor
+  let base = 1.425;
+  if(work==='moderate') base = 1.55;
+  if(work==='high')     base = 1.75;
   let addGym = 0;
   if(training==='1-2') addGym = 0.05;
   if(training==='3-4') addGym = 0.10;
@@ -302,7 +338,7 @@ el('calc').onclick = ()=>{
   const goalWeight_kg = leanMass_kg / (1 - bfGoal);
   const goalWeight_lb = goalWeight_kg / 0.45359237;
 
-  const fatToLose_lb = Math.max(0, lb - goalWeight_lb); // lbs
+  const fatToLose_lb = Math.max(0, lb - goalWeight_lb);
 
   // weekly target = 1% of current BW
   const weeklyLossTarget_lb = lb * 0.01;
@@ -322,7 +358,6 @@ el('calc').onclick = ()=>{
     ? Math.max(0, ((tdee - calories) * 7) / 3500)
     : weeklyLossTarget_lb;
 
-  // weeks to goal
   const weeks = achievableWeeklyLoss_lb > 0 ? fatToLose_lb / achievableWeeklyLoss_lb : 0;
 
   // protein: ~1.0 g per lb of GOAL body weight (min 100 g)
