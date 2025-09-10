@@ -12,59 +12,131 @@
     --line:#26262c; --radius:16px; --shadow:0 6px 24px rgba(0,0,0,.28);
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.45}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45;
+  }
+
+  /* Subtle dotted grid background */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background:
+      radial-gradient(transparent 1px, rgba(255,255,255,.02) 1px) 0 0/18px 18px,
+      linear-gradient(180deg, rgba(255,255,255,.02), transparent 40%);
+  }
+
+  /* Header */
   header{padding:28px 18px 16px;text-align:center;position:relative}
-  header::after{content:"";display:block;height:3px;max-width:980px;margin:14px auto 0;border-radius:3px;
-                background:linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--hl-strong));opacity:.5}
+  header::after{
+    content:"";display:block;height:3px;max-width:980px;margin:14px auto 0;border-radius:3px;
+    background:linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--hl-strong));opacity:.6
+  }
   .title{margin:0;font-size:clamp(1.6rem,2.8vw,2rem);letter-spacing:.4px;font-weight:900}
-  .yt{margin-top:6px}
-  .yt a{display:inline-block;padding:8px 14px;border:1px solid var(--line);border-radius:999px;
-        background:#1b1b21;color:var(--hl-strong);text-decoration:none;font-weight:800}
   header p{margin:.45rem 0 0;color:var(--muted);max-width:800px;margin-inline:auto}
+
+  /* YouTube pill with logo */
+  .yt-pill{
+    margin-top:10px; display:inline-flex; align-items:center; gap:10px;
+    padding:10px 16px; border-radius:999px; border:1px solid var(--line);
+    background:linear-gradient(180deg,#1b1b21 0%, #141418 100%);
+    text-decoration:none; color:var(--ink); font-weight:800; letter-spacing:.2px;
+    box-shadow:0 6px 14px rgba(0,0,0,.25)
+  }
+  .yt-pill:hover{ transform:translateY(-1px); box-shadow:0 8px 18px rgba(0,0,0,.3) }
+  .yt-ico{ width:18px; height:18px; flex:0 0 18px }
+
+  /* Layout */
   .wrap{max-width:980px;margin:0 auto;padding:12px}
   .grid{display:grid;gap:12px}
   @media(min-width:880px){ .grid{grid-template-columns:1fr 1fr} }
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+
+  /* Cards */
+  .card{
+    background:var(--card); border:1px solid transparent; border-radius:var(--radius); padding:16px; box-shadow:var(--shadow);
+    background:
+      linear-gradient(#17171b,#17171b) padding-box,
+      linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)) border-box;
+  }
   .card h3{margin:0 0 10px;font-size:1.05rem;letter-spacing:.3px}
   label{display:block;margin:.35rem 0 .25rem;color:var(--muted);font-size:.9rem}
-  input, select{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:var(--ink);
-                outline:none;transition:border .15s, box-shadow .15s}
+  input, select{
+    width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:var(--ink);
+    outline:none;transition:border .15s, box-shadow .15s
+  }
   input:focus, select:focus{border-color:var(--hl-strong);box-shadow:0 0 0 3px color-mix(in srgb,var(--hl-strong),transparent 80%)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* Photo picker */
   .bf-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
   @media(max-width:980px){ .bf-grid{grid-template-columns:repeat(3,1fr)} }
   @media(max-width:640px){ .bf-grid{grid-template-columns:repeat(2,1fr)} }
-  .bf-tile{background:#121217;border:1px solid #2a2a31;border-radius:16px;overflow:hidden;cursor:pointer;transition:.18s transform,.18s border,.18s box-shadow}
+
+  .bf-tile{
+    background:#121217;border:1px solid #2a2a31;border-radius:16px;overflow:hidden;cursor:pointer;
+    transition:.18s transform,.18s border,.18s box-shadow
+  }
   .bf-tile:hover{transform:translateY(-2px);border-color:var(--hl);box-shadow:0 6px 18px rgba(0,0,0,.28)}
   .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl-strong),transparent 72%)}
-  .bf-img{display:block;width:100%;height:140px;object-fit:cover;transform:scale(1.05);transition:transform .18s ease}
-  .bf-tile:hover .bf-img{transform:scale(1.08)}
+  .bf-img{display:block;width:100%;aspect-ratio:16/10;height:auto;object-fit:cover;transform:scale(1.02);transition:transform .18s ease}
+  .bf-tile:hover .bf-img{transform:scale(1.05)}
   .bf-label{padding:8px 10px;text-align:center;font-weight:800;background:#101015;border-top:1px solid #22232a;color:#fff;letter-spacing:.2px}
+
   .hint{margin:.35rem 0 0;color:var(--muted);font-size:.85rem}
   .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:900;cursor:pointer;letter-spacing:.2px}
+  .btn:focus{outline:3px solid color-mix(in srgb,var(--accent),transparent 70%)}
+
+  /* KPIs */
   .result{font-size:1.05rem;line-height:1.65}
   .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
   @media(max-width:640px){ .kpi{grid-template-columns:repeat(2,1fr)} }
   .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
   .tile span{color:var(--muted);font-size:.85rem;display:block}
-  .tile b{display:block;font-size:1.55rem;margin-top:6px;font-weight:900}
-  .theday{margin-top:12px;padding:16px;border-radius:12px;background:#0e0e13;border:1px solid #2a2a31;text-align:center}
-  .theday .lbl{display:block;font-weight:1000;font-size:1.2rem;letter-spacing:.4px;margin-bottom:8px}
-  .theday time{display:block;font-weight:950;font-size:1.6rem;letter-spacing:.3px}
+  .tile b{display:block;font-size:1.55rem;margin-top:6px;font-weight:900; font-variant-numeric: tabular-nums}
+
+  /* Finish Line banner */
+  .theday{ position:relative; overflow:hidden; margin-top:12px; padding:16px; border-radius:12px; background:#0e0e13; border:1px solid #2a2a31; text-align:center }
+  .theday::after{
+    content:""; position:absolute; inset:auto 0 0 0; height:3px;
+    background:linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--hl-strong)); opacity:.9
+  }
+  .theday .lbl{ display:block; font-weight:1000; font-size:1.25rem; letter-spacing:.4px; margin-bottom:8px }
+  .theday time{ display:block; font-weight:950; font-size:clamp(1.5rem, 3.6vw, 2rem); letter-spacing:.3px }
+
+  /* Utilities */
   .error{border-color:#ff6565 !important; box-shadow:0 0 0 3px rgba(255,101,101,.18)}
+  .actions{display:flex; gap:10px; justify-content:center; margin-top:10px; flex-wrap:wrap}
+  .ghost{
+    background:#141418; border:1px solid #2a2a31; color:var(--ink); font-weight:800;
+    padding:10px 14px; border-radius:10px; cursor:pointer
+  }
+  .ghost:hover{transform:translateY(-1px)}
+  @media (prefers-reduced-motion: reduce){
+    .bf-tile, .yt-pill, .ghost{ transition:none }
+    .bf-tile:hover, .yt-pill:hover, .ghost:hover{ transform:none }
+  }
   footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
 </style>
 </head>
 <body>
 <header>
   <h1 class="title">5-STEP CALCULATOR</h1>
-  <div class="yt"><a href="https://www.youtube.com/@thedallaspetersen" target="_blank" rel="noopener">@TheDallasPetersen</a></div>
+
+  <!-- YouTube pill with inline SVG icon -->
+  <a class="yt-pill" href="https://www.youtube.com/@thedallaspetersen" target="_blank" rel="noopener"
+     aria-label="Open YouTube channel @TheDallasPetersen">
+    <svg viewBox="0 0 24 24" aria-hidden="true" class="yt-ico">
+      <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.8 3.6 12 3.6 12 3.6s-7.8 0-9.4.5A3 3 0 0 0 .5 6.2C0 7.8 0 12 0 12s0 4.2.5 5.8a3 3 0 0 0 2.1 2.1c1.6.5 9.4.5 9.4.5s7.8 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.6.5-5.8.5-5.8s0-4.2-.5-5.8Z" fill="#FF0000"/>
+      <path d="M9.75 8.5v7l6.25-3.5-6.25-3.5Z" fill="#fff"/>
+    </svg>
+    <span>@TheDallasPetersen</span>
+  </a>
+
   <p>Answer a few questions. We’ll estimate protein, calories, weekly loss, and the exact date you’ll reach your goal.</p>
 </header>
 
 <div class="wrap grid">
-  <!-- LEFT -->
+  <!-- LEFT: inputs -->
   <section class="card" aria-labelledby="aboutTitle">
     <h3 id="aboutTitle">About you</h3>
     <div class="row">
@@ -104,6 +176,7 @@
       </div>
     </div>
 
+    <!-- START DATE: date-only, above Activity -->
     <h3 style="margin-top:16px">When will you start?</h3>
     <input id="startDate" type="date" aria-label="Start date">
 
@@ -131,11 +204,12 @@
       <option value="5-6">5–6 hours</option>
     </select>
 
-    <!-- Hidden until Sex chosen -->
+    <!-- BF pickers are HIDDEN until Sex is chosen -->
     <div id="bfSection" style="display:none">
       <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
       <div id="bfCurrent" class="bf-grid" role="radiogroup" aria-label="Current body fat"></div>
       <p class="hint" id="bfHint" style="display:none">Tip: tap a photo to select. Labels show approximate ranges.</p>
+
       <h3 style="margin-top:16px">Pick your goal look</h3>
       <div id="bfGoal" class="bf-grid" role="radiogroup" aria-label="Goal body fat"></div>
     </div>
@@ -143,19 +217,37 @@
     <button class="btn" id="calc">Calculate</button>
   </section>
 
-  <!-- RIGHT -->
+  <!-- RIGHT: results -->
   <section class="card" aria-live="polite">
     <h3>Your Plan</h3>
+
+    <!-- FINISH LINE banner -->
     <div class="theday" id="theDay" style="display:none">
       <span class="lbl">The Finish Line</span>
       <time id="theDayDate">—</time>
+      <div class="actions">
+        <button class="ghost" id="copyDate">Copy date</button>
+        <a class="ghost" id="icsLink" href="#" download="finish-line.ics">Add to Calendar (.ics)</a>
+      </div>
     </div>
+
     <div class="result" id="result">Fill the form and tap <b>Calculate</b>.</div>
     <div class="kpi" id="kpi" style="display:none">
-      <div class="tile"><span>Protein (g/day)</span><b id="kProtein">—</b><span id="kProteinNote" class="hint"></span></div>
-      <div class="tile"><span>Calories / day</span><b id="kCals">—</b></div>
-      <div class="tile"><span>Weeks to goal</span><b id="kWeeks">—</b></div>
-      <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
+      <div class="tile">
+        <span>Protein (g/day)</span><b id="kProtein">—</b>
+        <span id="kProteinNote" class="hint"></span>
+      </div>
+      <div class="tile">
+        <span>Calories / day</span><b id="kCals">—</b>
+        <span class="hint" id="kCalsNote"></span>
+      </div>
+      <div class="tile">
+        <span>Weeks to goal</span><b id="kWeeks">—</b>
+      </div>
+      <div class="tile">
+        <span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b>
+        <span class="hint" id="kLossNote"></span>
+      </div>
     </div>
     <div class="hint" id="note" style="display:none"></div>
   </section>
@@ -166,56 +258,41 @@
 <script>
 /* ---------- Image sets ---------- */
 const bfPicsMale = [
-  {pct:0.09,label:'8–10%',img:'MaleBody8.jpeg',alt:'Male 8–10%'},
-  {pct:0.115,label:'11–12%',img:'MaleBody10.jpeg',alt:'Male 11–12%'},
-  {pct:0.135,label:'13–14%',img:'MaleBody13.jpeg',alt:'Male 13–14%'},
-  {pct:0.16,label:'15–17%',img:'MaleBody15.jpeg',alt:'Male 15–17%'},
-  {pct:0.185,label:'18–19%',img:'MaleBody18.jpeg',alt:'Male 18–19%'},
-  {pct:0.21,label:'20–22%',img:'MaleBody20.jpeg',alt:'Male 20–22%'},
-  {pct:0.235,label:'23–24%',img:'MaleBody25.jpeg',alt:'Male 23–24%'},
-  {pct:0.27,label:'25–29%',img:'MaleBody30.jpeg',alt:'Male 25–29%'},
-  {pct:0.32,label:'30–34%',img:'MaleBody355.jpeg',alt:'Male 30–34%'},
-  {pct:0.375,label:'35–40%',img:'MaleBody40.jpeg',alt:'Male 35–40%'}
+  {pct:0.09,  label:'8–10%',  img:'MaleBody8.jpeg',  alt:'Male 8–10%'},
+  {pct:0.115, label:'11–12%', img:'MaleBody10.jpeg', alt:'Male 11–12%'},
+  {pct:0.135, label:'13–14%', img:'MaleBody13.jpeg', alt:'Male 13–14%'},
+  {pct:0.16,  label:'15–17%', img:'MaleBody15.jpeg', alt:'Male 15–17%'},
+  {pct:0.185, label:'18–19%', img:'MaleBody18.jpeg', alt:'Male 18–19%'},
+  {pct:0.21,  label:'20–22%', img:'MaleBody20.jpeg', alt:'Male 20–22%'},
+  {pct:0.235, label:'23–24%', img:'MaleBody25.jpeg', alt:'Male 23–24%'},
+  {pct:0.27,  label:'25–29%', img:'MaleBody30.jpeg', alt:'Male 25–29%'},
+  {pct:0.32,  label:'30–34%', img:'MaleBody355.jpeg', alt:'Male 30–34%'},
+  {pct:0.375, label:'35–40%', img:'MaleBody40.jpeg', alt:'Male 35–40%'}
 ];
 const bfPicsFemale = [
-  {pct:0.14,label:'13–15%',img:'FemaleBody1.jpeg',alt:'Female 13–15%'},
-  {pct:0.165,label:'16–17%',img:'FemaleBody2.jpeg',alt:'Female 16–17%'},
-  {pct:0.185,label:'18–19%',img:'FemaleBody3.jpeg',alt:'Female 18–19%'},
-  {pct:0.205,label:'20–21%',img:'FemaleBody4.jpeg',alt:'Female 20–21%'},
-  {pct:0.225,label:'22–23%',img:'FemaleBody5.jpeg',alt:'Female 22–23%'},
-  {pct:0.245,label:'24–25%',img:'FemaleBody6.jpeg',alt:'Female 24–25%'},
-  {pct:0.27,label:'26–28%',img:'FemaleBody7.jpeg',alt:'Female 26–28%'},
-  {pct:0.305,label:'29–32%',img:'FemaleBody8.jpeg',alt:'Female 29–32%'},
-  {pct:0.345,label:'33–36%',img:'FemaleBody9.jpeg',alt:'Female 33–36%'},
-  {pct:0.39,label:'37–41%',img:'FemaleBody10.jpeg',alt:'Female 37–41%'}
+  {pct:0.14,  label:'13–15%', img:'FemaleBody1.jpeg',  alt:'Female 13–15%'},
+  {pct:0.165, label:'16–17%', img:'FemaleBody2.jpeg',  alt:'Female 16–17%'},
+  {pct:0.185, label:'18–19%', img:'FemaleBody3.jpeg',  alt:'Female 18–19%'},
+  {pct:0.205, label:'20–21%', img:'FemaleBody4.jpeg',  alt:'Female 20–21%'},
+  {pct:0.225, label:'22–23%', img:'FemaleBody5.jpeg',  alt:'Female 22–23%'},
+  {pct:0.245, label:'24–25%', img:'FemaleBody6.jpeg',  alt:'Female 24–25%'},
+  {pct:0.27,  label:'26–28%', img:'FemaleBody7.jpeg',  alt:'Female 26–28%'},
+  {pct:0.305, label:'29–32%', img:'FemaleBody8.jpeg',  alt:'Female 29–32%'},
+  {pct:0.345, label:'33–36%', img:'FemaleBody9.jpeg',  alt:'Female 33–36%'},
+  {pct:0.39,  label:'37–41%', img:'FemaleBody10.jpeg', alt:'Female 37–41%'}
 ];
 
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
 const round = (x,n=0)=>{const p=10**n; return Math.round(x*p)/p;};
 
-/* localStorage (restore/save) */
-(function restore(){
-  ['age','sex','ft','inch','cm','weight','wUnit','work','training','cardio','startDate','heightUnit'].forEach(k=>{
-    const v = localStorage.getItem('bwi_'+k); if(v!==null) $(k).value = v;
-  });
-})();
-function persist(){
-  ['age','sex','ft','inch','cm','weight','wUnit','work','training','cardio','startDate','heightUnit'].forEach(k=>{
-    const el=$(k); if(el) localStorage.setItem('bwi_'+k, el.value);
-  });
-}
-document.addEventListener('change', persist);
-
-/* default start date today */
+/* default start date today (local YYYY-MM-DD) */
 (function setDefaultStartToday(){
-  if(!$('startDate').value){
-    const now = new Date(); const pad = n => String(n).padStart(2,'0');
-    $('startDate').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-  }
+  const now = new Date(); const pad = n => String(n).padStart(2,'0');
+  $('startDate').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
 })();
 
-/* build photo grids */
+/* Build the BF photo grids */
 function buildBFGrid(containerId, sex){
   const list = (sex==='female') ? bfPicsFemale : bfPicsMale;
   const wrap = $(containerId); wrap.innerHTML = '';
@@ -223,8 +300,13 @@ function buildBFGrid(containerId, sex){
     const card = document.createElement('button');
     card.type='button'; card.className='bf-tile';
     card.dataset.value = o.pct; card.setAttribute('role','radio'); card.setAttribute('aria-checked','false');
-    const img = document.createElement('img'); img.src=o.img; img.alt=o.alt; img.className='bf-img';
-    const lab = document.createElement('div'); lab.className='bf-label'; lab.textContent=o.label;
+
+    const img = document.createElement('img');
+    img.src = o.img; img.alt = o.alt; img.className='bf-img'; img.loading='lazy';
+
+    const lab = document.createElement('div');
+    lab.className='bf-label'; lab.textContent = o.label;
+
     card.appendChild(img); card.appendChild(lab);
     card.onclick = ()=>{
       [...wrap.children].forEach(c=>{ c.classList.remove('active'); c.setAttribute('aria-checked','false'); });
@@ -233,20 +315,21 @@ function buildBFGrid(containerId, sex){
     wrap.appendChild(card);
   });
 }
+
+/* Return selected BF (0–1) */
 function getSelected(containerId){
   const a = $(containerId).querySelector('.active');
   return a ? Number(a.dataset.value) : null;
 }
 
-/* height unit switch */
+/* Height unit switch */
 $('heightUnit').onchange = ()=>{
   const cmMode = $('heightUnit').value==='cm';
   $('ftin').style.display = cmMode? 'none':'grid';
   $('cm').style.display   = cmMode? 'block':'none';
-  persist();
 };
 
-/* show pickers after sex chosen */
+/* Populate BF pickers only after sex selected */
 function refreshPickers(){
   const sex = $('sex').value;
   if(!sex){
@@ -262,34 +345,46 @@ function refreshPickers(){
   $('bfHint').style.display = 'block';
 }
 $('sex').addEventListener('change', refreshPickers);
-if($('sex').value){ refreshPickers(); } // restore state case
 
-/* energy helpers */
+/* Energy model helpers */
 function activityMultiplier(work, training, cardio){
-  let base = 1.425; if(work==='moderate') base=1.55; if(work==='high') base=1.75;
-  let addGym = 0; if(training==='1-2') addGym=0.05; if(training==='3-4') addGym=0.10; if(training==='5-6') addGym=0.20;
-  let addCardio = 0; if(cardio==='1-2') addCardio=0.05; if(cardio==='3-4') addCardio=0.10; if(cardio==='5-6') addCardio=0.15;
+  let base = 1.425;
+  if(work==='moderate') base = 1.55;
+  if(work==='high')     base = 1.75;
+  let addGym = 0;
+  if(training==='1-2') addGym = 0.05;
+  if(training==='3-4') addGym = 0.10;
+  if(training==='5-6') addGym = 0.20;
+  let addCardio = 0;
+  if(cardio==='1-2') addCardio = 0.05;
+  if(cardio==='3-4') addCardio = 0.10;
+  if(cardio==='5-6') addCardio = 0.15;
   return base + addGym + addCardio;
 }
 function bmr(sex, kg, cm, age){
   return sex==='male' ? (10*kg + 6.25*cm - 5*age + 5)
                       : (10*kg + 6.25*cm - 5*age - 161);
 }
-/* Protein recommendation (science-backed, LBM-based) */
+
+/* Protein recommendation (science-backed, LBM-based)
+   Base 2.2 g/kg LBM; bump to 2.4 for hard training or big deficit; ease to 2.0 for low training + small deficit.
+   Clamp 120–250 g for practicality. */
 function proteinRecommendation(leanMass_kg, training, tdee, calories){
-  // Base 2.2 g/kg LBM (≈1.0 g/lb LBM)
   let gPerKg = 2.2;
   const dailyDeficit = Math.max(0, tdee - calories);
-  if(training==='5-6' || dailyDeficit >= 600) gPerKg = 2.4;      // higher demand
-  if((training==='0' || training==='1-2') && dailyDeficit < 400) gPerKg = 2.0; // lower demand
+  if(training==='5-6' || dailyDeficit >= 600) gPerKg = 2.4;
+  if((training==='0' || training==='1-2') && dailyDeficit < 400) gPerKg = 2.0;
   let grams = Math.round(leanMass_kg * gPerKg);
-  grams = Math.min(Math.max(120, grams), 250); // practical bounds
-  return {grams, gPerKg};
+  grams = Math.min(Math.max(120, grams), 250);
+  return {grams, gPerKg, dailyDeficit};
 }
-/* formatting */
+
+/* Format Month Day, Year */
 function formatLongDate(dt){
   return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
 }
+
+/* Simple validator */
 function requireFilled(ids){
   let ok = true;
   ids.forEach(id=>{
@@ -299,7 +394,44 @@ function requireFilled(ids){
   return ok;
 }
 
-/* calculate */
+/* Build ICS data for an all-day event on finish date */
+function buildICS(finishDate){
+  // All-day event on local date
+  const y = finishDate.getFullYear();
+  const m = String(finishDate.getMonth()+1).padStart(2,'0');
+  const d = String(finishDate.getDate()).padStart(2,'0');
+  const dt = `${y}${m}${d}`;
+
+  const ics =
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Built With Intention//Finish Line//EN
+BEGIN:VEVENT
+UID:${Date.now()}@bwi
+DTSTAMP:${y}${m}${d}T000000Z
+DTSTART;VALUE=DATE:${dt}
+DTEND;VALUE=DATE:${dt}
+SUMMARY:Finish Line – Goal Body
+DESCRIPTION:This is the day your plan projects you'll reach your goal body.
+END:VEVENT
+END:VCALENDAR`.replace(/\n/g,"\r\n");
+
+  return new Blob([ics], {type:"text/calendar"});
+}
+
+/* Copy date text to clipboard */
+function copyText(txt){
+  if(navigator.clipboard && window.isSecureContext){
+    return navigator.clipboard.writeText(txt);
+  }else{
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); } finally{ document.body.removeChild(ta); }
+    return Promise.resolve();
+  }
+}
+
+/* Calculate */
 $('calc').onclick = ()=>{
   const fieldsOk = requireFilled(['age','sex','weight']);
   if(!fieldsOk){ return; }
@@ -325,28 +457,24 @@ $('calc').onclick = ()=>{
   // activity
   const mult = activityMultiplier($('work').value, $('training').value, $('cardio').value);
 
-  // BF selections
+  // selections
   const bfCur  = getSelected('bfCurrent');
   const bfGoal = getSelected('bfGoal');
 
-  // start date
+  // start date (date-only)
   const startVal = $('startDate').value;
   const startDT  = startVal ? new Date(startVal + 'T00:00:00') : new Date();
 
   if(!age || !cm || !kg || !bfCur || !bfGoal){
     $('result').innerHTML = "Please complete all fields and select your current and goal looks.";
-    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none';
-    document.querySelector('.card + .card').scrollIntoView({behavior:'smooth'});
-    return;
+    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; return;
   }
   if(bfGoal >= bfCur){
     $('result').innerHTML = "Goal body-fat must be lower than current for a fat-loss timeline.";
-    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none';
-    document.querySelector('.card + .card').scrollIntoView({behavior:'smooth'});
-    return;
+    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; return;
   }
 
-  // core calcs
+  // calcs
   const _bmr = bmr(sex, kg, cm, age);
   const tdee = _bmr * mult;
 
@@ -356,7 +484,7 @@ $('calc').onclick = ()=>{
 
   const fatToLose_lb = Math.max(0, lb - goalWeight_lb);
 
-  const weeklyLossTarget_lb = lb * 0.01; // 1% BW/wk
+  const weeklyLossTarget_lb = lb * 0.01; // 1% BW/week target
   const targetDailyDeficit  = (weeklyLossTarget_lb * 3500) / 7;
 
   const safetyFloor = (sex==='male') ? 1600 : 1300;
@@ -369,14 +497,14 @@ $('calc').onclick = ()=>{
 
   const weeks = achievableWeeklyLoss_lb > 0 ? fatToLose_lb / achievableWeeklyLoss_lb : 0;
 
-  // protein (LBM-based)
-  const {grams:protein_g, gPerKg} = proteinRecommendation(leanMass_kg, $('training').value, tdee, calories);
+  // ---- Protein (LBM-based) ----
+  const {grams:protein_g, gPerKg, dailyDeficit} = proteinRecommendation(leanMass_kg, $('training').value, tdee, calories);
 
-  // finish date (round up to next day)
+  // exact finish date (round up to whole days)
   const daysToGoal = Math.ceil(weeks * 7);
   const finishDT = new Date(startDT.getTime() + daysToGoal * 24 * 60 * 60 * 1000);
 
-  // FINISH LINE banner
+  // THE FINISH LINE
   $('theDayDate').textContent = formatLongDate(finishDT);
   $('theDay').style.display = 'block';
 
@@ -386,8 +514,10 @@ $('calc').onclick = ()=>{
   $('kCals').textContent       = Math.round(calories);
   $('kWeeks').textContent      = Math.max(1, Math.round(weeks));
   $('kWeeklyLoss').textContent = round(achievableWeeklyLoss_lb, 1);
+  $('kCalsNote').textContent   = floorApplied ? 'Safety floor applied' : '≈1% BW weekly deficit';
+  $('kLossNote').textContent   = floorApplied ? 'Capped by safety calories' : 'Target pace';
 
-  // summary
+  // Summary
   $('kpi').style.display='grid';
   $('result').innerHTML = `
     <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day</p>
@@ -403,8 +533,15 @@ $('calc').onclick = ()=>{
     $('note').innerHTML = `Weekly loss set to <b>${round(weeklyLossTarget_lb,1)} lb/week</b> (≈1% of current body weight).`;
   }
 
-  // scroll to results on mobile
-  document.querySelector('.card + .card').scrollIntoView({behavior:'smooth'});
+  // Enable copy date & ICS
+  const dateText = $('theDayDate').textContent;
+  $('copyDate').onclick = async ()=>{
+    await copyText(dateText);
+    $('copyDate').textContent = 'Copied!';
+    setTimeout(()=>{$('copyDate').textContent='Copy date';}, 1200);
+  };
+  const icsBlob = buildICS(finishDT); const url = URL.createObjectURL(icsBlob);
+  $('icsLink').href = url;
 };
 </script>
 </body>
