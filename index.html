@@ -3,28 +3,42 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>5-STEP CALCULATOR – @thedallaspetersen</title>
+<title>5-STEP CALCULATOR – @TheDallasPetersen</title>
+<meta name="description" content="Built With Intention: Macro & Timeline Calculator. Estimate protein, calories, weekly fat-loss, and the exact date you’ll reach your goal.">
 <style>
   :root{
-    --bg:#0f0f12; --card:#17171b; --ink:#e7e7f0; --muted:#a7a7b3;
-    --accent:#ff3b30; --ok:#2ecc71; --chip:#222228;
+    --bg:#0f0f12; --card:#17171b; --ink:#e8e8f3; --muted:#a7a7b3;
+    --accent:#ff3b30; --ok:#2ecc71; --chip:#1b1b21;
     --hl:#97c9ff; --hl-strong:#1e90ff;
+    --line:#26262c; --radius:16px; --space:14px;
+    --shadow:0 6px 24px rgba(0,0,0,.28);
   }
-  *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
-  body{margin:0;background:var(--bg);color:var(--ink)}
-  header{padding:22px 18px;text-align:center}
-  header h1{margin:0;font-size:1.6rem}
-  header p{margin:.35rem 0 0;color:var(--muted)}
-  header a{color:var(--hl-strong);text-decoration:none;font-weight:700}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.4}
 
+  /* Header */
+  header{padding:28px 18px 16px;text-align:center;position:relative}
+  header::after{content:"";display:block;height:3px;max-width:980px;margin:14px auto 0;border-radius:3px;background:linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--hl-strong));opacity:.5}
+  .title{margin:0;font-size:clamp(1.6rem,2.8vw,2rem);letter-spacing:.6px;font-weight:900}
+  .yt{margin-top:6px;display:inline-flex;gap:8px;align-items:center;justify-content:center}
+  .yt a{color:var(--hl-strong);text-decoration:none;font-weight:800}
+  .pill{display:inline-block;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--chip)}
+  header p{margin:.45rem 0 0;color:var(--muted);max-width:800px;margin-inline:auto}
+
+  /* Layout */
   .wrap{max-width:980px;margin:0 auto;padding:12px}
   .grid{display:grid;gap:12px}
   @media(min-width:880px){ .grid{grid-template-columns:1fr 1fr} }
 
-  .card{background:var(--card);border:1px solid #26262c;border-radius:14px;padding:16px}
-  .card h3{margin:0 0 10px;font-size:1.05rem}
+  /* Cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+  .card h3{margin:0 0 10px;font-size:1.05rem;letter-spacing:.3px}
   label{display:block;margin:.35rem 0 .25rem;color:var(--muted);font-size:.9rem}
-  input, select{width:100%;padding:12px 12px;border-radius:10px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none}
+  input, select{
+    width:100%;padding:12px 12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none;
+    transition:border .15s ease, box-shadow .15s ease;
+  }
+  input:focus, select:focus{border-color:var(--hl-strong);box-shadow:0 0 0 3px color-mix(in srgb,var(--hl-strong),transparent 80%)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
   /* Photo picker */
@@ -32,48 +46,81 @@
   @media(max-width:980px){ .bf-grid{grid-template-columns:repeat(3,1fr)} }
   @media(max-width:640px){ .bf-grid{grid-template-columns:repeat(2,1fr)} }
 
+  /* Tile with 1px bleed to kill hairlines */
   .bf-tile{
+    position:relative;
     background:#121217;border:1px solid #2a2a31;border-radius:16px;
     overflow:hidden;cursor:pointer;transition:.18s transform,.18s border,.18s box-shadow;
   }
+  .bf-img{
+    display:block;
+    width:calc(100% + 2px); height:calc(140px + 2px); margin:-1px;
+    object-fit:cover; object-position:center;
+    transform:translateZ(0); transition:transform .18s ease;
+  }
   .bf-tile:hover{transform:translateY(-2px);border-color:var(--hl);box-shadow:0 6px 18px rgba(0,0,0,.28)}
-  .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl),transparent 72%)}
-  .bf-img{display:block;width:100%;height:140px;object-fit:cover;transform:scale(1.05);transition:transform .18s ease}
-  .bf-tile:hover .bf-img{transform:scale(1.08)}
-  .bf-label{padding:8px 10px;text-align:center;font-weight:700;background:#101015;border-top:1px solid #22232a;color:#fff;letter-spacing:.2px}
+  .bf-tile:hover .bf-img{ transform:translateZ(0) scale(1.02); }
+  .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl-strong),transparent 72%)}
+  .bf-label{padding:8px 10px;text-align:center;font-weight:800;background:#101015;border-top:1px solid #22232a;color:#fff;letter-spacing:.2px}
+  .bf-tile:focus-visible{outline:none;border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl-strong),transparent 72%)}
 
+  /* Tap highlight overlay (mobile) */
+  .bf-tile::after{
+    content:""; position:absolute; inset:0; background:rgba(255,255,255,.08);
+    opacity:0; transition:opacity .12s ease; pointer-events:none;
+  }
+  .bf-tile:active::after, .bf-tile.pressed::after{ opacity:.18; }
+
+  /* Buttons & KPIs */
   .hint{margin:.35rem 0 0;color:var(--muted);font-size:.85rem}
-  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:900;cursor:pointer;letter-spacing:.2px}
+  .btn:focus{outline:3px solid color-mix(in srgb,var(--accent),transparent 70%)}
 
   .result{font-size:1.05rem;line-height:1.65}
   .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  @media(max-width:640px){ .kpi{grid-template-columns:repeat(2,1fr)} }
   .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
-  .tile b{display:block;font-size:1.3rem;margin-top:6px}
+  .tile span{color:var(--muted);font-size:.85rem;display:block}
+  .tile b{display:block;font-size:1.55rem;margin-top:6px;font-weight:900}
 
-  /* FINISH LINE banner */
-  .theday{margin-top:10px;padding:14px;border-radius:12px;background:#101015;border:1px solid #2a2a31;text-align:center}
-  .theday .lbl{display:block;font-weight:900;font-size:1.15rem;letter-spacing:.3px;margin-bottom:6px}
-  .theday time{display:block;font-weight:900;font-size:1.4rem}
+  /* FINISH LINE */
+  .theday{margin-top:12px;padding:16px;border-radius:12px;background:#0e0e13;border:1px solid #2a2a31;text-align:center}
+  .theday .lbl{display:block;font-weight:1000;font-size:1.2rem;letter-spacing:.4px;margin-bottom:8px}
+  .theday time{display:block;font-weight:950;font-size:1.6rem;letter-spacing:.3px}
+
+  /* Validation */
+  .error{border-color:#ff6565 !important; box-shadow:0 0 0 3px rgba(255,101,101,.18) !important}
+  .errors{margin-top:10px; color:#ff9a9a; font-size:.92rem}
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    .bf-img{ transition:none; } .bf-tile:hover .bf-img{ transform:none; }
+    .bf-tile:hover{ transform:none; }
+  }
 
   footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
 </style>
 </head>
 <body>
 <header>
-  <h1>5-STEP CALCULATOR • <a href="https://www.youtube.com/@thedallaspetersen" target="_blank" rel="noopener">@thedallaspetersen</a></h1>
+  <h1 class="title">5-STEP CALCULATOR</h1>
+  <div class="yt">
+    <a class="pill" href="https://www.youtube.com/@thedallaspetersen" target="_blank" rel="noopener">@TheDallasPetersen</a>
+  </div>
   <p>Answer a few questions. We’ll estimate protein, calories, weekly loss, and the exact date you’ll reach your goal.</p>
 </header>
 
 <div class="wrap grid">
   <!-- LEFT: inputs -->
-  <section class="card">
-    <h3>About you</h3>
+  <section class="card" aria-labelledby="aboutTitle">
+    <h3 id="aboutTitle">About you</h3>
     <div class="row">
       <div>
-        <label>Age</label><input id="age" type="number" inputmode="numeric" placeholder="age">
+        <label for="age">Age</label>
+        <input id="age" type="number" inputmode="numeric" placeholder="age" min="13" max="90">
       </div>
       <div>
-        <label>Sex</label>
+        <label for="sex">Sex</label>
         <select id="sex">
           <option value="" selected>Select…</option>
           <option value="male">Male</option>
@@ -84,21 +131,21 @@
 
     <div class="row">
       <div>
-        <label>Height</label>
+        <label for="heightUnit">Height</label>
         <select id="heightUnit">
           <option value="ftin" selected>feet/inches</option>
           <option value="cm">centimeters</option>
         </select>
         <div class="row" id="ftin">
-          <input id="ft" type="number" inputmode="numeric" placeholder="ft">
-          <input id="inch" type="number" inputmode="numeric" placeholder="in">
+          <input id="ft" type="number" inputmode="numeric" placeholder="ft" min="3" max="8">
+          <input id="inch" type="number" inputmode="numeric" placeholder="in" min="0" max="11">
         </div>
-        <input id="cm" type="number" inputmode="numeric" placeholder="cm" style="display:none;margin-top:8px">
+        <input id="cm" type="number" inputmode="numeric" placeholder="cm" style="display:none;margin-top:8px" min="120" max="230">
       </div>
       <div>
-        <label>Weight</label>
+        <label for="weight">Weight</label>
         <div class="row">
-          <input id="weight" type="number" inputmode="numeric" placeholder="weight">
+          <input id="weight" type="number" inputmode="numeric" placeholder="weight" min="70" max="500">
           <select id="wUnit"><option value="lb" selected>lb</option><option value="kg">kg</option></select>
         </div>
       </div>
@@ -106,17 +153,17 @@
 
     <!-- START DATE: date-only, above Activity -->
     <h3 style="margin-top:16px">When will you start?</h3>
-    <input id="startDate" type="date">
+    <input id="startDate" type="date" aria-label="Start date">
 
     <h3 style="margin-top:16px">Activity</h3>
-    <label>Work Activity</label>
+    <label for="work">Work Activity</label>
     <select id="work">
       <option value="light" selected>Light Activity – Desk</option>
       <option value="moderate">Moderate Activity – Retail/Service</option>
       <option value="high">High Activity – Labor</option>
     </select>
 
-    <label style="margin-top:8px">Training (gym)</label>
+    <label style="margin-top:8px" for="training">Training (gym)</label>
     <select id="training">
       <option value="0">No training</option>
       <option value="1-2">1–2 sessions/week</option>
@@ -124,7 +171,7 @@
       <option value="5-6">5–6 sessions/week</option>
     </select>
 
-    <label style="margin-top:8px">Cardio (hours/week)</label>
+    <label style="margin-top:8px" for="cardio">Cardio (hours/week)</label>
     <select id="cardio">
       <option value="0" selected>None</option>
       <option value="1-2">1–2 hours</option>
@@ -143,10 +190,11 @@
     </div>
 
     <button class="btn" id="calc">Calculate</button>
+    <div class="errors" id="errors" aria-live="polite"></div>
   </section>
 
   <!-- RIGHT: results -->
-  <section class="card">
+  <section class="card" aria-live="polite">
     <h3>Your Plan</h3>
 
     <!-- FINISH LINE banner -->
@@ -157,10 +205,10 @@
 
     <div class="result" id="result">Fill the form and tap <b>Calculate</b>.</div>
     <div class="kpi" id="kpi" style="display:none">
-      <div class="tile"><span class="muted">Protein (g/day)</span><b id="kProtein">—</b></div>
-      <div class="tile"><span class="muted">Calories / day</span><b id="kCals">—</b></div>
-      <div class="tile"><span class="muted">Weeks to goal</span><b id="kWeeks">—</b></div>
-      <div class="tile"><span class="muted">Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
+      <div class="tile"><span>Protein (g/day)</span><b id="kProtein">—</b></div>
+      <div class="tile"><span>Calories / day</span><b id="kCals">—</b></div>
+      <div class="tile"><span>Weeks to goal</span><b id="kWeeks">—</b></div>
+      <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
     </div>
     <div class="hint" id="note" style="display:none"></div>
   </section>
@@ -183,7 +231,6 @@ const bfPicsMale = [
   {pct:0.375, label:'35–40%', img:'MaleBody40.jpeg', alt:'Male 35–40%'}
 ];
 
-/* Female images — corrected pct values (midpoints in decimals) */
 const bfPicsFemale = [
   {pct:0.14,  label:'13–15%', img:'FemaleBody1.jpeg',  alt:'Female 13–15%'},
   {pct:0.165, label:'16–17%', img:'FemaleBody2.jpeg',  alt:'Female 16–17%'},
@@ -201,7 +248,7 @@ const bfPicsFemale = [
 const $ = id => document.getElementById(id);
 const round = (x,n=0)=>{const p=10**n; return Math.round(x*p)/p;};
 
-/* Default start date to today (local, YYYY-MM-DD) */
+/* Default start date to today */
 (function setDefaultStartToday(){
   const now = new Date();
   const pad = n => String(n).padStart(2,'0');
@@ -215,24 +262,24 @@ function buildBFGrid(containerId, sex){
   wrap.innerHTML = '';
   list.forEach((o)=>{
     const card = document.createElement('button');
-    card.type='button';
-    card.className='bf-tile';
-    card.dataset.value = o.pct;
-    card.setAttribute('role','radio');
-    card.setAttribute('aria-checked','false');
+    card.type='button'; card.className='bf-tile';
+    card.dataset.value = o.pct; card.setAttribute('role','radio'); card.setAttribute('aria-checked','false');
 
-    const img = document.createElement('img');
-    img.src = o.img; img.alt = o.alt; img.className='bf-img';
-
-    const lab = document.createElement('div');
-    lab.className='bf-label';
-    lab.textContent = o.label;
+    const img = document.createElement('img'); img.src = o.img; img.alt = o.alt; img.className='bf-img';
+    const lab = document.createElement('div'); lab.className='bf-label'; lab.textContent = o.label;
 
     card.appendChild(img); card.appendChild(lab);
     card.onclick = ()=>{
       [...wrap.children].forEach(c=>{ c.classList.remove('active'); c.setAttribute('aria-checked','false'); });
       card.classList.add('active'); card.setAttribute('aria-checked','true');
     };
+
+    // Mobile tap highlight
+    card.addEventListener('touchstart', ()=> card.classList.add('pressed'), {passive:true});
+    ['touchend','touchcancel','touchmove','mouseleave','blur'].forEach(ev =>
+      card.addEventListener(ev, ()=> card.classList.remove('pressed'))
+    );
+
     wrap.appendChild(card);
   });
 }
@@ -292,27 +339,81 @@ function formatLongDate(dt){
   return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
 }
 
-/* Calculate */
-$('calc').onclick = ()=>{
-  const age = Number($('age').value||0);
-  const sex = $('sex').value;
+/* Validation helpers */
+function markError(el, cond){
+  el.classList.toggle('error', cond);
+}
+function validateInputs(){
+  const errors = [];
+  const ageEl = $('age');
+  const sexEl = $('sex');
+  const startEl = $('startDate');
+  const heightMode = $('heightUnit').value;
+  const ftEl = $('ft'), inEl = $('inch'), cmEl = $('cm');
+  const weightEl = $('weight');
 
-  if(!sex){
-    $('result').innerHTML = "Choose your sex to load the photo options, then select your current and goal looks.";
-    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; return;
-  }
+  // reset
+  [ageEl, sexEl, startEl, ftEl, inEl, cmEl, weightEl].forEach(el=> el.classList.remove('error'));
+
+  // sex
+  if(!sexEl.value){ errors.push('Select your sex.'); markError(sexEl, true); }
+
+  // age
+  const age = Number(ageEl.value||0);
+  if(!age){ errors.push('Enter your age.'); markError(ageEl, true); }
+  else if(age < 13){ errors.push('Age must be 13 or older.'); markError(ageEl, true); }
+  else if(age > 90){ errors.push('Age cannot be over 90.'); markError(ageEl, true); }
 
   // height
   let cm = 0;
-  if($('heightUnit').value==='cm'){
-    cm = Number($('cm').value||0);
+  if(heightMode==='cm'){
+    cm = Number(cmEl.value||0);
+    if(!cm){ errors.push('Enter your height in centimeters.'); markError(cmEl, true); }
   }else{
-    const ft = Number($('ft').value||0);
-    const inch = Number($('inch').value||0);
-    cm = (ft*12 + inch) * 2.54;
+    const ft = Number(ftEl.value||0), inch = Number(inEl.value||0);
+    if(!ft && !inch){ errors.push('Enter your height in feet and inches.'); markError(ftEl, true); markError(inEl, true); }
+    else cm = (ft*12 + inch) * 2.54;
   }
 
   // weight
+  const weight = Number(weightEl.value||0);
+  if(!weight){ errors.push('Enter your weight.'); markError(weightEl, true); }
+
+  // start date
+  if(!startEl.value){ errors.push('Choose your start date.'); markError(startEl, true); }
+
+  // BF selections
+  const cur = getSelected('bfCurrent');
+  const goal = getSelected('bfGoal');
+  if(!cur){ errors.push('Pick your current body-fat look.'); }
+  if(!goal){ errors.push('Pick your goal body-fat look.'); }
+  if(cur && goal && goal >= cur){ errors.push('Goal body-fat must be lower than current.'); }
+
+  return {errors, cm, age, weight, cur, goal};
+}
+
+/* Calculate */
+$('calc').onclick = ()=>{
+  const v = validateInputs();
+  const errs = $('errors');
+  if(v.errors.length){
+    errs.innerHTML = 'Please fix the following:<ul><li>' + v.errors.join('</li><li>') + '</li></ul>';
+    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none';
+    $('result').innerHTML = "Fill the missing fields to calculate.";
+    document.querySelector('section.card').scrollIntoView({behavior:'smooth'});
+    return;
+  }else{
+    errs.innerHTML = '';
+  }
+
+  // pull values
+  const age = Number($('age').value||0);
+  const sex = $('sex').value;
+
+  // height (already computed as v.cm)
+  const cm = v.cm;
+
+  // weight (convert to kg if needed)
   let kg = Number($('weight').value||0);
   if($('wUnit').value==='lb') kg = kg * 0.45359237;
   const lb = kg / 0.45359237;
@@ -320,22 +421,13 @@ $('calc').onclick = ()=>{
   // activity
   const mult = activityMultiplier($('work').value, $('training').value, $('cardio').value);
 
-  // selections
-  const bfCur  = getSelected('bfCurrent');
-  const bfGoal = getSelected('bfGoal');
-
   // start date (date-only)
   const startVal = $('startDate').value;
   const startDT  = startVal ? new Date(startVal + 'T00:00:00') : new Date();
 
-  if(!age || !cm || !kg || !bfCur || !bfGoal){
-    $('result').innerHTML = "Please complete all fields and select your current and goal looks.";
-    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; return;
-  }
-  if(bfGoal >= bfCur){
-    $('result').innerHTML = "Goal body-fat must be lower than current for a fat-loss timeline.";
-    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; return;
-  }
+  // selections
+  const bfCur  = v.cur;
+  const bfGoal = v.goal;
 
   // calcs
   const _bmr = bmr(sex, kg, cm, age);
@@ -360,10 +452,10 @@ $('calc').onclick = ()=>{
 
   const weeks = achievableWeeklyLoss_lb > 0 ? fatToLose_lb / achievableWeeklyLoss_lb : 0;
 
-  /* Protein: 1 g per lb of CURRENT body weight (simple rule of thumb) */
+  /* Protein: 1 g per lb of CURRENT body weight */
   const protein_g = Math.max(120, Math.round(lb * 1.0));
 
-  // exact finish date: round UP to whole days for clarity
+  // exact finish date
   const daysToGoal = Math.ceil(weeks * 7);
   const finishDT = new Date(startDT.getTime() + daysToGoal * 24 * 60 * 60 * 1000);
 
@@ -371,12 +463,13 @@ $('calc').onclick = ()=>{
   $('theDayDate').textContent = formatLongDate(finishDT);
   $('theDay').style.display = 'block';
 
-  // output (no start date shown)
+  // KPIs
   $('kProtein').textContent    = protein_g;
   $('kCals').textContent       = Math.round(calories);
   $('kWeeks').textContent      = Math.max(1, Math.round(weeks));
   $('kWeeklyLoss').textContent = round(achievableWeeklyLoss_lb, 1);
 
+  // Summary
   $('kpi').style.display='grid';
   $('result').innerHTML = `
     <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day</p>
@@ -391,6 +484,9 @@ $('calc').onclick = ()=>{
     $('note').style.display='block';
     $('note').innerHTML = `Weekly loss set to <b>${round(weeklyLossTarget_lb,1)} lb/week</b> (≈1% of current body weight).`;
   }
+
+  // Scroll to results for mobile
+  document.querySelector('.card + .card').scrollIntoView({behavior:'smooth'});
 };
 </script>
 </body>
