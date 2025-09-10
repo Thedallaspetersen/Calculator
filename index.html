@@ -333,7 +333,6 @@ const bfPicsFemale = [
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
 const round = (x,n=0)=>{const p=10**n; return Math.round(x*p)/p;};
-const toYMD = (d)=>`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
 function formatLongDate(dt){return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});}
 
 /* Default start date to today */
