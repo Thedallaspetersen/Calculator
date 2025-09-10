@@ -10,7 +10,7 @@
     --bg:#0f0f12; --card:#17171b; --ink:#e8e8f3; --muted:#a7a7b3;
     --accent:#ff3b30; --ok:#2ecc71; --chip:#1b1b21;
     --hl:#97c9ff; --hl-strong:#1e90ff;
-    --line:#26262c; --radius:16px; --space:14px;
+    --line:#26262c; --radius:16px;
     --shadow:0 6px 24px rgba(0,0,0,.28);
   }
   *{box-sizing:border-box}
@@ -33,7 +33,6 @@
   .pill span{font-weight:800;color:#eaeaf2}
   .pill:hover span{color:#ffb3b3}
   .ytmark{width:22px;height:22px;display:block}
-
   header p{margin:.45rem 0 0;color:var(--muted);max-width:800px;margin-inline:auto}
 
   /* Layout */
@@ -46,62 +45,64 @@
   .card h3{margin:0 0 10px;font-size:1.05rem;letter-spacing:.3px}
   label{display:block;margin:.35rem 0 .25rem;color:var(--muted);font-size:.9rem}
   input, select{
-    width:100%;padding:12px 12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none;
+    width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none;
     transition:border .15s ease, box-shadow .15s ease;
   }
   input:focus, select:focus{border-color:var(--hl-strong);box-shadow:0 0 0 3px color-mix(in srgb,var(--hl-strong),transparent 80%)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-  /* === Body Fat Grid & Images === */
+  /* === Body Fat Grid & Images — Option A (compact) === */
   .bf-grid{
     display:grid;
     grid-template-columns:repeat(2,1fr);
-    gap:10px;
+    gap:8px;
+    margin-top:8px;
   }
   @media(min-width:640px){
     .bf-grid{grid-template-columns:repeat(3,1fr);}
   }
+  @media(min-width:880px){
+    /* Desktop/iPad: denser so both grids fit without scrolling */
+    .bf-grid{grid-template-columns:repeat(5,minmax(130px,1fr));gap:10px}
+  }
   .bf-tile{
-    background:#121217;border:1px solid #2a2a31;border-radius:16px;overflow:hidden;cursor:pointer;
+    position:relative;
+    background:#121217;border:1px solid #2a2a31;border-radius:14px;overflow:hidden;cursor:pointer;
     transition:.18s transform,.18s border,.18s box-shadow;
   }
   .bf-tile:hover{transform:translateY(-2px);border-color:var(--hl);box-shadow:0 6px 18px rgba(0,0,0,.28)}
   .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl-strong),transparent 72%)}
   .bf-img{
-    display:block;width:100%;height:170px;
+    display:block;width:100%;height:150px; /* mobile */
     object-fit:cover;object-position:center 45%;
     background:#0f0f12;transition:transform .18s ease, filter .18s ease;
   }
-  .bf-tile:hover .bf-img{transform:scale(1.05)}
-  .bf-label{
-    padding:8px 10px;text-align:center;font-weight:800;background:#101015;border-top:1px solid #22232a;color:#fff;letter-spacing:.2px
-  }
   @media(min-width:880px){
-    .bf-grid{grid-template-columns:repeat(5,minmax(150px,1fr));gap:12px;}
-    .bf-img{height:228px;object-position:center 47%;}
-    .bf-tile:hover .bf-img{transform:scale(1.02);filter:contrast(1.03) saturate(1.02);}
+    .bf-img{height:168px;object-position:center 47%}
   }
-  @media(min-width:1200px){
-    .bf-grid{grid-template-columns:repeat(5,minmax(170px,1fr));}
-    .bf-img{height:248px;object-position:center 48%;}
+  .bf-tile:hover .bf-img{transform:scale(1.02);filter:contrast(1.03) saturate(1.02)}
+  /* Overlay label chip (saves vertical space) */
+  .bf-label{
+    position:absolute;left:8px;bottom:8px;
+    padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+    background:linear-gradient(180deg,rgba(16,16,21,.8),rgba(10,10,14,.8));
+    color:#fff;font-weight:800;font-size:.78rem;letter-spacing:.15px;
+    pointer-events:none;
   }
 
   .hint{margin:.35rem 0 0;color:var(--muted);font-size:.85rem}
   .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:900;cursor:pointer;letter-spacing:.2px}
   .btn:focus{outline:3px solid color-mix(in srgb,var(--accent),transparent 70%)}
 
-  /* === Results & KPIs === */
-  .result{font-size:1.05rem;line-height:1.65}
-  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-  @media(max-width:640px){ .kpi{grid-template-columns:repeat(2,1fr)} }
-  .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
-  .tile span{color:var(--muted);font-size:.85rem;display:block}
-  .tile b{display:block;font-size:1.55rem;margin-top:6px;font-weight:900}
-
-  /* FINISH LINE block with actions */
-  .theday{margin-top:12px;padding:16px;border-radius:12px;background:#0e0e13;border:1px solid #2a2a31;text-align:center}
-  .theday .lbl{display:block;font-weight:1000;font-size:1.2rem;letter-spacing:.4px;margin-bottom:8px}
-  .theday time{display:block;font-weight:950;font-size:1.6rem;letter-spacing:.3px}
+  /* === Results & KPIs (sleek, modern) === */
+  .result{font-size:1.02rem;line-height:1.6}
+  .theday{
+    margin-top:8px;padding:16px;border-radius:14px;background:#0e0e13;border:1px solid #2a2a31;
+    box-shadow:0 6px 18px rgba(0,0,0,.22) inset, 0 1px 0 rgba(255,255,255,.04);
+    text-align:center
+  }
+  .theday .lbl{display:block;font-weight:1000;font-size:1.15rem;letter-spacing:.4px;margin-bottom:6px}
+  .theday time{display:block;font-weight:950;font-size:1.45rem;letter-spacing:.3px}
   .actions{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:10px}
   .action-btn, .action-link{
     display:inline-flex;gap:8px;align-items:center;justify-content:center;
@@ -112,11 +113,23 @@
   .action-btn:hover, .action-link:hover{transform:translateY(-1px);border-color:#3a3a44;box-shadow:0 6px 16px rgba(0,0,0,.25)}
   .action-btn svg, .action-link svg{width:16px;height:16px;display:block}
 
+  /* KPI grid: 3×2 cards */
+  .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  @media(max-width:640px){ .kpi{grid-template-columns:repeat(2,1fr)} }
+  .tile{
+    background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center;
+    box-shadow:0 1px 0 rgba(255,255,255,.03) inset;
+  }
+  .tile span{color:var(--muted);font-size:.8rem;display:flex;gap:6px;justify-content:center;align-items:center}
+  .tile span svg{width:15px;height:15px;opacity:.9}
+  .tile b{display:block;font-size:1.45rem;margin-top:6px;font-weight:900}
+  .hint{color:var(--muted);font-size:.85rem}
+
   /* Validation */
   .error{border-color:#ff6565 !important; box-shadow:0 0 0 3px rgba(255,101,101,.18) !important}
   .errors{margin-top:10px;color:#ff9a9a;font-size:.92rem}
 
-  footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
+  footer{padding:28px;text-align:center;color:#a7a7b3;font-size:.85rem}
 </style>
 </head>
 <body>
@@ -124,7 +137,7 @@
   <h1 class="title">5-STEP CALCULATOR</h1>
   <div class="yt">
     <a class="pill" href="https://www.youtube.com/@thedallaspetersen" target="_blank" rel="noopener">
-      <!-- Sleek YouTube badge -->
+      <!-- Sleek YouTube badge (gradient + soft depth) -->
       <svg class="ytmark" viewBox="0 0 64 64" aria-hidden="true">
         <defs>
           <radialGradient id="ytr" cx="50%" cy="35%" r="75%">
@@ -215,11 +228,10 @@
 
     <!-- BF pickers are HIDDEN until Sex is chosen -->
     <div id="bfSection" style="display:none">
-      <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
+      <h3 style="margin-top:12px">Pick your current look (body-fat approximation)</h3>
       <div id="bfCurrent" class="bf-grid" role="radiogroup" aria-label="Current body fat"></div>
-      <p class="hint" id="bfHint" style="display:none">Tip: tap a photo to select. Labels show approximate ranges.</p>
 
-      <h3 style="margin-top:16px">Pick your goal look</h3>
+      <h3 style="margin-top:12px">Pick your goal look</h3>
       <div id="bfGoal" class="bf-grid" role="radiogroup" aria-label="Goal body fat"></div>
     </div>
 
@@ -239,36 +251,52 @@
       <!-- Actions -->
       <div class="actions" id="dayActions" style="display:none">
         <button class="action-btn" id="copyDateBtn" type="button" aria-label="Copy date">
-          <!-- copy icon -->
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 7h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.5"/><path d="M8 7V5a2 2 0 0 1 2-2h7" stroke="currentColor" stroke-width="1.5"/></svg>
           Copy date
         </button>
 
         <button class="action-btn" id="icsBtn" type="button" aria-label="Add to calendar (ICS)">
-          <!-- calendar icon -->
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5"/></svg>
           Add to Calendar (.ics)
         </button>
 
         <a class="action-link" id="gcalLink" target="_blank" rel="noopener" aria-label="Add to Google Calendar">
-          <!-- gcal icon -->
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5"/></svg>
           Google Calendar
         </a>
       </div>
     </div>
 
-    <div class="result" id="result">Fill the form and tap <b>Calculate</b>.</div>
-
+    <!-- Sleek KPIs (3×2): Goal Wt, Protein, Calories, Weeks, Weekly loss -->
     <div class="kpi" id="kpi" style="display:none">
-      <div class="tile"><span>Protein (g/day)</span><b id="kProtein">—</b></div>
-      <div class="tile"><span>Calories / day</span><b id="kCals">—</b></div>
-      <div class="tile"><span>Weeks to goal</span><b id="kWeeks">—</b></div>
-      <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
+      <div class="tile">
+        <span><svg viewBox="0 0 24 24" fill="none"><path d="M4 20h16M6 17h12M8 14h8M10 11h4M12 8h0" stroke="currentColor" stroke-width="1.5"/></svg>Goal Weight (est.)</span>
+        <b id="kGoalWt">—</b>
+      </div>
+      <div class="tile">
+        <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 19V5l7-2 7 2v14" stroke="currentColor" stroke-width="1.5"/><path d="M9 10h6" stroke="currentColor" stroke-width="1.5"/></svg>Protein (g/day)</span>
+        <b id="kProtein">—</b>
+      </div>
+      <div class="tile">
+        <span><svg viewBox="0 0 24 24" fill="none"><path d="M4 12h16" stroke="currentColor" stroke-width="1.5"/><path d="M6 8h12M8 4h8" stroke="currentColor" stroke-width="1.5"/></svg>Calories / day</span>
+        <b id="kCals">—</b>
+      </div>
+      <div class="tile">
+        <span><svg viewBox="0 0 24 24" fill="none"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="1.5"/></svg>Weeks to goal</span>
+        <b id="kWeeks">—</b>
+      </div>
+      <div class="tile">
+        <span><svg viewBox="0 0 24 24" fill="none"><path d="M4 18l16-12" stroke="currentColor" stroke-width="1.5"/></svg>Weekly Loss (lb)</span>
+        <b id="kWeeklyLoss">—</b>
+      </div>
+      <div class="tile">
+        <span><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.5"/></svg>TDEE</span>
+        <b id="kTDEE">—</b>
+      </div>
     </div>
-    <div class="hint" id="note" style="display:none"></div>
-    <!-- concise protein footnote -->
+
     <div class="hint" id="proteinFoot" style="display:none">Protein set from lean mass & deficit (evidence-based range).</div>
+    <div class="errors" id="errorsR" style="display:none"></div>
   </section>
 </div>
 
@@ -285,7 +313,7 @@ const bfPicsMale = [
   {pct:0.21,  label:'20–22%', img:'MaleBody20.jpeg', alt:'Male 20–22%'},
   {pct:0.235, label:'23–24%', img:'MaleBody25.jpeg', alt:'Male 23–24%'},
   {pct:0.27,  label:'25–29%', img:'MaleBody30.jpeg', alt:'Male 25–29%'},
-  {pct:0.32,  label:'30–34%', img:'MaleBody355.jpeg', alt:'Male 30–34%'}, /* confirm filename exists */
+  {pct:0.32,  label:'30–34%', img:'MaleBody35.jpeg', alt:'Male 30–34%'}, /* confirm filename */
   {pct:0.375, label:'35–40%', img:'MaleBody40.jpeg', alt:'Male 35–40%'}
 ];
 
@@ -306,6 +334,7 @@ const bfPicsFemale = [
 const $ = id => document.getElementById(id);
 const round = (x,n=0)=>{const p=10**n; return Math.round(x*p)/p;};
 const toYMD = (d)=>`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+function formatLongDate(dt){return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});}
 
 /* Default start date to today */
 (function setDefaultStartToday(){
@@ -314,7 +343,7 @@ const toYMD = (d)=>`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}$
   $('startDate').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
 })();
 
-/* Build the photo grids */
+/* Build the photo grids (compact) */
 function buildBFGrid(containerId, sex){
   const list = (sex==='female') ? bfPicsFemale : bfPicsMale;
   const wrap = $(containerId);
@@ -324,7 +353,7 @@ function buildBFGrid(containerId, sex){
     card.type='button'; card.className='bf-tile';
     card.dataset.value = o.pct; card.setAttribute('role','radio'); card.setAttribute('aria-checked','false');
 
-    const img = document.createElement('img'); img.src = o.img; img.alt = o.alt; img.className='bf-img';
+    const img = document.createElement('img'); img.src = o.img; img.alt = o.alt; img.className='bf-img'; img.loading='lazy';
     const lab = document.createElement('div'); lab.className='bf-label'; lab.textContent = o.label;
 
     card.appendChild(img); card.appendChild(lab);
@@ -356,13 +385,11 @@ function refreshPickers(){
     $('bfSection').style.display = 'none';
     $('bfCurrent').innerHTML = '';
     $('bfGoal').innerHTML    = '';
-    $('bfHint').style.display = 'none';
     return;
   }
   buildBFGrid('bfCurrent', sex);
   buildBFGrid('bfGoal', sex);
   $('bfSection').style.display = 'block';
-  $('bfHint').style.display = 'block';
 }
 $('sex').addEventListener('change', refreshPickers);
 
@@ -384,11 +411,6 @@ function activityMultiplier(work, training, cardio){
 function bmr(sex, kg, cm, age){
   return sex==='male' ? (10*kg + 6.25*cm - 5*age + 5)
                       : (10*kg + 6.25*cm - 5*age - 161);
-}
-
-/* Format Month Day, Year (no time) */
-function formatLongDate(dt){
-  return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
 }
 
 /* --- Validation helpers --- */
@@ -436,9 +458,10 @@ function validateInputs(){
 }
 
 /* ---- Calendar helpers ---- */
+function toYMD(d){return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`}
 function buildICS(startDate, title, desc){
   const dtStart = toYMD(startDate);
-  const end = new Date(startDate.getTime() + 24*60*60*1000); // all-day event: next day end
+  const end = new Date(startDate.getTime() + 24*60*60*1000);
   const dtEnd = toYMD(end);
   const uid = `bwi-${Date.now()}-${Math.random().toString(36).slice(2)}@goal`;
   return `BEGIN:VCALENDAR
@@ -469,8 +492,7 @@ $('calc').onclick = ()=>{
   const errsBox = $('errors');
   if(v.errors.length){
     errsBox.innerHTML = 'Please fix the following:<ul><li>' + v.errors.join('</li><li>') + '</li></ul>';
-    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; $('dayActions').style.display='none';
-    $('result').textContent = "Fill the missing fields to calculate.";
+    $('kpi').style.display='none'; $('proteinFoot').style.display='none'; $('theDay').style.display='none'; $('dayActions').style.display='none';
     document.querySelector('section.card').scrollIntoView({behavior:'smooth'});
     return;
   }else{
@@ -539,57 +561,40 @@ $('calc').onclick = ()=>{
   const daysToGoal = Math.ceil(weeks * 7);
   const finishDT = new Date(startDT.getTime() + daysToGoal * 24 * 60 * 60 * 1000);
 
-  // FINISH LINE banner + actions
+  // FINISH LINE hero + actions
   const niceDate = formatLongDate(finishDT);
   $('theDayDate').textContent = niceDate;
   $('theDay').style.display = 'block';
   $('dayActions').style.display = 'flex';
 
-  // build Google Calendar link (all-day)
+  // Google Calendar link (all-day)
   const ymd = toYMD(finishDT);
   const gStart = ymd, gEnd = toYMD(new Date(finishDT.getTime() + 24*60*60*1000));
   const gTitle = encodeURIComponent('Finish Line – Built With Intention');
   const gDetails = encodeURIComponent('Estimated date to reach your goal body composition.');
-  const gcalURL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${gTitle}&dates=${gStart}/${gEnd}&details=${gDetails}`;
-  const gcal = $('gcalLink'); gcal.href = gcalURL;
+  $('gcalLink').href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${gTitle}&dates=${gStart}/${gEnd}&details=${gDetails}`;
 
-  // bind actions
+  // Actions
   $('copyDateBtn').onclick = async ()=>{
-    try { await navigator.clipboard.writeText(niceDate); $('copyDateBtn').textContent='Copied!'; setTimeout(()=>{$('copyDateBtn').textContent='Copy date';},1200); }
-    catch(e){ alert('Copy failed.'); }
+    try { await navigator.clipboard.writeText(niceDate);
+      $('copyDateBtn').textContent='Copied!'; setTimeout(()=>{$('copyDateBtn').textContent='Copy date';},1200);
+    } catch(e){ alert('Copy failed.'); }
   };
   $('icsBtn').onclick = ()=>{
     const ics = buildICS(finishDT, 'Finish Line – Built With Intention', 'Estimated date to reach your goal body composition.');
     downloadICS(ics, `finish-line-${ymd}.ics`);
   };
 
-  // KPIs
-  $('kProtein').textContent    = protein_g;
-  $('kCals').textContent       = Math.round(calories);
-  $('kWeeks').textContent      = Math.max(1, Math.round(weeks));
-  $('kWeeklyLoss').textContent = round(achievableWeeklyLoss_lb, 1);
+  // KPIs (3×2)
+  $('kGoalWt').textContent    = `${round(goalWeight_lb,1)} lb`;
+  $('kProtein').textContent   = protein_g;
+  $('kCals').textContent      = Math.round(calories);
+  $('kWeeks').textContent     = Math.max(1, Math.round(weeks));
+  $('kWeeklyLoss').textContent= round(achievableWeeklyLoss_lb, 1);
+  $('kTDEE').textContent      = Math.round(tdee);
 
-  // concise protein footnote (no math)
   $('proteinFoot').style.display = 'block';
-
-  // Summary
   $('kpi').style.display='grid';
-  $('result').innerHTML = `
-    <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day</p>
-    <p><b>Current BF:</b> ${Math.round(bfCur*100)}% • <b>Goal BF:</b> ${Math.round(bfGoal*100)}%<br>
-    <b>Start Weight:</b> ${round(lb,1)} lb • <b>Goal Weight (est.):</b> ${round(goalWeight_lb,1)} lb</p>
-  `;
-
-  if(floorApplied){
-    $('note').style.display='block';
-    $('note').innerHTML = `Note: Calories are capped at ${safetyFloor} kcal/day for safety. That limits weekly loss to about <b>${round(achievableWeeklyLoss_lb,1)} lb/week</b> (below the 1% target of <b>${round(weeklyLossTarget_lb,1)} lb/week</b>).`;
-  }else{
-    $('note').style.display='block';
-    $('note').innerHTML = `Weekly loss set to <b>${round(weeklyLossTarget_lb,1)} lb/week</b> (≈1% of current body weight).`;
-  }
-
-  // Scroll to results on mobile
-  document.querySelector('.card + .card').scrollIntoView({behavior:'smooth'});
 };
 </script>
 </body>
