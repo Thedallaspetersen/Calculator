@@ -10,7 +10,7 @@
     --bg:#0f0f12; --card:#17171b; --ink:#e8e8f3; --muted:#a7a7b3;
     --accent:#ff3b30; --ok:#2ecc71; --chip:#1b1b21;
     --hl:#97c9ff; --hl-strong:#1e90ff;
-    --line:#26262c; --radius:16px; --space:14px;
+    --line:#26262c; --radius:16px;
     --shadow:0 6px 24px rgba(0,0,0,.28);
   }
   *{box-sizing:border-box}
@@ -24,10 +24,8 @@
     padding:8px 16px;border:1px solid #2a2a31;border-radius:999px;
     background:linear-gradient(180deg,#1f1f23,#17171b);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.28);
-    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     text-decoration:none;
   }
-  .pill:hover{transform:translateY(-1px);border-color:#444;box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 10px 22px rgba(0,0,0,.36)}
   .pill span{font-weight:800;color:#eaeaf2}
   .ytmark{width:22px;height:22px;display:block}
   header p{margin:.45rem 0 0;color:var(--muted);max-width:800px;margin-inline:auto}
@@ -39,63 +37,40 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
   .card h3{margin:0 0 10px;font-size:1.05rem;letter-spacing:.3px}
   label{display:block;margin:.35rem 0 .25rem;color:var(--muted);font-size:.9rem}
-  input, select{
-    width:100%;padding:12px 12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none;
-    transition:border .15s ease, box-shadow .15s ease;
-  }
+  input, select{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:var(--ink)}
   input:focus, select:focus{border-color:var(--hl-strong);box-shadow:0 0 0 3px color-mix(in srgb,var(--hl-strong),transparent 80%)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-  /* === Body Fat Grid & Images === */
-  .bf-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-  }
-  @media(min-width:640px){
-    .bf-grid{grid-template-columns:repeat(3,1fr);}
-  }
-  .bf-tile{
-    background:#121217;border:1px solid #2a2a31;border-radius:16px;overflow:hidden;cursor:pointer;
-    transition:.18s transform,.18s border,.18s box-shadow;
-  }
+  /* === Body Fat Grid === */
+  .bf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media(min-width:640px){.bf-grid{grid-template-columns:repeat(3,1fr)}}
+  .bf-tile{background:#121217;border:1px solid #2a2a31;border-radius:16px;overflow:hidden;cursor:pointer;transition:.18s}
   .bf-tile:hover{transform:translateY(-2px);border-color:var(--hl);box-shadow:0 6px 18px rgba(0,0,0,.28)}
-  .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl),transparent 72%)}
-  .bf-img{
-    display:block;width:100%;height:170px;
-    object-fit:cover;object-position:center 45%;
-    background:#0f0f12;transition:transform .18s ease;
-  }
-  .bf-tile:hover .bf-img{transform:scale(1.05)}
-  .bf-label{
-    padding:8px 10px;text-align:center;font-weight:800;background:#101015;border-top:1px solid #22232a;color:#fff;letter-spacing:.2px
-  }
+  .bf-tile.active{border:2px solid var(--hl-strong)}
+  .bf-img{display:block;width:100%;height:170px;object-fit:cover;object-position:center 45%}
   @media(min-width:880px){
-    .bf-grid{grid-template-columns:repeat(5,minmax(150px,1fr));gap:12px;}
-    .bf-img{height:228px;object-position:center 47%;transform:none;}
-    .bf-tile:hover .bf-img{transform:scale(1.02);filter:contrast(1.03) saturate(1.02);}
+    .bf-grid{grid-template-columns:repeat(5,minmax(150px,1fr));gap:12px}
+    .bf-img{height:228px;object-position:center 47%}
   }
   @media(min-width:1200px){
-    .bf-grid{grid-template-columns:repeat(5,minmax(170px,1fr));}
-    .bf-img{height:248px;object-position:center 48%;}
+    .bf-grid{grid-template-columns:repeat(5,minmax(170px,1fr))}
+    .bf-img{height:248px;object-position:center 48%}
   }
+  .bf-label{padding:8px 10px;text-align:center;font-weight:800;background:#101015;border-top:1px solid #22232a;color:#fff}
 
-  .hint{margin:.35rem 0 0;color:var(--muted);font-size:.85rem}
-  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:900;cursor:pointer;letter-spacing:.2px}
-  .btn:focus{outline:3px solid color-mix(in srgb,var(--accent),transparent 70%)}
-
+  .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:900;cursor:pointer}
   .result{font-size:1.05rem;line-height:1.65}
   .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-  @media(max-width:640px){ .kpi{grid-template-columns:repeat(2,1fr)} }
+  @media(max-width:640px){.kpi{grid-template-columns:repeat(2,1fr)}}
   .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
-  .tile span{color:var(--muted);font-size:.85rem;display:block}
+  .tile span{color:var(--muted);font-size:.85rem}
   .tile b{display:block;font-size:1.55rem;margin-top:6px;font-weight:900}
 
   .theday{margin-top:12px;padding:16px;border-radius:12px;background:#0e0e13;border:1px solid #2a2a31;text-align:center}
-  .theday .lbl{display:block;font-weight:1000;font-size:1.2rem;letter-spacing:.4px;margin-bottom:8px}
-  .theday time{display:block;font-weight:950;font-size:1.6rem;letter-spacing:.3px}
+  .theday .lbl{font-weight:1000;font-size:1.2rem;margin-bottom:8px}
+  .theday time{font-weight:950;font-size:1.6rem}
 
-  .error{border-color:#ff6565 !important; box-shadow:0 0 0 3px rgba(255,101,101,.18)}
+  .error{border-color:#ff6565 !important;box-shadow:0 0 0 3px rgba(255,101,101,.18)}
   footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
 </style>
 </head>
@@ -104,17 +79,7 @@
   <h1 class="title">5-STEP CALCULATOR</h1>
   <div class="yt">
     <a class="pill" href="https://www.youtube.com/@thedallaspetersen" target="_blank" rel="noopener">
-      <svg class="ytmark" viewBox="0 0 64 64" aria-hidden="true">
-        <defs>
-          <radialGradient id="ytr" cx="50%" cy="35%" r="75%">
-            <stop offset="0%" stop-color="#ff6a6a"/>
-            <stop offset="60%" stop-color="#ff0000"/>
-            <stop offset="100%" stop-color="#c80000"/>
-          </radialGradient>
-        </defs>
-        <rect x="4" y="14" width="56" height="36" rx="12" fill="url(#ytr)"/>
-        <path d="M28 24l14 8-14 8z" fill="#fff"/>
-      </svg>
+      <svg class="ytmark" viewBox="0 0 64 64"><rect x="4" y="14" width="56" height="36" rx="12" fill="red"/><path d="M28 24l14 8-14 8z" fill="#fff"/></svg>
       <span>@TheDallasPetersen</span>
     </a>
   </div>
@@ -125,77 +90,42 @@
   <section class="card">
     <h3>About you</h3>
     <div class="row">
-      <div>
-        <label>Age</label><input id="age" type="number" inputmode="numeric" placeholder="age" min="13" max="90">
-      </div>
+      <div><label>Age</label><input id="age" type="number" min="13" max="90"></div>
       <div>
         <label>Sex</label>
-        <select id="sex">
-          <option value="" selected>Select…</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
+        <select id="sex"><option value="">Select…</option><option value="male">Male</option><option value="female">Female</option></select>
       </div>
     </div>
     <div class="row">
       <div>
         <label>Height</label>
-        <select id="heightUnit">
-          <option value="ftin" selected>feet/inches</option>
-          <option value="cm">centimeters</option>
-        </select>
-        <div class="row" id="ftin">
-          <input id="ft" type="number" inputmode="numeric" placeholder="ft" min="3" max="8">
-          <input id="inch" type="number" inputmode="numeric" placeholder="in" min="0" max="11">
-        </div>
-        <input id="cm" type="number" inputmode="numeric" placeholder="cm" style="display:none;margin-top:8px" min="120" max="230">
+        <select id="heightUnit"><option value="ftin" selected>feet/inches</option><option value="cm">centimeters</option></select>
+        <div class="row" id="ftin"><input id="ft" type="number"><input id="inch" type="number"></div>
+        <input id="cm" type="number" style="display:none;margin-top:8px">
       </div>
       <div>
         <label>Weight</label>
-        <div class="row">
-          <input id="weight" type="number" inputmode="numeric" placeholder="weight" min="70" max="500">
-          <select id="wUnit"><option value="lb" selected>lb</option><option value="kg">kg</option></select>
-        </div>
+        <div class="row"><input id="weight" type="number"><select id="wUnit"><option value="lb">lb</option><option value="kg">kg</option></select></div>
       </div>
     </div>
-    <h3 style="margin-top:16px">When will you start?</h3>
-    <input id="startDate" type="date">
-    <h3 style="margin-top:16px">Activity</h3>
+    <h3>When will you start?</h3><input id="startDate" type="date">
+    <h3>Activity</h3>
     <label>Work Activity</label>
-    <select id="work">
-      <option value="light" selected>Light Activity – Desk</option>
-      <option value="moderate">Moderate Activity – Retail/Service</option>
-      <option value="high">High Activity – Labor</option>
-    </select>
-    <label style="margin-top:8px">Training (gym)</label>
-    <select id="training">
-      <option value="0">No training</option>
-      <option value="1-2">1–2 sessions/week</option>
-      <option value="3-4" selected>3–4 sessions/week</option>
-      <option value="5-6">5–6 sessions/week</option>
-    </select>
-    <label style="margin-top:8px">Cardio (hours/week)</label>
-    <select id="cardio">
-      <option value="0" selected>None</option>
-      <option value="1-2">1–2 hours</option>
-      <option value="3-4">3–4 hours</option>
-      <option value="5-6">5–6 hours</option>
-    </select>
+    <select id="work"><option value="light">Light – Desk</option><option value="moderate">Moderate – Retail</option><option value="high">High – Labor</option></select>
+    <label>Training (gym)</label>
+    <select id="training"><option value="0">No training</option><option value="1-2">1–2/wk</option><option value="3-4">3–4/wk</option><option value="5-6">5–6/wk</option></select>
+    <label>Cardio (hrs/wk)</label>
+    <select id="cardio"><option value="0">None</option><option value="1-2">1–2</option><option value="3-4">3–4</option><option value="5-6">5–6</option></select>
     <div id="bfSection" style="display:none">
-      <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
-      <div id="bfCurrent" class="bf-grid"></div>
-      <h3 style="margin-top:16px">Pick your goal look</h3>
-      <div id="bfGoal" class="bf-grid"></div>
+      <h3>Pick your current look</h3><div id="bfCurrent" class="bf-grid"></div>
+      <h3>Pick your goal look</h3><div id="bfGoal" class="bf-grid"></div>
     </div>
     <button class="btn" id="calc">Calculate</button>
   </section>
 
   <section class="card">
     <h3>Your Plan</h3>
-    <div class="theday" id="theDay" style="display:none">
-      <span class="lbl">The Finish Line</span>
-      <time id="theDayDate">—</time>
-    </div>
+    <div class="theday" id="theDay" style="display:none"><span class="lbl">The Finish Line</span><time id="theDayDate">—</time></div>
     <div class="result" id="result">Fill the form and tap <b>Calculate</b>.</div>
     <div class="kpi" id="kpi" style="display:none">
       <div class="tile"><span>Protein (g/day)</span><b id="kProtein">—</b></div>
@@ -210,48 +140,58 @@
 <footer>© Built With Intention • Educational estimates only</footer>
 
 <script>
-const bfPicsMale = [
-  {pct:0.09,label:'8–10%',img:'MaleBody8.jpeg',alt:'Male 8–10%'},
-  {pct:0.115,label:'11–12%',img:'MaleBody10.jpeg',alt:'Male 11–12%'},
-  {pct:0.135,label:'13–14%',img:'MaleBody13.jpeg',alt:'Male 13–14%'},
-  {pct:0.16,label:'15–17%',img:'MaleBody15.jpeg',alt:'Male 15–17%'},
-  {pct:0.185,label:'18–19%',img:'MaleBody18.jpeg',alt:'Male 18–19%'},
-  {pct:0.21,label:'20–22%',img:'MaleBody20.jpeg',alt:'Male 20–22%'},
-  {pct:0.235,label:'23–24%',img:'MaleBody25.jpeg',alt:'Male 23–24%'},
-  {pct:0.27,label:'25–29%',img:'MaleBody30.jpeg',alt:'Male 25–29%'},
-  {pct:0.32,label:'30–34%',img:'MaleBody35.jpeg',alt:'Male 30–34%'},
-  {pct:0.375,label:'35–40%',img:'MaleBody40.jpeg',alt:'Male 35–40%'}
-];
-const bfPicsFemale = [
-  {pct:0.14,label:'13–15%',img:'FemaleBody1.jpeg',alt:'Female 13–15%'},
-  {pct:0.165,label:'16–17%',img:'FemaleBody2.jpeg',alt:'Female 16–17%'},
-  {pct:0.185,label:'18–19%',img:'FemaleBody3.jpeg',alt:'Female 18–19%'},
-  {pct:0.205,label:'20–21%',img:'FemaleBody4.jpeg',alt:'Female 20–21%'},
-  {pct:0.225,label:'22–23%',img:'FemaleBody5.jpeg',alt:'Female 22–23%'},
-  {pct:0.245,label:'24–25%',img:'FemaleBody6.jpeg',alt:'Female 24–25%'},
-  {pct:0.27,label:'26–28%',img:'FemaleBody7.jpeg',alt:'Female 26–28%'},
-  {pct:0.305,label:'29–32%',img:'FemaleBody8.jpeg',alt:'Female 29–32%'},
-  {pct:0.345,label:'33–36%',img:'FemaleBody9.jpeg',alt:'Female 33–36%'},
-  {pct:0.39,label:'37–41%',img:'FemaleBody10.jpeg',alt:'Female 37–41%'}
-];
 const $=id=>document.getElementById(id);
-const round=(x,n=0)=>{const p=10**n;return Math.round(x*p)/p;};
-(function setDefaultStartToday(){
-  const now=new Date();
-  const pad=n=>String(n).padStart(2,'0');
-  $('startDate').value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-})();
-function buildBFGrid(containerId,sex){
+function round(x,n=0){const p=10**n;return Math.round(x*p)/p;}
+function bmr(sex,kg,cm,age){return sex==='male'?(10*kg+6.25*cm-5*age+5):(10*kg+6.25*cm-5*age-161);}
+function activityMultiplier(work,training,cardio){
+  let base=1.425;if(work==='moderate')base=1.55;if(work==='high')base=1.75;
+  let g=0;if(training==='1-2')g=.05;if(training==='3-4')g=.1;if(training==='5-6')g=.2;
+  let c=0;if(cardio==='1-2')c=.05;if(cardio==='3-4')c=.1;if(cardio==='5-6')c=.15;
+  return base+g+c;
+}
+function formatDate(dt){return dt.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});}
+function getSelected(id){const a=$(id).querySelector('.active');return a?Number(a.dataset.value):null;}
+
+// Demo bodyfat images
+const bfPicsMale=[{pct:.18,label:'18–19%',img:'MaleBody18.jpeg'}];
+const bfPicsFemale=[{pct:.25,label:'24–25%',img:'FemaleBody6.jpeg'}];
+
+function buildBFGrid(id,sex){
   const list=(sex==='female')?bfPicsFemale:bfPicsMale;
-  const wrap=$(containerId);wrap.innerHTML='';
+  const wrap=$(id);wrap.innerHTML='';
   list.forEach(o=>{
     const card=document.createElement('button');
-    card.type='button';card.className='bf-tile';
-    card.dataset.value=o.pct;
-    const img=document.createElement('img');img.src=o.img;img.alt=o.alt;img.className='bf-img';
+    card.type='button';card.className='bf-tile';card.dataset.value=o.pct;
+    const img=document.createElement('img');img.src=o.img;img.className='bf-img';
     const lab=document.createElement('div');lab.className='bf-label';lab.textContent=o.label;
-    card.appendChild(img);card.appendChild(lab);
+    card.append(img,lab);
     card.onclick=()=>{[...wrap.children].forEach(c=>c.classList.remove('active'));card.classList.add('active');};
     wrap.appendChild(card);
   });
 }
+$('sex').onchange=()=>{if(!$('sex').value){$('bfSection').style.display='none'}else{buildBFGrid('bfCurrent',$('sex').value);buildBFGrid('bfGoal',$('sex').value);$('bfSection').style.display='block'}};
+$('calc').onclick=()=>{
+  const age=+($('age').value||0),sex=$('sex').value;
+  if(!age||!sex){$('result').textContent="Please complete all fields.";return;}
+  let cm=$('heightUnit').value==='cm'?+($('cm').value||0):((+$('ft').value*12+ +$('inch').value)*2.54);
+  let kg=+$('weight').value;if($('wUnit').value==='lb')kg*=.453592;
+  const lb=kg/.453592;const mult=activityMultiplier($('work').value,$('training').value,$('cardio').value);
+  const bfCur=getSelected('bfCurrent'),bfGoal=getSelected('bfGoal');
+  if(!bfCur||!bfGoal){$('result').textContent="Please pick bodyfat.";return;}
+  if(bfGoal>=bfCur){$('result').textContent="Goal BF must be lower.";return;}
+  const tdee=bmr(sex,kg,cm,age)*mult;
+  const leanMass=kg*(1-bfCur),goalWeight=leanMass/(1-bfGoal),goalLb=goalWeight/.453592;
+  const fatToLose=lb-goalLb,weeklyLoss=lb*.01,dailyDef=(weeklyLoss*3500)/7;
+  let cals=tdee-dailyDef;if((sex==='male'&&cals<1600)||(sex==='female'&&cals<1300))cals=sex==='male'?1600:1300;
+  const weeks=fatToLose/(weeklyLoss||1);
+  const protein=Math.round(leanMass*2.2*1.8/1.0); // ~1.8 g/kg LBM → g/day
+  const finish=new Date(new Date($('startDate').value).getTime()+weeks*7*864e5);
+  $('theDayDate').textContent=formatDate(finish);$('theDay').style.display='block';
+  $('kProtein').textContent=protein;$('kCals').textContent=Math.round(cals);
+  $('kWeeks').textContent=Math.round(weeks);$('kWeeklyLoss').textContent=round(weeklyLoss,1);
+  $('kpi').style.display='grid';
+  $('result').innerHTML=`<p><b>TDEE:</b> ${Math.round(tdee)} kcal/day<br><b>Start:</b> ${round(lb,1)} lb • <b>Goal:</b> ${round(goalLb,1)} lb</p><p>Protein based on lean body mass (≈1.8 g/kg LBM)</p>`;
+};
+</script>
+</body>
+</html>
