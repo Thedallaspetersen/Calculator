@@ -75,6 +75,7 @@
   /* Utility */
   .sr{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
   .error{border-color:#ff6565 !important; box-shadow:0 0 0 3px rgba(255,101,101,.18)}
+  .errors{margin-top:10px;color:#ff9a9a;font-size:.92rem}
   footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
 </style>
 </head>
@@ -94,7 +95,8 @@
     <div class="row">
       <div>
         <label for="age">Age</label>
-        <input id="age" type="number" inputmode="numeric" placeholder="age" min="13" max="100">
+        <!-- cap age at 90 -->
+        <input id="age" type="number" inputmode="numeric" placeholder="age" min="13" max="90">
       </div>
       <div>
         <label for="sex">Sex</label>
@@ -167,6 +169,8 @@
     </div>
 
     <button class="btn" id="calc">Calculate</button>
+    <!-- error list -->
+    <div class="errors" id="errors" aria-live="polite"></div>
   </section>
 
   <!-- RIGHT: results -->
@@ -307,62 +311,87 @@ function formatLongDate(dt){
   return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
 }
 
-/* Small validator */
-function requireFilled(ids){
-  let ok = true;
-  ids.forEach(id=>{
-    const el=$(id); el.classList.remove('error');
-    if(!el.value){ el.classList.add('error'); ok=false; }
-  });
-  return ok;
+/* --- Validation helpers (tell them exactly what's missing) --- */
+function markError(el, cond){ if(!el) return; el.classList.toggle('error', !!cond); }
+function validateInputs(){
+  const errors = [];
+  const ageEl = $('age');
+  const sexEl = $('sex');
+  const startEl = $('startDate');
+  const heightMode = $('heightUnit').value;
+  const ftEl = $('ft'), inEl = $('inch'), cmEl = $('cm');
+  const weightEl = $('weight');
+
+  // reset visuals
+  [ageEl, sexEl, startEl, ftEl, inEl, cmEl, weightEl].forEach(el=> el.classList.remove('error'));
+
+  // sex
+  if(!sexEl.value){ errors.push('Select your sex.'); markError(sexEl, true); }
+
+  // age
+  const age = Number(ageEl.value||0);
+  if(!age){ errors.push('Enter your age.'); markError(ageEl, true); }
+  else if(age < 13){ errors.push('Age must be 13 or older.'); markError(ageEl, true); }
+  else if(age > 90){ errors.push('Age cannot be over 90.'); markError(ageEl, true); }
+
+  // height
+  let cm = 0;
+  if(heightMode==='cm'){
+    cm = Number(cmEl.value||0);
+    if(!cm){ errors.push('Enter your height in centimeters.'); markError(cmEl, true); }
+  }else{
+    const ft = Number(ftEl.value||0), inch = Number(inEl.value||0);
+    if(!ft && !inch){ errors.push('Enter your height in feet and inches.'); markError(ftEl, true); markError(inEl, true); }
+    else cm = (ft*12 + inch) * 2.54;
+  }
+
+  // weight
+  const weight = Number(weightEl.value||0);
+  if(!weight){ errors.push('Enter your weight.'); markError(weightEl, true); }
+
+  // start date
+  if(!startEl.value){ errors.push('Choose your start date.'); markError(startEl, true); }
+
+  // BF selections
+  const cur = getSelected('bfCurrent');
+  const goal = getSelected('bfGoal');
+  if(!cur){ errors.push('Pick your current body-fat look.'); }
+  if(!goal){ errors.push('Pick your goal body-fat look.'); }
+  if(cur && goal && goal >= cur){ errors.push('Goal body-fat must be lower than current.'); }
+
+  return {errors, cm, age, weight, cur, goal};
 }
 
 /* Calculate */
 $('calc').onclick = ()=>{
-  const fieldsOk = requireFilled(['age','sex','weight']);
-  if(!fieldsOk){ return; }
-
-  const age = Number($('age').value||0);
-  const sex = $('sex').value;
-
-  // height
-  let cm = 0;
-  if($('heightUnit').value==='cm'){
-    cm = Number($('cm').value||0);
+  const v = validateInputs();
+  const errsBox = $('errors');
+  if(v.errors.length){
+    errsBox.innerHTML = 'Please fix the following:<ul><li>' + v.errors.join('</li><li>') + '</li></ul>';
+    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none';
+    $('result').textContent = "Fill the missing fields to calculate.";
+    document.querySelector('section.card').scrollIntoView({behavior:'smooth'});
+    return;
   }else{
-    const ft = Number($('ft').value||0);
-    const inch = Number($('inch').value||0);
-    cm = (ft*12 + inch) * 2.54;
+    errsBox.innerHTML = '';
   }
 
-  // weight
+  // values
+  const age = Number($('age').value||0);
+  const sex = $('sex').value;
+  const cm = v.cm;
+
   let kg = Number($('weight').value||0);
   if($('wUnit').value==='lb') kg = kg * 0.45359237;
   const lb = kg / 0.45359237;
 
-  // activity
   const mult = activityMultiplier($('work').value, $('training').value, $('cardio').value);
 
-  // selections
-  const bfCur  = getSelected('bfCurrent');
-  const bfGoal = getSelected('bfGoal');
-
-  // start date (date-only)
   const startVal = $('startDate').value;
   const startDT  = startVal ? new Date(startVal + 'T00:00:00') : new Date();
 
-  if(!age || !cm || !kg || !bfCur || !bfGoal){
-    $('result').innerHTML = "Please complete all fields and select your current and goal looks.";
-    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; 
-    document.querySelector('.card + .card').scrollIntoView({behavior:'smooth'}); 
-    return;
-  }
-  if(bfGoal >= bfCur){
-    $('result').innerHTML = "Goal body-fat must be lower than current for a fat-loss timeline.";
-    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none';
-    document.querySelector('.card + .card').scrollIntoView({behavior:'smooth'});
-    return;
-  }
+  const bfCur  = v.cur;
+  const bfGoal = v.goal;
 
   // calcs
   const _bmr = bmr(sex, kg, cm, age);
