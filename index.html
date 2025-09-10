@@ -54,13 +54,20 @@
   .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
   .tile b{display:block;font-size:1.3rem;margin-top:6px}
 
+  /* THE DAY banner */
+  .theday{margin-top:10px;padding:12px;border-radius:12px;
+    background:#101015;border:1px solid #2a2a31;
+    font-weight:800;font-size:1.3rem;letter-spacing:.3px;text-align:center}
+  .theday .lbl{opacity:.8;margin-right:.35rem}
+  .theday time{font-weight:900}
+
   footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
 </style>
 </head>
 <body>
 <header>
   <h1>Built With Intention • Macro & Timeline Calculator</h1>
-  <p>Answer a few questions. We’ll estimate protein, calories, weekly loss, and an exact date you’ll hit your goal.</p>
+  <p>Answer a few questions. We’ll estimate protein, calories, weekly loss, and the exact day you’ll hit your goal.</p>
 </header>
 
 <div class="wrap grid">
@@ -103,6 +110,10 @@
       </div>
     </div>
 
+    <!-- START DATE moved above Activity -->
+    <h3 style="margin-top:16px">When will you start?</h3>
+    <input id="startDateTime" type="datetime-local">
+
     <h3 style="margin-top:16px">Activity</h3>
     <label>Work Activity</label>
     <select id="work">
@@ -127,15 +138,15 @@
       <option value="5-6">5–6 hours</option>
     </select>
 
-    <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
-    <div id="bfCurrent" class="bf-grid" role="radiogroup" aria-label="Current body fat"></div>
-    <p class="hint" id="bfHint" style="display:none">Tip: tap a photo to select. Labels show approximate ranges.</p>
+    <!-- BF pickers are HIDDEN until Sex is chosen -->
+    <div id="bfSection" style="display:none">
+      <h3 style="margin-top:16px">Pick your current look (body-fat approximation)</h3>
+      <div id="bfCurrent" class="bf-grid" role="radiogroup" aria-label="Current body fat"></div>
+      <p class="hint" id="bfHint" style="display:none">Tip: tap a photo to select. Labels show approximate ranges.</p>
 
-    <h3 style="margin-top:16px">Pick your goal look</h3>
-    <div id="bfGoal" class="bf-grid" role="radiogroup" aria-label="Goal body fat"></div>
-
-    <h3 style="margin-top:16px">When will you start?</h3>
-    <input id="startDateTime" type="datetime-local">
+      <h3 style="margin-top:16px">Pick your goal look</h3>
+      <div id="bfGoal" class="bf-grid" role="radiogroup" aria-label="Goal body fat"></div>
+    </div>
 
     <button class="btn" id="calc">Calculate</button>
   </section>
@@ -143,6 +154,9 @@
   <!-- RIGHT: results -->
   <section class="card">
     <h3>Your Plan</h3>
+    <div class="theday" id="theDay" style="display:none">
+      <span class="lbl">THE DAY:</span><time id="theDayDate">—</time>
+    </div>
     <div class="result" id="result">Fill the form and tap <b>Calculate</b>.</div>
     <div class="kpi" id="kpi" style="display:none">
       <div class="tile"><span class="muted">Protein (g/day)</span><b id="kProtein">—</b></div>
@@ -158,7 +172,6 @@
 
 <script>
 /* ---------- IMAGE SETS & LABELS ---------- */
-/* Male images — filenames you already uploaded */
 const bfPicsMale = [
   {pct:0.09,  label:'8–10%',  img:'MaleBody8.jpeg',  alt:'Male 8–10%'},
   {pct:0.115, label:'11–12%', img:'MaleBody10.jpeg', alt:'Male 11–12%'},
@@ -172,7 +185,7 @@ const bfPicsMale = [
   {pct:0.375, label:'35–40%', img:'MaleBody40.jpeg', alt:'Male 35–40%'}
 ];
 
-/* Female images — FIXED: pct values now match labels (as decimals, midpoints) */
+/* Female images — pct values match labels (midpoints as decimals) */
 const bfPicsFemale = [
   {pct:0.14,  label:'13–15%', img:'FemaleBody1.jpeg',  alt:'Female 13–15%'},
   {pct:0.165, label:'16–17%', img:'FemaleBody2.jpeg',  alt:'Female 16–17%'},
@@ -244,6 +257,7 @@ $('heightUnit').onchange = ()=>{
 function refreshPickers(){
   const sex = $('sex').value;
   if(!sex){
+    $('bfSection').style.display = 'none';
     $('bfCurrent').innerHTML = '';
     $('bfGoal').innerHTML    = '';
     $('bfHint').style.display = 'none';
@@ -251,6 +265,7 @@ function refreshPickers(){
   }
   buildBFGrid('bfCurrent', sex);
   buildBFGrid('bfGoal', sex);
+  $('bfSection').style.display = 'block';
   $('bfHint').style.display = 'block';
 }
 $('sex').addEventListener('change', refreshPickers);
@@ -288,7 +303,7 @@ $('calc').onclick = ()=>{
 
   if(!sex){
     $('result').innerHTML = "Choose your sex to load the photo options, then select your current and goal looks.";
-    $('kpi').style.display='none'; $('note').style.display='none'; return;
+    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; return;
   }
 
   // height
@@ -319,11 +334,11 @@ $('calc').onclick = ()=>{
 
   if(!age || !cm || !kg || !bfCur || !bfGoal){
     $('result').innerHTML = "Please complete all fields and select your current and goal looks.";
-    $('kpi').style.display='none'; $('note').style.display='none'; return;
+    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; return;
   }
   if(bfGoal >= bfCur){
     $('result').innerHTML = "Goal body-fat must be lower than current for a fat-loss timeline.";
-    $('kpi').style.display='none'; $('note').style.display='none'; return;
+    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; return;
   }
 
   // calcs
@@ -349,15 +364,18 @@ $('calc').onclick = ()=>{
 
   const weeks = achievableWeeklyLoss_lb > 0 ? fatToLose_lb / achievableWeeklyLoss_lb : 0;
 
-  // ---- Protein (muscle-sparing in a deficit) ----
-  // ~1.0 g per lb of LEAN MASS (2.2 g/kg LBM); min 100 g
+  // Protein (muscle-sparing in a deficit): ~1 g/lb LBM (2.2 g/kg LBM), min 100 g
   const protein_g = Math.max(100, Math.round(leanMass_kg * 2.2));
 
   // exact finish date/time
   const daysToGoal = weeks * 7;
   const finishDT = new Date(startDT.getTime() + daysToGoal * 24 * 60 * 60 * 1000);
 
-  // output
+  // THE DAY banner
+  $('theDayDate').textContent = formatLocal(finishDT);
+  $('theDay').style.display = 'block';
+
+  // output (no start date in result)
   $('kProtein').textContent    = protein_g;
   $('kCals').textContent       = Math.round(calories);
   $('kWeeks').textContent      = Math.max(1, Math.round(weeks));
@@ -368,7 +386,6 @@ $('calc').onclick = ()=>{
     <p><b>TDEE:</b> ${Math.round(tdee)} kcal/day</p>
     <p><b>Current BF:</b> ${Math.round(bfCur*100)}% • <b>Goal BF:</b> ${Math.round(bfGoal*100)}%<br>
     <b>Start Weight:</b> ${round(lb,1)} lb • <b>Goal Weight (est.):</b> ${round(goalWeight_lb,1)} lb</p>
-    <p><b>Start:</b> ${formatLocal(startDT)} • <b>Projected Goal:</b> ${formatLocal(finishDT)}</p>
   `;
 
   if(floorApplied){
