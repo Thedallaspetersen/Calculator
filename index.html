@@ -13,7 +13,7 @@
     --line:#26262c; --radius:16px;
     --shadow:0 6px 24px rgba(0,0,0,.28);
 
-    /* Premium results accent */
+    /* Results accent (professional blue) */
     --pro:#4da3ff;      /* main accent */
     --pro-2:#8cc6ff;    /* soft accent */
     --ring: color-mix(in srgb, var(--pro), transparent 80%);
@@ -56,7 +56,7 @@
   input:focus, select:focus{border-color:var(--hl-strong);box-shadow:0 0 0 3px color-mix(in srgb,var(--hl-strong),transparent 80%)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-  /* === Body Fat Grid & Images — Option A (compact-ready) === */
+  /* === Body Fat Grid & Images — compact-ready === */
   .bf-grid{
     display:grid;
     grid-template-columns:repeat(2,1fr);
@@ -144,6 +144,23 @@
   .tile b{ display:block; margin-top:6px; font-size:1.35rem; font-weight:1000; }
   .tile small{ display:block; margin-top:4px; color:#8fa0b6; font-size:.72rem; }
 
+  /* Finish Line stripe */
+  .finish-stripe{
+    height: 3px;
+    border-radius: 3px;
+    margin-top: 14px;
+    background: linear-gradient(90deg, var(--accent), #ff7f50 40%, var(--pro));
+    box-shadow: 0 1px 0 rgba(255,255,255,.05) inset;
+    transform: scaleX(1);
+    transform-origin: left;
+    opacity: .95;
+  }
+  .theday.celebrate .finish-stripe{ animation: stripe-reveal 700ms ease-out both; }
+  @keyframes stripe-reveal{
+    from{ transform: scaleX(0); opacity:.3; }
+    to{   transform: scaleX(1); opacity:.95; }
+  }
+
   /* Validation */
   .error{border-color:#ff6565 !important; box-shadow:0 0 0 3px rgba(255,101,101,.18) !important}
   .errors{margin-top:10px;color:#ff9a9a;font-size:.92rem}
@@ -154,6 +171,7 @@
   #confettiCanvas{ position:fixed; inset:0; pointer-events:none; z-index:999; }
   @media (prefers-reduced-motion: reduce){
     .bf-tile:hover .bf-img{ transform:none; filter:none; }
+    .theday.celebrate .finish-stripe{ animation: none; }
   }
 </style>
 </head>
@@ -277,6 +295,9 @@
         <button class="action-btn" id="copyDateBtn" type="button">Copy date</button>
         <a class="action-link" id="gcalLink" target="_blank" rel="noopener">Google Calendar</a>
       </div>
+
+      <!-- new gradient accent -->
+      <div class="finish-stripe" aria-hidden="true"></div>
     </div>
 
     <!-- KPIs: 5 tiles, clean -->
@@ -583,8 +604,12 @@ $('calc').onclick = ()=>{
   $('theDay').style.display = 'block';
   $('dayActions').style.display = 'flex';
 
-  // confetti pop
+  // confetti + stripe reveal
   Confetti.burst();
+  const box = $('theDay');
+  box.classList.remove('celebrate');           // reset if recalculating
+  void box.offsetWidth;                        // reflow to restart animation
+  box.classList.add('celebrate');
 
   // Google Calendar link (all-day)
   const ymd = toYMD(finishDT);
