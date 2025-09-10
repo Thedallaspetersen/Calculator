@@ -15,7 +15,6 @@
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.4}
-
   /* Header */
   header{padding:28px 18px 16px;text-align:center;position:relative}
   header::after{content:"";display:block;height:3px;max-width:980px;margin:14px auto 0;border-radius:3px;background:linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--hl-strong));opacity:.5}
@@ -46,36 +45,21 @@
   @media(max-width:980px){ .bf-grid{grid-template-columns:repeat(3,1fr)} }
   @media(max-width:640px){ .bf-grid{grid-template-columns:repeat(2,1fr)} }
 
-  /* Tile with 1px bleed to kill hairlines */
   .bf-tile{
-    position:relative;
-    background:#121217;border:1px solid #2a2a31;border-radius:16px;
-    overflow:hidden;cursor:pointer;transition:.18s transform,.18s border,.18s box-shadow;
-  }
-  .bf-img{
-    display:block;
-    width:calc(100% + 2px); height:calc(140px + 2px); margin:-1px;
-    object-fit:cover; object-position:center;
-    transform:translateZ(0); transition:transform .18s ease;
+    background:#121217;border:1px solid #2a2a31;border-radius:16px;overflow:hidden;cursor:pointer;
+    transition:.18s transform,.18s border,.18s box-shadow;
   }
   .bf-tile:hover{transform:translateY(-2px);border-color:var(--hl);box-shadow:0 6px 18px rgba(0,0,0,.28)}
-  .bf-tile:hover .bf-img{ transform:translateZ(0) scale(1.02); }
   .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl-strong),transparent 72%)}
+  .bf-img{display:block;width:100%;height:140px;object-fit:cover;transform:scale(1.05);transition:transform .18s ease}
+  .bf-tile:hover .bf-img{transform:scale(1.08)}
   .bf-label{padding:8px 10px;text-align:center;font-weight:800;background:#101015;border-top:1px solid #22232a;color:#fff;letter-spacing:.2px}
-  .bf-tile:focus-visible{outline:none;border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl-strong),transparent 72%)}
 
-  /* Tap highlight overlay (mobile) */
-  .bf-tile::after{
-    content:""; position:absolute; inset:0; background:rgba(255,255,255,.08);
-    opacity:0; transition:opacity .12s ease; pointer-events:none;
-  }
-  .bf-tile:active::after, .bf-tile.pressed::after{ opacity:.18; }
-
-  /* Buttons & KPIs */
   .hint{margin:.35rem 0 0;color:var(--muted);font-size:.85rem}
   .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:900;cursor:pointer;letter-spacing:.2px}
   .btn:focus{outline:3px solid color-mix(in srgb,var(--accent),transparent 70%)}
 
+  /* KPIs */
   .result{font-size:1.05rem;line-height:1.65}
   .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
   @media(max-width:640px){ .kpi{grid-template-columns:repeat(2,1fr)} }
@@ -88,16 +72,9 @@
   .theday .lbl{display:block;font-weight:1000;font-size:1.2rem;letter-spacing:.4px;margin-bottom:8px}
   .theday time{display:block;font-weight:950;font-size:1.6rem;letter-spacing:.3px}
 
-  /* Validation */
-  .error{border-color:#ff6565 !important; box-shadow:0 0 0 3px rgba(255,101,101,.18) !important}
-  .errors{margin-top:10px; color:#ff9a9a; font-size:.92rem}
-
-  /* Reduced motion */
-  @media (prefers-reduced-motion: reduce){
-    .bf-img{ transition:none; } .bf-tile:hover .bf-img{ transform:none; }
-    .bf-tile:hover{ transform:none; }
-  }
-
+  /* Utility */
+  .sr{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+  .error{border-color:#ff6565 !important; box-shadow:0 0 0 3px rgba(255,101,101,.18)}
   footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
 </style>
 </head>
@@ -117,7 +94,7 @@
     <div class="row">
       <div>
         <label for="age">Age</label>
-        <input id="age" type="number" inputmode="numeric" placeholder="age" min="13" max="90">
+        <input id="age" type="number" inputmode="numeric" placeholder="age" min="13" max="100">
       </div>
       <div>
         <label for="sex">Sex</label>
@@ -190,13 +167,11 @@
     </div>
 
     <button class="btn" id="calc">Calculate</button>
-    <div class="errors" id="errors" aria-live="polite"></div>
   </section>
 
   <!-- RIGHT: results -->
   <section class="card" aria-live="polite">
     <h3>Your Plan</h3>
-
     <!-- FINISH LINE banner -->
     <div class="theday" id="theDay" style="display:none">
       <span class="lbl">The Finish Line</span>
@@ -273,13 +248,6 @@ function buildBFGrid(containerId, sex){
       [...wrap.children].forEach(c=>{ c.classList.remove('active'); c.setAttribute('aria-checked','false'); });
       card.classList.add('active'); card.setAttribute('aria-checked','true');
     };
-
-    // Mobile tap highlight
-    card.addEventListener('touchstart', ()=> card.classList.add('pressed'), {passive:true});
-    ['touchend','touchcancel','touchmove','mouseleave','blur'].forEach(ev =>
-      card.addEventListener(ev, ()=> card.classList.remove('pressed'))
-    );
-
     wrap.appendChild(card);
   });
 }
@@ -339,81 +307,35 @@ function formatLongDate(dt){
   return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
 }
 
-/* Validation helpers */
-function markError(el, cond){
-  el.classList.toggle('error', cond);
-}
-function validateInputs(){
-  const errors = [];
-  const ageEl = $('age');
-  const sexEl = $('sex');
-  const startEl = $('startDate');
-  const heightMode = $('heightUnit').value;
-  const ftEl = $('ft'), inEl = $('inch'), cmEl = $('cm');
-  const weightEl = $('weight');
-
-  // reset
-  [ageEl, sexEl, startEl, ftEl, inEl, cmEl, weightEl].forEach(el=> el.classList.remove('error'));
-
-  // sex
-  if(!sexEl.value){ errors.push('Select your sex.'); markError(sexEl, true); }
-
-  // age
-  const age = Number(ageEl.value||0);
-  if(!age){ errors.push('Enter your age.'); markError(ageEl, true); }
-  else if(age < 13){ errors.push('Age must be 13 or older.'); markError(ageEl, true); }
-  else if(age > 90){ errors.push('Age cannot be over 90.'); markError(ageEl, true); }
-
-  // height
-  let cm = 0;
-  if(heightMode==='cm'){
-    cm = Number(cmEl.value||0);
-    if(!cm){ errors.push('Enter your height in centimeters.'); markError(cmEl, true); }
-  }else{
-    const ft = Number(ftEl.value||0), inch = Number(inEl.value||0);
-    if(!ft && !inch){ errors.push('Enter your height in feet and inches.'); markError(ftEl, true); markError(inEl, true); }
-    else cm = (ft*12 + inch) * 2.54;
-  }
-
-  // weight
-  const weight = Number(weightEl.value||0);
-  if(!weight){ errors.push('Enter your weight.'); markError(weightEl, true); }
-
-  // start date
-  if(!startEl.value){ errors.push('Choose your start date.'); markError(startEl, true); }
-
-  // BF selections
-  const cur = getSelected('bfCurrent');
-  const goal = getSelected('bfGoal');
-  if(!cur){ errors.push('Pick your current body-fat look.'); }
-  if(!goal){ errors.push('Pick your goal body-fat look.'); }
-  if(cur && goal && goal >= cur){ errors.push('Goal body-fat must be lower than current.'); }
-
-  return {errors, cm, age, weight, cur, goal};
+/* Small validator */
+function requireFilled(ids){
+  let ok = true;
+  ids.forEach(id=>{
+    const el=$(id); el.classList.remove('error');
+    if(!el.value){ el.classList.add('error'); ok=false; }
+  });
+  return ok;
 }
 
 /* Calculate */
 $('calc').onclick = ()=>{
-  const v = validateInputs();
-  const errs = $('errors');
-  if(v.errors.length){
-    errs.innerHTML = 'Please fix the following:<ul><li>' + v.errors.join('</li><li>') + '</li></ul>';
-    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none';
-    $('result').innerHTML = "Fill the missing fields to calculate.";
-    document.querySelector('section.card').scrollIntoView({behavior:'smooth'});
-    return;
-  }else{
-    errs.innerHTML = '';
-  }
+  const fieldsOk = requireFilled(['age','sex','weight']);
+  if(!fieldsOk){ return; }
 
-  // pull values
   const age = Number($('age').value||0);
   const sex = $('sex').value;
 
-  // height (already computed as v.cm)
-  const cm = v.cm;
+  // height
+  let cm = 0;
+  if($('heightUnit').value==='cm'){
+    cm = Number($('cm').value||0);
+  }else{
+    const ft = Number($('ft').value||0);
+    const inch = Number($('inch').value||0);
+    cm = (ft*12 + inch) * 2.54;
+  }
 
-  // weight (convert to kg if needed)
+  // weight
   let kg = Number($('weight').value||0);
   if($('wUnit').value==='lb') kg = kg * 0.45359237;
   const lb = kg / 0.45359237;
@@ -421,13 +343,26 @@ $('calc').onclick = ()=>{
   // activity
   const mult = activityMultiplier($('work').value, $('training').value, $('cardio').value);
 
+  // selections
+  const bfCur  = getSelected('bfCurrent');
+  const bfGoal = getSelected('bfGoal');
+
   // start date (date-only)
   const startVal = $('startDate').value;
   const startDT  = startVal ? new Date(startVal + 'T00:00:00') : new Date();
 
-  // selections
-  const bfCur  = v.cur;
-  const bfGoal = v.goal;
+  if(!age || !cm || !kg || !bfCur || !bfGoal){
+    $('result').innerHTML = "Please complete all fields and select your current and goal looks.";
+    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none'; 
+    document.querySelector('.card + .card').scrollIntoView({behavior:'smooth'}); 
+    return;
+  }
+  if(bfGoal >= bfCur){
+    $('result').innerHTML = "Goal body-fat must be lower than current for a fat-loss timeline.";
+    $('kpi').style.display='none'; $('note').style.display='none'; $('theDay').style.display='none';
+    document.querySelector('.card + .card').scrollIntoView({behavior:'smooth'});
+    return;
+  }
 
   // calcs
   const _bmr = bmr(sex, kg, cm, age);
