@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Built With Intention – Macro & Timeline Calculator</title>
+<title>5-STEP CALCULATOR – @thedallaspetersen</title>
 <style>
   :root{
     --bg:#0f0f12; --card:#17171b; --ink:#e7e7f0; --muted:#a7a7b3;
@@ -14,7 +14,8 @@
   body{margin:0;background:var(--bg);color:var(--ink)}
   header{padding:22px 18px;text-align:center}
   header h1{margin:0;font-size:1.6rem}
-  header p{margin:.25rem 0 0;color:var(--muted)}
+  header p{margin:.35rem 0 0;color:var(--muted)}
+  header a{color:var(--hl-strong);text-decoration:none;font-weight:700}
 
   .wrap{max-width:980px;margin:0 auto;padding:12px}
   .grid{display:grid;gap:12px}
@@ -37,14 +38,9 @@
   }
   .bf-tile:hover{transform:translateY(-2px);border-color:var(--hl);box-shadow:0 6px 18px rgba(0,0,0,.28)}
   .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl),transparent 72%)}
-
   .bf-img{display:block;width:100%;height:140px;object-fit:cover;transform:scale(1.05);transition:transform .18s ease}
   .bf-tile:hover .bf-img{transform:scale(1.08)}
-
-  .bf-label{
-    padding:8px 10px;text-align:center;font-weight:700;background:#101015;border-top:1px solid #22232a;
-    color:#fff;letter-spacing:.2px
-  }
+  .bf-label{padding:8px 10px;text-align:center;font-weight:700;background:#101015;border-top:1px solid #22232a;color:#fff;letter-spacing:.2px}
 
   .hint{margin:.35rem 0 0;color:var(--muted);font-size:.85rem}
   .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
@@ -54,20 +50,18 @@
   .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
   .tile b{display:block;font-size:1.3rem;margin-top:6px}
 
-  /* THE DAY banner */
-  .theday{margin-top:10px;padding:12px;border-radius:12px;
-    background:#101015;border:1px solid #2a2a31;
-    font-weight:800;font-size:1.3rem;letter-spacing:.3px;text-align:center}
-  .theday .lbl{opacity:.8;margin-right:.35rem}
-  .theday time{font-weight:900}
+  /* FINISH LINE banner */
+  .theday{margin-top:10px;padding:14px;border-radius:12px;background:#101015;border:1px solid #2a2a31;text-align:center}
+  .theday .lbl{display:block;font-weight:900;font-size:1.15rem;letter-spacing:.3px;margin-bottom:6px}
+  .theday time{display:block;font-weight:900;font-size:1.4rem}
 
   footer{padding:28px;text-align:center;color:var(--muted);font-size:.85rem}
 </style>
 </head>
 <body>
 <header>
-  <h1>Built With Intention • Macro & Timeline Calculator</h1>
-  <p>Answer a few questions. We’ll estimate protein, calories, weekly loss, and the exact day you’ll hit your goal.</p>
+  <h1>5-STEP CALCULATOR • <a href="https://www.youtube.com/@thedallaspetersen" target="_blank" rel="noopener">@thedallaspetersen</a></h1>
+  <p>Answer a few questions. We’ll estimate protein, calories, weekly loss, and the exact date you’ll reach your goal.</p>
 </header>
 
 <div class="wrap grid">
@@ -110,9 +104,9 @@
       </div>
     </div>
 
-    <!-- START DATE moved above Activity -->
+    <!-- START DATE: date-only, above Activity -->
     <h3 style="margin-top:16px">When will you start?</h3>
-    <input id="startDateTime" type="datetime-local">
+    <input id="startDate" type="date">
 
     <h3 style="margin-top:16px">Activity</h3>
     <label>Work Activity</label>
@@ -154,9 +148,13 @@
   <!-- RIGHT: results -->
   <section class="card">
     <h3>Your Plan</h3>
+
+    <!-- FINISH LINE banner -->
     <div class="theday" id="theDay" style="display:none">
-      <span class="lbl">THE DAY:</span><time id="theDayDate">—</time>
+      <span class="lbl">The Finish Line</span>
+      <time id="theDayDate">—</time>
     </div>
+
     <div class="result" id="result">Fill the form and tap <b>Calculate</b>.</div>
     <div class="kpi" id="kpi" style="display:none">
       <div class="tile"><span class="muted">Protein (g/day)</span><b id="kProtein">—</b></div>
@@ -185,7 +183,7 @@ const bfPicsMale = [
   {pct:0.375, label:'35–40%', img:'MaleBody40.jpeg', alt:'Male 35–40%'}
 ];
 
-/* Female images — pct values match labels (midpoints as decimals) */
+/* Female images — corrected pct values (midpoints in decimals) */
 const bfPicsFemale = [
   {pct:0.14,  label:'13–15%', img:'FemaleBody1.jpeg',  alt:'Female 13–15%'},
   {pct:0.165, label:'16–17%', img:'FemaleBody2.jpeg',  alt:'Female 16–17%'},
@@ -203,12 +201,11 @@ const bfPicsFemale = [
 const $ = id => document.getElementById(id);
 const round = (x,n=0)=>{const p=10**n; return Math.round(x*p)/p;};
 
-/* Default start datetime to now (local) */
-(function setDefaultStartNow(){
+/* Default start date to today (local, YYYY-MM-DD) */
+(function setDefaultStartToday(){
   const now = new Date();
   const pad = n => String(n).padStart(2,'0');
-  const local = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  $('startDateTime').value = local;
+  $('startDate').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
 })();
 
 /* Build the photo grids */
@@ -290,10 +287,9 @@ function bmr(sex, kg, cm, age){
                       : (10*kg + 6.25*cm - 5*age - 161);
 }
 
-/* Format a Date as YYYY-MM-DD HH:mm (local) */
-function formatLocal(dt){
-  const pad = n => String(n).padStart(2,'0');
-  return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+/* Format Month Day, Year (no time) */
+function formatLongDate(dt){
+  return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
 }
 
 /* Calculate */
@@ -328,9 +324,9 @@ $('calc').onclick = ()=>{
   const bfCur  = getSelected('bfCurrent');
   const bfGoal = getSelected('bfGoal');
 
-  // start date/time
-  const startVal = $('startDateTime').value;
-  const startDT  = startVal ? new Date(startVal) : new Date();
+  // start date (date-only)
+  const startVal = $('startDate').value;
+  const startDT  = startVal ? new Date(startVal + 'T00:00:00') : new Date();
 
   if(!age || !cm || !kg || !bfCur || !bfGoal){
     $('result').innerHTML = "Please complete all fields and select your current and goal looks.";
@@ -364,18 +360,18 @@ $('calc').onclick = ()=>{
 
   const weeks = achievableWeeklyLoss_lb > 0 ? fatToLose_lb / achievableWeeklyLoss_lb : 0;
 
-  // Protein (muscle-sparing in a deficit): ~1 g/lb LBM (2.2 g/kg LBM), min 100 g
-  const protein_g = Math.max(100, Math.round(leanMass_kg * 2.2));
+  /* Protein: 1 g per lb of CURRENT body weight (simple rule of thumb) */
+  const protein_g = Math.max(120, Math.round(lb * 1.0));
 
-  // exact finish date/time
-  const daysToGoal = weeks * 7;
+  // exact finish date: round UP to whole days for clarity
+  const daysToGoal = Math.ceil(weeks * 7);
   const finishDT = new Date(startDT.getTime() + daysToGoal * 24 * 60 * 60 * 1000);
 
-  // THE DAY banner
-  $('theDayDate').textContent = formatLocal(finishDT);
+  // FINISH LINE banner
+  $('theDayDate').textContent = formatLongDate(finishDT);
   $('theDay').style.display = 'block';
 
-  // output (no start date in result)
+  // output (no start date shown)
   $('kProtein').textContent    = protein_g;
   $('kCals').textContent       = Math.round(calories);
   $('kWeeks').textContent      = Math.max(1, Math.round(weeks));
