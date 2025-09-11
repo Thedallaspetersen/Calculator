@@ -409,21 +409,24 @@ function refreshPickers(){
 }
 $('sex').addEventListener('change', refreshPickers);
 
-/* --- Energy model helpers --- */
+/* --- Energy model helpers (tuned) --- */
 function activityMultiplier(work, training, cardio){
-  let base = 1.425;
+  let base = 1.35;                 // desk
   if(work==='moderate') base = 1.55;
   if(work==='high')     base = 1.75;
+
   let addGym = 0;
   if(training==='1-2') addGym = 0.05;
   if(training==='3-4') addGym = 0.10;
-  if(training==='5-6') addGym = 0.20;
+  if(training==='5-6') addGym = 0.15; // trimmed
+
   let addCardio = 0;
   if(cardio==='1-2') addCardio = 0.05;
   if(cardio==='3-4') addCardio = 0.10;
-  if(cardio==='5-6') addCardio = 0.15;
+  if(cardio==='5-6') addCardio = 0.12; // trimmed
+
   const total = base + addGym + addCardio;
-  return Math.min(2.2, total); // sanity cap
+  return Math.min(2.1, total);     // slightly lower cap
 }
 function bmr(sex, kg, cm, age){
   return sex==='male' ? (10*kg + 6.25*cm - 5*age + 5)
@@ -592,7 +595,10 @@ $('calc').onclick = ()=>{
 
   multProt = Math.max(1.00, Math.min(1.30, multProt)); // clamp multiplier 1.00–1.30
   let protein_g = Math.round(ffm_lb * multProt);
-  protein_g = Math.max(100, protein_g);                // sensible floor only
+
+  // scaled protein floor
+  const proteinFloor = Math.max(90, Math.round(ffm_lb * 0.8));
+  protein_g = Math.max(proteinFloor, protein_g);
 
   // exact finish date
   const daysToGoal = Math.ceil(weeks * 7);
