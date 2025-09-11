@@ -173,17 +173,6 @@
     .bf-tile:hover .bf-img{ transform:none; filter:none; }
     .theday.celebrate .finish-stripe{ animation: none; }
   }
-
-  /* ===== Weekly Tracker ===== */
-  .tracker{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#111217}
-  .tracker h4{margin:0 0 10px;font-size:.95rem;color:#9fb4d1;letter-spacing:.3px}
-  .t-table{width:100%;border-collapse:collapse}
-  .t-table th,.t-table td{border-top:1px solid #2a2a31;padding:10px 8px;text-align:left;font-size:.9rem}
-  .t-table th{color:#aeb9c9;font-weight:800}
-  .t-thumb{display:flex;align-items:center;gap:10px}
-  .t-thumb img{width:56px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #26262c}
-  .t-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
-  .mini{font-size:.8rem;padding:8px 10px}
 </style>
 </head>
 <body>
@@ -318,25 +307,8 @@
       <div class="tile"><span>Calories / day</span><b id="kCals">—</b></div>
       <div class="tile"><span>Protein (g/day)</span><b id="kProtein">—</b><small id="kProteinEq" aria-hidden="true"></small></div>
       <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
-    </div>
-
-    <!-- ===== Weekly Tracker (auto-generated) ===== -->
-    <div id="trackerBox" class="tracker" style="display:none">
-      <h4>Weekly Tracker</h4>
-      <div class="t-actions">
-        <button id="csvBtn" class="action-btn mini" type="button">Download CSV</button>
-      </div>
-      <table class="t-table" id="trackerTable" aria-label="Weekly tracker">
-        <thead>
-          <tr>
-            <th>Week</th>
-            <th>Week Start</th>
-            <th>Target Weight</th>
-            <th>Look (est.)</th>
-          </tr>
-        </thead>
-        <tbody id="trackerBody"></tbody>
-      </table>
+      <!-- ADDED: single empty-slot tile -->
+      <div class="tile"><span>—</span><b id="kDownload" style="cursor:pointer">Download tracker</b></div>
     </div>
 
     <div class="hint" id="proteinFoot" style="display:none">Protein set from lean mass & deficit (evidence-based range).</div>
@@ -365,13 +337,13 @@ const bfPicsMale = [
 ];
 
 const bfPicsFemale = [
-  {pct:0.135, label:'13–14%', img:'FemaleBody1.jpeg',  alt:'Female 13–14%'},
+  {pct:0.135,  label:'13-14%', img:'FemaleBody1.jpeg',  alt:'Female 13–14%'},
   {pct:0.155, label:'15–16%', img:'FemaleBody2.jpeg',  alt:'Female 15–16%'},
   {pct:0.175, label:'17–18%', img:'FemaleBody3.jpeg',  alt:'Female 17–18%'},
   {pct:0.195, label:'19–20%', img:'FemaleBody4.jpeg',  alt:'Female 19–20%'},
   {pct:0.215, label:'21–22%', img:'FemaleBody5.jpeg',  alt:'Female 21–22%'},
   {pct:0.235, label:'23–24%', img:'FemaleBody6.jpeg',  alt:'Female 23–24%'},
-  {pct:0.265, label:'25–28%', img:'FemaleBody7.jpeg',  alt:'Female 25–28%'},
+  {pct:0.265,  label:'25–28%', img:'FemaleBody7.jpeg',  alt:'Female 25–28%'},
   {pct:0.305, label:'29–32%', img:'FemaleBody8.jpeg',  alt:'Female 29–32%'},
   {pct:0.345, label:'33–36%', img:'FemaleBody9.jpeg',  alt:'Female 33–36%'},
   {pct:0.39,  label:'37–41%', img:'FemaleBody10.jpeg', alt:'Female 37–41%'}
@@ -381,7 +353,6 @@ const bfPicsFemale = [
 const $ = id => document.getElementById(id);
 const round = (x,n=0)=>{const p=10**n; return Math.round(x*p)/p;};
 function formatLongDate(dt){return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});}
-function formatShortDate(dt){return dt.toLocaleDateString(undefined, {month:'short', day:'numeric'});}
 
 /* Default start date to today */
 (function setDefaultStartToday(){
@@ -510,7 +481,6 @@ function validateInputs(){
 
 /* ---- Date helpers ---- */
 function toYMD(d){return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`}
-function addDays(date, days){return new Date(date.getTime() + days*24*60*60*1000);}
 
 /* ---- Confetti (tiny, dependency-free) ---- */
 const Confetti = (() => {
@@ -558,58 +528,143 @@ const Confetti = (() => {
   return { burst };
 })();
 
-/* ===== Weekly Tracker builder ===== */
-function nearestLook(sex, bfPct){
-  const list = (sex==='female') ? bfPicsFemale : bfPicsMale;
-  let best = list[0], bestDiff = Math.abs(bfPct - list[0].pct);
-  for(const it of list){
-    const d = Math.abs(bfPct - it.pct);
-    if(d < bestDiff){ best = it; bestDiff = d; }
-  }
-  return best; // {pct,label,img,alt}
+/* ====== ADDED: Tracker helpers for Notes export ====== */
+
+// Parse "15–16%" or "13-14%" into {min:0.15, max:0.16}
+function parsePctRange(label){
+  const m = label.match(/(\d+)\s*[–-]\s*(\d+)\s*%/);
+  if(!m) return null;
+  return { min: Number(m[1])/100, max: Number(m[2])/100 };
 }
-function buildTracker({sex, startDT, startLb, goalLb, weeksRounded, bfCur, bfGoal}){
-  const tbody = $('trackerBody');
-  tbody.innerHTML = '';
-  const rows = [];
+
+// Choose image set by sex
+function getPicSet(sex){ return (sex==='female') ? bfPicsFemale : bfPicsMale; }
+
+// Build weekly weight targets and BF timeline (linear BF decline)
+function buildWeeklyPlan({startDT, startLb, goalLb, weeksRounded, bfCur, bfGoal}){
   const perWeekLoss = (startLb - goalLb) / weeksRounded;
-
+  const weeks = [];
   for(let w=1; w<=weeksRounded; w++){
-    const wkStart = addDays(startDT, (w-1)*7);
-    const target = Math.max(goalLb, startLb - perWeekLoss * w);
-    const bfAtWeek = bfCur + (bfGoal - bfCur) * (w/weeksRounded);
-    const look = nearestLook(sex, bfAtWeek);
+    const wkStart = new Date(startDT.getTime() + (w-1)*7*24*60*60*1000);
+    const targetLb = Math.max(goalLb, startLb - perWeekLoss * w);
+    const bfEst = bfCur + (bfGoal - bfCur) * (w / weeksRounded);
+    weeks.push({
+      week: w,
+      startISO: wkStart.toISOString().slice(0,10),
+      startNice: wkStart.toLocaleDateString(undefined,{month:'short', day:'numeric'}),
+      targetLb: Math.round(targetLb*10)/10,
+      bfEst
+    });
+  }
+  return weeks;
+}
 
-    const tr = document.createElement('tr');
+// Find precise milestone weeks when bfEst first drops <= lower edge of a bin (with small tolerance)
+// Always include the final goal bin image at the last week if not already included.
+function findMilestones({sex, weeks, bfGoal}){
+  const pics = getPicSet(sex);
+  const tol = 0.002; // +0.2% tolerance
+  const milestones = [];
+  const seen = new Set();
 
-    const tdW = document.createElement('td'); tdW.textContent = `Week ${w}`;
-    const tdD = document.createElement('td'); tdD.textContent = formatShortDate(wkStart);
-    const tdT = document.createElement('td'); tdT.textContent = `${round(target,1)} lb`;
+  const bins = pics.map(p=>{
+    const r = parsePctRange(p.label);
+    return r ? {label:p.label, img:p.img, alt:p.alt, lower:r.min, upper:r.max, mid:p.pct} : null;
+  }).filter(Boolean);
 
-    const tdL = document.createElement('td');
-    const wrap = document.createElement('div'); wrap.className='t-thumb';
-    const img = document.createElement('img'); img.src = look.img; img.alt = look.alt;
-    const lab = document.createElement('div'); lab.innerHTML = `<b>${look.label}</b><div style="color:#8fa0b6;font-size:.8rem">${Math.round(bfAtWeek*100)}%</div>`;
-    wrap.appendChild(img); wrap.appendChild(lab); tdL.appendChild(wrap);
-
-    tr.appendChild(tdW); tr.appendChild(tdD); tr.appendChild(tdT); tr.appendChild(tdL);
-    tbody.appendChild(tr);
-
-    rows.push({week:w, weekStart: wkStart.toISOString().slice(0,10), targetLb: round(target,1), lookLabel: look.label, lookPct: Math.round(bfAtWeek*100), lookImg: look.img});
+  for(const b of bins){
+    for(const wk of weeks){
+      if(wk.bfEst <= (b.lower + tol)){
+        if(!seen.has(b.label)){
+          milestones.push({ week:wk.week, label:b.label, img:b.img, alt:b.alt });
+          seen.add(b.label);
+        }
+        break;
+      }
+    }
   }
 
-  // CSV export
-  $('csvBtn').onclick = ()=>{
-    const header = ['Week','Week Start','Target Weight (lb)','Look Label','Look % (est.)','Image File'];
-    const lines = [header.join(',')].concat(rows.map(r=>[r.week,r.weekStart,r.targetLb,r.lookLabel,r.lookPct,r.lookImg].join(',')));
-    const blob = new Blob([lines.join('\n')], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'weekly_tracker.csv'; a.click();
-    URL.revokeObjectURL(url);
-  };
+  // Ensure final goal picture appears even if only brushed
+  let finalBin = bins.find(b => bfGoal <= b.upper && bfGoal >= b.lower);
+  if(!finalBin){
+    finalBin = bins.reduce((best, b)=>{
+      const dBest = Math.abs(best.mid - bfGoal);
+      const dCur  = Math.abs(b.mid - bfGoal);
+      return dCur < dBest ? b : best;
+    }, bins[0]);
+  }
+  if(finalBin && !seen.has(finalBin.label)){
+    milestones.push({
+      week: weeks[weeks.length-1].week,
+      label: finalBin.label + ' (Final Goal)',
+      img: finalBin.img,
+      alt: finalBin.alt
+    });
+  }
 
-  $('trackerBox').style.display = 'block';
+  milestones.sort((a,b)=>a.week-b.week);
+  return milestones;
+}
+
+// Build the plain-text note body (Summary → Weekly Log → Milestones list)
+function buildNotesText({summary, weeks, milestones}){
+  const lines = [];
+  lines.push('CUT TRACKER (Generated)');
+  lines.push('');
+  lines.push('Summary');
+  lines.push(`- Start Date: ${summary.startNice}`);
+  lines.push(`- End Date (Finish Line): ${summary.finishNice}`);
+  lines.push(`- Total Weeks: ${summary.totalWeeks}`);
+  lines.push(`- Start Weight: ${summary.startLb} lb`);
+  lines.push(`- Goal Weight: ${summary.goalLb} lb`);
+  lines.push(`- Calories/day: ${summary.cals}`);
+  lines.push(`- Protein/day: ${summary.protein} g`);
+  lines.push('');
+  lines.push('Weekly Log');
+  weeks.forEach(w=>{
+    lines.push(`Week ${w.week} — Start ${w.startNice}`);
+    lines.push(`Goal: ${w.targetLb} lb`);
+    lines.push('Daily: Mon __ Tue __ Wed __ Thu __ Fri __ Sat __ Sun __');
+    lines.push('Actual weekly avg: __');
+    lines.push('');
+  });
+  lines.push('Milestones (Estimated Visual Checkpoints)');
+  milestones.forEach(m=>{
+    lines.push(`Week ${m.week} — ${m.label}`);
+  });
+  return new Blob([lines.join('\n')], {type:'text/plain'});
+}
+
+// Fetch milestone image files so Notes can attach them
+async function fetchMilestoneFiles(milestones){
+  const out = [];
+  for(const m of milestones){
+    try{
+      const res = await fetch(m.img, {cache:'force-cache'});
+      const blob = await res.blob();
+      const ext = (m.img.split('.').pop() || 'jpg').toLowerCase();
+      const file = new File([blob], `milestone_week${m.week}.${ext}`, {type: blob.type || 'image/jpeg'});
+      out.push(file);
+    }catch(e){ /* skip if an image fails */ }
+  }
+  return out;
+}
+
+// Share to Notes via Web Share API; fallback: download .txt
+async function shareNotesWithImages({textBlob, milestones}){
+  const textFile = new File([textBlob], 'cut_tracker.txt', {type:'text/plain'});
+  const imageFiles = await fetchMilestoneFiles(milestones);
+  const files = [textFile, ...imageFiles];
+
+  if(navigator.share && navigator.canShare && navigator.canShare({files})){
+    try{
+      await navigator.share({ title: 'Cut Tracker', text: '', files });
+      return;
+    }catch(e){ /* fall through to download */ }
+  }
+  const url = URL.createObjectURL(textBlob);
+  const a = document.createElement('a'); a.href = url; a.download = 'cut_tracker.txt'; a.click();
+  URL.revokeObjectURL(url);
 }
 
 /* Calculate */
@@ -730,17 +785,47 @@ $('calc').onclick = ()=>{
   $('proteinFoot').style.display = 'block';
   $('kpi').style.display='grid';
 
-  /* ----- Build weekly tracker (auto) ----- */
+  /* ====== ADDED: Wire the Download tracker tile ====== */
   const weeksRounded = Math.max(1, Math.round(weeks));
-  buildTracker({
-    sex,
+
+  // Build weeks plan (targets + BF timeline)
+  const weeksPlan = buildWeeklyPlan({
     startDT,
     startLb: lb,
     goalLb: goalWeight_lb,
     weeksRounded,
-    bfCur,
-    bfGoal
+    bfCur: bfCur,
+    bfGoal: bfGoal
   });
+
+  // Precise milestones + always include final goal picture
+  const milestones = findMilestones({
+    sex,
+    weeks: weeksPlan,
+    bfGoal: bfGoal
+  });
+
+  // Summary block for the Notes export
+  const summary = {
+    startNice: formatLongDate(startDT),
+    finishNice: niceDate,
+    totalWeeks: weeksRounded,
+    startLb: Math.round(lb),
+    goalLb: Math.round(goalWeight_lb),
+    cals: Math.round(calories),
+    protein: protein_g
+  };
+
+  // Build the text blob
+  const notesBlob = buildNotesText({ summary, weeks: weeksPlan, milestones });
+
+  // Hook tile click
+  const dlTile = $('kDownload');
+  if (dlTile){
+    dlTile.onclick = async ()=>{
+      await shareNotesWithImages({ textBlob: notesBlob, milestones });
+    };
+  }
 };
 </script>
 </body>
