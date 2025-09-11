@@ -134,7 +134,7 @@
     border-color:#3a3a44; box-shadow:0 8px 20px rgba(0,0,0,.25); transform:translateY(-1px);
   }
 
-  /* KPI grid – we’ll add a single “Tracker” tile */
+  /* KPI grid + Tracker tile */
   .kpi{ display:grid; gap:10px; grid-template-columns:repeat(2,1fr); margin-top:12px; }
   @media(min-width:880px){ .kpi{ grid-template-columns:repeat(3,1fr); } }
   .tile{
@@ -144,7 +144,6 @@
   .tile b{ display:block; margin-top:6px; font-size:1.35rem; font-weight:1000; }
   .tile small{ display:block; margin-top:4px; color:#8fa0b6; font-size:.72rem; }
 
-  /* Tracker tile – gradient outline, clean label “Tracker” */
   .tile.tracker{
     position:relative; cursor:pointer; padding:16px;
     border:1px solid transparent;
@@ -156,23 +155,6 @@
     font-size:1.1rem; letter-spacing:.25px; color:#eaeaf2;
   }
   .tile.tracker:hover{ transform:translateY(-1px); box-shadow:0 8px 20px rgba(0,0,0,.25); }
-
-  /* Finish Line stripe */
-  .finish-stripe{
-    height: 3px;
-    border-radius: 3px;
-    margin-top: 14px;
-    background: linear-gradient(90deg, var(--accent), #ff7f50 40%, var(--pro));
-    box-shadow: 0 1px 0 rgba(255,255,255,.05) inset;
-    transform: scaleX(1);
-    transform-origin: left;
-    opacity: .95;
-  }
-  .theday.celebrate .finish-stripe{ animation: stripe-reveal 700ms ease-out both; }
-  @keyframes stripe-reveal{
-    from{ transform: scaleX(0); opacity:.3; }
-    to{   transform: scaleX(1); opacity:.95; }
-  }
 
   /* Validation */
   .error{border-color:#ff6565 !important; box-shadow:0 0 0 3px rgba(255,101,101,.18) !important}
@@ -187,10 +169,21 @@
     .theday.celebrate .finish-stripe{ animation: none; }
   }
 
-  /* ===== PRINT CSS for PDF layout (new window) ===== */
-  @media print{
-    body{ background:#fff; color:#000; }
+  /* ===== Tiny action sheet for Tracker (PDF / Notes) ===== */
+  .sheet{
+    position:fixed; inset:0; display:none; place-items:end center; background:rgba(0,0,0,.35); z-index:9999;
   }
+  .sheet .panel{
+    width:min(520px,92vw); margin:18px; background:#15151a; border:1px solid #2a2a31; border-radius:16px; padding:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+  }
+  .sheet h4{ margin:4px 8px 10px; color:#cfd3df; font-size:.95rem; font-weight:900; letter-spacing:.3px; }
+  .sheet .rowbtns{ display:grid; gap:8px; grid-template-columns:1fr 1fr; }
+  .sheet button{
+    width:100%; padding:12px; border-radius:12px; border:1px solid #2a2a31; cursor:pointer;
+    background:linear-gradient(180deg,#16161b,#121217); color:#eaeaf2; font-weight:900; font-size:.95rem;
+  }
+  .sheet .close{ margin-top:8px; width:100%; background:#25252c; }
 </style>
 </head>
 <body>
@@ -198,7 +191,6 @@
   <h1 class="title">5-STEP CALCULATOR</h1>
   <div class="yt">
     <a class="pill" href="https://www.youtube.com/@thedallaspetersen" target="_blank" rel="noopener">
-      <!-- Sleek YouTube badge -->
       <svg class="ytmark" viewBox="0 0 64 64" aria-hidden="true">
         <defs>
           <radialGradient id="ytr" cx="50%" cy="35%" r="75%">
@@ -333,6 +325,18 @@
 </div>
 
 <footer>© Built With Intention • Educational estimates only</footer>
+
+<!-- Action sheet -->
+<div class="sheet" id="sheet">
+  <div class="panel">
+    <h4>Export Tracker</h4>
+    <div class="rowbtns">
+      <button id="btnPDF" type="button">PDF (with photos)</button>
+      <button id="btnNotes" type="button">Notes (.txt)</button>
+    </div>
+    <button class="close" id="btnClose" type="button">Close</button>
+  </div>
+</div>
 
 <!-- Confetti canvas -->
 <canvas id="confettiCanvas"></canvas>
@@ -544,7 +548,7 @@ const Confetti = (() => {
   return { burst };
 })();
 
-/* =================== TRACKER / PDF HELPERS (ADDED) =================== */
+/* =================== TRACKER / EXPORT HELPERS =================== */
 
 /* Normalize labels like "13-14%" or "13–14%" -> {min,max} decimals */
 function parsePctRange(label){
@@ -618,7 +622,7 @@ function findMilestones({sex, bfCur, bfGoal, weeks}){
   return milestones;
 }
 
-/* Build a print-ready HTML (new window) for Save-as-PDF */
+/* Print-ready PDF window (Save as PDF) */
 function openTrackerPDF({summary, weeks, milestones}){
   const w = window.open('', '_blank');
   if(!w){ alert('Popup blocked. Please allow popups for PDF.'); return; }
@@ -656,7 +660,7 @@ function openTrackerPDF({summary, weeks, milestones}){
     </div>
   `).join('');
 
-  const milesHTML = milestones.map((m,i)=>`
+  const milesHTML = milestones.map(m=>`
     <div class="milestone ${/Final Goal/.test(m.label)?'goal':''}">
       <h4>Week ${m.week} — ${m.label}</h4>
       <img src="${m.img}" alt="${m.alt}" loading="eager">
@@ -689,26 +693,81 @@ function openTrackerPDF({summary, weeks, milestones}){
         ${milesHTML}
       </div>
       <script>
-        // Ensure images load before print to size correctly
         const imgs = Array.from(document.images);
         if(imgs.length){
           let loaded = 0;
           imgs.forEach(im=>{
-            if(im.complete) { if(++loaded===imgs.length) setTimeout(()=>print(), 100); }
+            if(im.complete){ if(++loaded===imgs.length) setTimeout(()=>print(),100); }
             else im.addEventListener('load', ()=>{ if(++loaded===imgs.length) setTimeout(()=>print(),100); });
             im.addEventListener('error', ()=>{ if(++loaded===imgs.length) setTimeout(()=>print(),100); });
           });
         }else{
           setTimeout(()=>print(), 50);
         }
-      </script>
+      <\/script>
     </body></html>
   `;
 
   w.document.open(); w.document.write(html); w.document.close();
 }
 
+/* Clean, copy/share-friendly text for Notes */
+function openTrackerNotes({summary, weeks, milestones}){
+  const lines = [];
+  lines.push('CUT TRACKER');
+  lines.push('────────────────────────');
+  lines.push(`Start Date: ${summary.startNice}`);
+  lines.push(`Finish Line: ${summary.finishNice}`);
+  lines.push(`Total Weeks: ${summary.totalWeeks}`);
+  lines.push(`Start Weight: ${summary.startLb} lb`);
+  lines.push(`Goal Weight: ${summary.goalLb} lb`);
+  lines.push(`Calories/day: ${summary.cals}`);
+  lines.push(`Protein/day: ${summary.protein} g`);
+  lines.push('');
+  lines.push('WEEKLY LOG');
+  lines.push('────────────────────────');
+  weeks.forEach(w=>{
+    lines.push(`Week ${w.week} — ${w.startNice} • Goal: ${w.targetLb} lb`);
+    lines.push(''); // blank line they can type in
+  });
+  lines.push('');
+  lines.push('MILESTONES');
+  lines.push('────────────────────────');
+  milestones.forEach(m=>{
+    lines.push(`Week ${m.week} — ${m.label}`);
+  });
+  const txt = lines.join('\n');
+
+  // Try clipboard (nice for quick paste into Notes)
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).catch(()=>{});
+  }
+
+  // Offer a .txt for iOS Share → Notes
+  const blob = new Blob([txt], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+
+  // Prefer Web Share if available (may or may not support files on the device)
+  const canShareFile = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [new File(['a'],'a.txt',{type:'text/plain'})] }).catch?.(()=>false));
+  if(navigator.share && canShareFile){
+    const file = new File([blob], 'cut_tracker.txt', {type:'text/plain'});
+    navigator.share({ files:[file], title:'Cut Tracker', text:'' }).catch(()=>downloadFallback());
+  }else{
+    downloadFallback();
+  }
+
+  function downloadFallback(){
+    const a = document.createElement('a');
+    a.href = url; a.download = 'cut_tracker.txt';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 2000);
+  }
+}
+
 /* =================== MAIN CALCULATE =================== */
+let _trackerData = null;
+
 $('calc').onclick = ()=>{
   const v = validateInputs();
   const errsBox = $('errors');
@@ -778,7 +837,7 @@ $('calc').onclick = ()=>{
   multProt = Math.max(1.00, Math.min(1.30, multProt)); // clamp multiplier 1.00–1.30
   let protein_g = Math.round(ffm_lb * multProt);
 
-  // scaled protein floor (keeps smaller folks from seeing very low values)
+  // scaled protein floor
   const proteinFloor = Math.max(90, Math.round(ffm_lb * 0.8));
   protein_g = Math.max(proteinFloor, protein_g);
 
@@ -825,7 +884,7 @@ $('calc').onclick = ()=>{
   $('proteinFoot').style.display = 'block';
   $('kpi').style.display='grid';
 
-  /* ===== Build tracker data for PDF ===== */
+  /* ===== Build tracker data for exports ===== */
   const weeksRounded = Math.max(1, Math.round(weeks));
   const weeksPlan = buildWeeklyPlan({
     startDT,
@@ -843,19 +902,32 @@ $('calc').onclick = ()=>{
     weeks: weeksPlan
   });
 
-  const summary = {
-    startNice: formatLongDate(startDT),
-    finishNice: niceDate,
-    totalWeeks: weeksRounded,
-    startLb: Math.round(lb),
-    goalLb: Math.round(goalWeight_lb),
-    cals: Math.round(calories),
-    protein: protein_g
+  _trackerData = {
+    summary: {
+      startNice: formatLongDate(startDT),
+      finishNice: niceDate,
+      totalWeeks: weeksRounded,
+      startLb: Math.round(lb),
+      goalLb: Math.round(goalWeight_lb),
+      cals: Math.round(calories),
+      protein: protein_g
+    },
+    weeks: weeksPlan,
+    milestones,
+    sex
   };
-
-  const trackerTile = $('trackerTile');
-  trackerTile.onclick = ()=> openTrackerPDF({summary, weeks: weeksPlan, milestones});
 };
+
+/* ===== Tracker tile → action sheet (PDF / Notes) ===== */
+(function initSheet(){
+  const sheet = $('sheet');
+  const open = ()=>{ if(!_trackerData){ alert('Calculate your plan first.'); return; } sheet.style.display='grid'; };
+  const close = ()=>{ sheet.style.display='none'; };
+  $('trackerTile').addEventListener('click', open);
+  $('btnClose').addEventListener('click', close);
+  $('btnPDF').addEventListener('click', ()=>{ close(); openTrackerPDF(_trackerData); });
+  $('btnNotes').addEventListener('click', ()=>{ close(); openTrackerNotes(_trackerData); });
+})();
 </script>
 </body>
 </html>
