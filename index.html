@@ -636,12 +636,16 @@ function openTrackerPDF({summary, weeks, milestones}){
 }
 
 /* Copy-only Notes export */
+
+// replace your existing copyTrackerNotes with this version
 async function copyTrackerNotes({summary, weeks, milestones}){
+  const noYear = s => String(s).replace(/,\s*\d{4}/, ''); // "September 11, 2025" -> "September 11"
+
   const lines = [];
   lines.push('CUT TRACKER');
   lines.push('────────────────────────');
-  lines.push(`Start Date: ${summary.startNice}`);
-  lines.push(`Finish Line: ${summary.finishNice}`);
+  lines.push(`Start Date: ${summary.startNice}`);       // keep year up top
+  lines.push(`Finish Line: ${summary.finishNice}`);     // keep year up top
   lines.push(`Total Weeks: ${summary.totalWeeks}`);
   lines.push(`Start Weight: ${summary.startLb} lb`);
   lines.push(`Goal Weight: ${summary.goalLb} lb`);
@@ -650,21 +654,24 @@ async function copyTrackerNotes({summary, weeks, milestones}){
   lines.push('');
   lines.push('WEEKLY LOG');
   lines.push('────────────────────────');
+
   weeks.forEach(w=>{
-    lines.push(`Week ${w.week} — ${w.startNice} • Goal: ${w.targetLb} lb`);
-    lines.push(''); // empty line for their entries
+    const shortDate = noYear(w.startNice);
+    lines.push(`Week ${w.week} — ${shortDate} • Goal: ${w.targetLb} lb`);
+    lines.push(''); // one blank line for their entry
   });
+
   lines.push('');
   lines.push('MILESTONES');
   lines.push('────────────────────────');
   milestones.forEach(m=>{ lines.push(`Week ${m.week} — ${m.label}`); });
+
   const txt = lines.join('\n');
 
   try{
     await navigator.clipboard.writeText(txt);
     alert('Tracker copied. Open Notes and paste!');
   }catch(e){
-    // Fallback copy
     const ta = document.createElement('textarea');
     ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
     document.body.appendChild(ta); ta.select();
@@ -673,6 +680,7 @@ async function copyTrackerNotes({summary, weeks, milestones}){
     finally{ document.body.removeChild(ta); }
   }
 }
+
 
 /* =================== MAIN CALCULATE =================== */
 let _trackerData = null;
