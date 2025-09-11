@@ -173,6 +173,17 @@
     .bf-tile:hover .bf-img{ transform:none; filter:none; }
     .theday.celebrate .finish-stripe{ animation: none; }
   }
+
+  /* ===== Weekly Tracker ===== */
+  .tracker{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#111217}
+  .tracker h4{margin:0 0 10px;font-size:.95rem;color:#9fb4d1;letter-spacing:.3px}
+  .t-table{width:100%;border-collapse:collapse}
+  .t-table th,.t-table td{border-top:1px solid #2a2a31;padding:10px 8px;text-align:left;font-size:.9rem}
+  .t-table th{color:#aeb9c9;font-weight:800}
+  .t-thumb{display:flex;align-items:center;gap:10px}
+  .t-thumb img{width:56px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #26262c}
+  .t-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
+  .mini{font-size:.8rem;padding:8px 10px}
 </style>
 </head>
 <body>
@@ -309,6 +320,25 @@
       <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
     </div>
 
+    <!-- ===== Weekly Tracker (auto-generated) ===== -->
+    <div id="trackerBox" class="tracker" style="display:none">
+      <h4>Weekly Tracker</h4>
+      <div class="t-actions">
+        <button id="csvBtn" class="action-btn mini" type="button">Download CSV</button>
+      </div>
+      <table class="t-table" id="trackerTable" aria-label="Weekly tracker">
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th>Week Start</th>
+            <th>Target Weight</th>
+            <th>Look (est.)</th>
+          </tr>
+        </thead>
+        <tbody id="trackerBody"></tbody>
+      </table>
+    </div>
+
     <div class="hint" id="proteinFoot" style="display:none">Protein set from lean mass & deficit (evidence-based range).</div>
     <div class="errors" id="errorsR" style="display:none"></div>
   </section>
@@ -335,13 +365,13 @@ const bfPicsMale = [
 ];
 
 const bfPicsFemale = [
-  {pct:0.135,  label:'13-14%', img:'FemaleBody1.jpeg',  alt:'Female 13–14%'},
+  {pct:0.135, label:'13–14%', img:'FemaleBody1.jpeg',  alt:'Female 13–14%'},
   {pct:0.155, label:'15–16%', img:'FemaleBody2.jpeg',  alt:'Female 15–16%'},
   {pct:0.175, label:'17–18%', img:'FemaleBody3.jpeg',  alt:'Female 17–18%'},
   {pct:0.195, label:'19–20%', img:'FemaleBody4.jpeg',  alt:'Female 19–20%'},
   {pct:0.215, label:'21–22%', img:'FemaleBody5.jpeg',  alt:'Female 21–22%'},
   {pct:0.235, label:'23–24%', img:'FemaleBody6.jpeg',  alt:'Female 23–24%'},
-  {pct:0.265,  label:'25–28%', img:'FemaleBody7.jpeg',  alt:'Female 25–28%'},
+  {pct:0.265, label:'25–28%', img:'FemaleBody7.jpeg',  alt:'Female 25–28%'},
   {pct:0.305, label:'29–32%', img:'FemaleBody8.jpeg',  alt:'Female 29–32%'},
   {pct:0.345, label:'33–36%', img:'FemaleBody9.jpeg',  alt:'Female 33–36%'},
   {pct:0.39,  label:'37–41%', img:'FemaleBody10.jpeg', alt:'Female 37–41%'}
@@ -351,6 +381,7 @@ const bfPicsFemale = [
 const $ = id => document.getElementById(id);
 const round = (x,n=0)=>{const p=10**n; return Math.round(x*p)/p;};
 function formatLongDate(dt){return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});}
+function formatShortDate(dt){return dt.toLocaleDateString(undefined, {month:'short', day:'numeric'});}
 
 /* Default start date to today */
 (function setDefaultStartToday(){
@@ -479,6 +510,7 @@ function validateInputs(){
 
 /* ---- Date helpers ---- */
 function toYMD(d){return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`}
+function addDays(date, days){return new Date(date.getTime() + days*24*60*60*1000);}
 
 /* ---- Confetti (tiny, dependency-free) ---- */
 const Confetti = (() => {
@@ -525,6 +557,60 @@ const Confetti = (() => {
   resize();
   return { burst };
 })();
+
+/* ===== Weekly Tracker builder ===== */
+function nearestLook(sex, bfPct){
+  const list = (sex==='female') ? bfPicsFemale : bfPicsMale;
+  let best = list[0], bestDiff = Math.abs(bfPct - list[0].pct);
+  for(const it of list){
+    const d = Math.abs(bfPct - it.pct);
+    if(d < bestDiff){ best = it; bestDiff = d; }
+  }
+  return best; // {pct,label,img,alt}
+}
+function buildTracker({sex, startDT, startLb, goalLb, weeksRounded, bfCur, bfGoal}){
+  const tbody = $('trackerBody');
+  tbody.innerHTML = '';
+  const rows = [];
+  const perWeekLoss = (startLb - goalLb) / weeksRounded;
+
+  for(let w=1; w<=weeksRounded; w++){
+    const wkStart = addDays(startDT, (w-1)*7);
+    const target = Math.max(goalLb, startLb - perWeekLoss * w);
+    const bfAtWeek = bfCur + (bfGoal - bfCur) * (w/weeksRounded);
+    const look = nearestLook(sex, bfAtWeek);
+
+    const tr = document.createElement('tr');
+
+    const tdW = document.createElement('td'); tdW.textContent = `Week ${w}`;
+    const tdD = document.createElement('td'); tdD.textContent = formatShortDate(wkStart);
+    const tdT = document.createElement('td'); tdT.textContent = `${round(target,1)} lb`;
+
+    const tdL = document.createElement('td');
+    const wrap = document.createElement('div'); wrap.className='t-thumb';
+    const img = document.createElement('img'); img.src = look.img; img.alt = look.alt;
+    const lab = document.createElement('div'); lab.innerHTML = `<b>${look.label}</b><div style="color:#8fa0b6;font-size:.8rem">${Math.round(bfAtWeek*100)}%</div>`;
+    wrap.appendChild(img); wrap.appendChild(lab); tdL.appendChild(wrap);
+
+    tr.appendChild(tdW); tr.appendChild(tdD); tr.appendChild(tdT); tr.appendChild(tdL);
+    tbody.appendChild(tr);
+
+    rows.push({week:w, weekStart: wkStart.toISOString().slice(0,10), targetLb: round(target,1), lookLabel: look.label, lookPct: Math.round(bfAtWeek*100), lookImg: look.img});
+  }
+
+  // CSV export
+  $('csvBtn').onclick = ()=>{
+    const header = ['Week','Week Start','Target Weight (lb)','Look Label','Look % (est.)','Image File'];
+    const lines = [header.join(',')].concat(rows.map(r=>[r.week,r.weekStart,r.targetLb,r.lookLabel,r.lookPct,r.lookImg].join(',')));
+    const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'weekly_tracker.csv'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  $('trackerBox').style.display = 'block';
+}
 
 /* Calculate */
 $('calc').onclick = ()=>{
@@ -643,6 +729,18 @@ $('calc').onclick = ()=>{
 
   $('proteinFoot').style.display = 'block';
   $('kpi').style.display='grid';
+
+  /* ----- Build weekly tracker (auto) ----- */
+  const weeksRounded = Math.max(1, Math.round(weeks));
+  buildTracker({
+    sex,
+    startDT,
+    startLb: lb,
+    goalLb: goalWeight_lb,
+    weeksRounded,
+    bfCur,
+    bfGoal
+  });
 };
 </script>
 </body>
