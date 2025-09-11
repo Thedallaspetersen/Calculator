@@ -56,104 +56,73 @@
   input:focus, select:focus{border-color:var(--hl-strong);box-shadow:0 0 0 3px color-mix(in srgb,var(--hl-strong),transparent 80%)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-  /* === Body Fat Grid & Images — compact-ready === */
-  .bf-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:8px;
-    margin-top:8px;
-  }
-  @media(min-width:640px){
-    .bf-grid{grid-template-columns:repeat(3,1fr);}
-  }
-  @media(min-width:880px){
-    .bf-grid{grid-template-columns:repeat(5,minmax(130px,1fr));gap:10px}
-  }
+  /* === Body Fat Grid === */
+  .bf-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:8px; }
+  @media(min-width:640px){ .bf-grid{grid-template-columns:repeat(3,1fr);} }
+  @media(min-width:880px){ .bf-grid{grid-template-columns:repeat(5,minmax(130px,1fr));gap:10px} }
   .bf-tile{
-    position:relative;
-    background:#121217;border:1px solid #2a2a31;border-radius:14px;overflow:hidden;cursor:pointer;
+    position:relative; background:#121217;border:1px solid #2a2a31;border-radius:14px;overflow:hidden;cursor:pointer;
     transition:.18s transform,.18s border,.18s box-shadow;
   }
   .bf-tile:hover{transform:translateY(-2px);border-color:var(--hl);box-shadow:0 6px 18px rgba(0,0,0,.28)}
   .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl-strong),transparent 72%)}
   .bf-img{
-    display:block;width:100%;height:auto;aspect-ratio:4/5;
-    object-fit:cover;object-position:center 45%;
-    background:#0f0f12;transition:transform .18s ease, filter .18s ease;
+    display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:center 45%;background:#0f0f12;
+    transition:transform .18s ease, filter .18s ease;
   }
   @media(min-width:880px){ .bf-img{aspect-ratio: 5/6; object-position:center 47%} }
   .bf-tile:hover .bf-img{transform:scale(1.02);filter:contrast(1.03) saturate(1.02)}
   .bf-label{
-    position:absolute;left:8px;bottom:8px;
-    padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
-    background:linear-gradient(180deg,rgba(16,16,21,.8),rgba(10,10,14,.8));
-    color:#fff;font-weight:800;font-size:.78rem;letter-spacing:.15px;
-    pointer-events:none;
+    position:absolute;left:8px;bottom:8px;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+    background:linear-gradient(180deg,rgba(16,16,21,.8),rgba(10,10,14,.8));color:#fff;font-weight:800;font-size:.78rem;letter-spacing:.15px;pointer-events:none;
   }
 
   .hint{margin:.35rem 0 0;color:var(--muted);font-size:.85rem}
   .btn{width:100%;margin-top:12px;padding:14px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:900;cursor:pointer;letter-spacing:.2px}
   .btn:focus{outline:3px solid color-mix(in srgb,var(--accent),transparent 70%)}
 
-  /* ===== RESULTS – Clean, premium look ===== */
+  /* ===== RESULTS ===== */
   .card h3 { font-size: 1rem; letter-spacing: .35px; color: var(--muted); }
 
   .theday{
-    margin-top:6px;padding:18px 16px;border-radius:16px;
-    background: linear-gradient(180deg,#0d0d12,#0f1016);
-    border:1px solid #2a2a31;
-    box-shadow:0 1px 0 rgba(255,255,255,.04) inset;
-    position:relative; overflow:hidden; text-align:center;
+    margin-top:6px;padding:18px 16px;border-radius:16px;background: linear-gradient(180deg,#0d0d12,#0f1016);
+    border:1px solid #2a2a31; box-shadow:0 1px 0 rgba(255,255,255,.04) inset; position:relative; overflow:hidden; text-align:center;
   }
   .theday::before{
     content:""; position:absolute; inset:-1px; border-radius:18px;
     background:linear-gradient(180deg, rgba(77,163,255,.25), rgba(77,163,255,0)) border-box;
     -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0) border-box;
-    -webkit-mask-composite: xor; mask-composite: exclude;
-    border:1px solid transparent; pointer-events:none;
+    -webkit-mask-composite: xor; mask-composite: exclude; border:1px solid transparent; pointer-events:none;
   }
   .theday .lbl{
-    display:inline-block; font-size:.78rem; font-weight:900; letter-spacing:.12em;
-    text-transform:uppercase; color:var(--pro-2);
-    background:rgba(77,163,255,.08); border:1px solid rgba(77,163,255,.25);
-    padding:4px 8px; border-radius:999px;
+    display:inline-block; font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; color:var(--pro-2);
+    background:rgba(77,163,255,.08); border:1px solid rgba(77,163,255,.25); padding:4px 8px; border-radius:999px;
   }
-  .theday time{
-    display:block; margin-top:10px; font-weight:1000;
-    font-size:clamp(1.35rem,3.2vw,1.8rem); letter-spacing:.2px;
-  }
-
+  .theday time{ display:block; margin-top:10px; font-weight:1000; font-size:clamp(1.35rem,3.2vw,1.8rem); letter-spacing:.2px; }
   .actions{ margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
   .action-btn, .action-link{
-    padding:10px 12px; border-radius:12px; border:1px solid #2a2a31;
-    background:linear-gradient(180deg,#16161b,#121217);
-    font-weight:900; font-size:.92rem; color:#eaeaf2; text-decoration:none;
-    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    padding:10px 12px; border-radius:12px; border:1px solid #2a2a31; background:linear-gradient(180deg,#16161b,#121217);
+    font-weight:900; font-size:.92rem; color:#eaeaf2; text-decoration:none; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
-  .action-btn:hover, .action-link:hover{
-    border-color:#3a3a44; box-shadow:0 8px 20px rgba(0,0,0,.25); transform:translateY(-1px);
-  }
+  .action-btn:hover, .action-link:hover{ border-color:#3a3a44; box-shadow:0 8px 20px rgba(0,0,0,.25); transform:translateY(-1px); }
 
-  /* KPI grid + Tracker tile */
+  /* KPI + Tracker tile */
   .kpi{ display:grid; gap:10px; grid-template-columns:repeat(2,1fr); margin-top:12px; }
   @media(min-width:880px){ .kpi{ grid-template-columns:repeat(3,1fr); } }
-  .tile{
-    background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center;
-  }
+  .tile{ background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center; }
   .tile span{ display:block; font-size:.78rem; font-weight:800; letter-spacing:.25px; color:var(--muted); }
   .tile b{ display:block; margin-top:6px; font-size:1.35rem; font-weight:1000; }
   .tile small{ display:block; margin-top:4px; color:#8fa0b6; font-size:.72rem; }
 
   .tile.tracker{
-    position:relative; cursor:pointer; padding:16px;
-    border:1px solid transparent;
+    position:relative; cursor:pointer; padding:16px; border:1px solid transparent;
     background:linear-gradient(180deg,#16161b,#121217) padding-box,
                linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--pro)) border-box;
     font-weight:1000;
+    display:flex; align-items:center; justify-content:center; /* centers label */
+    min-height:64px;
   }
-  .tile.tracker .label{
-    font-size:1.1rem; letter-spacing:.25px; color:#eaeaf2;
-  }
+  .tile.tracker .label{ font-size:1.1rem; letter-spacing:.25px; color:#eaeaf2; }
   .tile.tracker:hover{ transform:translateY(-1px); box-shadow:0 8px 20px rgba(0,0,0,.25); }
 
   /* Validation */
@@ -169,10 +138,8 @@
     .theday.celebrate .finish-stripe{ animation: none; }
   }
 
-  /* ===== Tiny action sheet for Tracker (PDF / Notes) ===== */
-  .sheet{
-    position:fixed; inset:0; display:none; place-items:end center; background:rgba(0,0,0,.35); z-index:9999;
-  }
+  /* Action sheet */
+  .sheet{ position:fixed; inset:0; display:none; place-items:end center; background:rgba(0,0,0,.35); z-index:9999; }
   .sheet .panel{
     width:min(520px,92vw); margin:18px; background:#15151a; border:1px solid #2a2a31; border-radius:16px; padding:12px;
     box-shadow:0 10px 30px rgba(0,0,0,.4);
@@ -309,7 +276,7 @@
       <div class="finish-stripe" aria-hidden="true"></div>
     </div>
 
-    <!-- KPIs + Tracker tile -->
+    <!-- KPIs + Tracker -->
     <div class="kpi" id="kpi" style="display:none">
       <div class="tile"><span>Goal Weight (est.)</span><b id="kGoalWt">—</b></div>
       <div class="tile"><span>Weeks to goal</span><b id="kWeeks">—</b></div>
@@ -332,7 +299,7 @@
     <h4>Export Tracker</h4>
     <div class="rowbtns">
       <button id="btnPDF" type="button">PDF (with photos)</button>
-      <button id="btnNotes" type="button">Notes (.txt)</button>
+      <button id="btnNotes" type="button">Copy for Notes</button>
     </div>
     <button class="close" id="btnClose" type="button">Close</button>
   </div>
@@ -381,7 +348,7 @@ function formatLongDate(dt){return dt.toLocaleDateString(undefined, {year:'numer
   $('startDate').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
 })();
 
-/* Build the photo grids (compact) */
+/* Build BF photo grids */
 function buildBFGrid(containerId, sex){
   const list = (sex==='female') ? bfPicsFemale : bfPicsMale;
   const wrap = $(containerId);
@@ -402,21 +369,15 @@ function buildBFGrid(containerId, sex){
     wrap.appendChild(card);
   });
 }
-
-/* Return selected BF (0–1) from a grid */
 function getSelected(containerId){
   const a = $(containerId).querySelector('.active');
   return a ? Number(a.dataset.value) : null;
 }
-
-/* Height unit switch */
 $('heightUnit').onchange = ()=>{
   const cmMode = $('heightUnit').value==='cm';
   $('ftin').style.display = cmMode? 'none':'grid';
   $('cm').style.display   = cmMode? 'block':'none';
 };
-
-/* Populate photo pickers ONLY after sex selected */
 function refreshPickers(){
   const sex = $('sex').value;
   if(!sex){
@@ -436,19 +397,16 @@ function activityMultiplier(work, training, cardio){
   let base = 1.35;                 // desk
   if(work==='moderate') base = 1.55;
   if(work==='high')     base = 1.75;
-
   let addGym = 0;
   if(training==='1-2') addGym = 0.05;
   if(training==='3-4') addGym = 0.10;
-  if(training==='5-6') addGym = 0.15; // trimmed
-
+  if(training==='5-6') addGym = 0.15;
   let addCardio = 0;
   if(cardio==='1-2') addCardio = 0.05;
   if(cardio==='3-4') addCardio = 0.10;
-  if(cardio==='5-6') addCardio = 0.12; // trimmed
-
+  if(cardio==='5-6') addCardio = 0.12;
   const total = base + addGym + addCardio;
-  return Math.min(2.1, total);     // slightly lower cap
+  return Math.min(2.1, total);
 }
 function bmr(sex, kg, cm, age){
   return sex==='male' ? (10*kg + 6.25*cm - 5*age + 5)
@@ -459,22 +417,16 @@ function bmr(sex, kg, cm, age){
 function markError(el, cond){ if(!el) return; el.classList.toggle('error', !!cond); }
 function validateInputs(){
   const errors = [];
-  const ageEl = $('age');
-  const sexEl = $('sex');
-  const startEl = $('startDate');
+  const ageEl = $('age'), sexEl = $('sex'), startEl = $('startDate');
   const heightMode = $('heightUnit').value;
   const ftEl = $('ft'), inEl = $('inch'), cmEl = $('cm');
   const weightEl = $('weight');
-
   [ageEl, sexEl, startEl, ftEl, inEl, cmEl, weightEl].forEach(el=> el.classList.remove('error'));
-
   if(!sexEl.value){ errors.push('Select your sex.'); markError(sexEl, true); }
-
   const age = Number(ageEl.value||0);
   if(!age){ errors.push('Enter your age.'); markError(ageEl, true); }
   else if(age < 13){ errors.push('Age must be 13 or older.'); markError(ageEl, true); }
   else if(age > 90){ errors.push('Age cannot be over 90.'); markError(ageEl, true); }
-
   let cm = 0;
   if(heightMode==='cm'){
     cm = Number(cmEl.value||0);
@@ -484,25 +436,21 @@ function validateInputs(){
     if(!ft && !inch){ errors.push('Enter your height in feet and inches.'); markError(ftEl, true); markError(inEl, true); }
     else cm = (ft*12 + inch) * 2.54;
   }
-
   const weight = Number(weightEl.value||0);
   if(!weight){ errors.push('Enter your weight.'); markError(weightEl, true); }
-
   if(!startEl.value){ errors.push('Choose your start date.'); markError(startEl, true); }
-
   const cur = getSelected('bfCurrent');
   const goal = getSelected('bfGoal');
   if(!cur){ errors.push('Pick your current body-fat look.'); }
   if(!goal){ errors.push('Pick your goal body-fat look.'); }
   if(cur && goal && goal >= cur){ errors.push('Goal body-fat must be lower than current.'); }
-
   return {errors, cm, age, weight, cur, goal};
 }
 
 /* ---- Date helpers ---- */
 function toYMD(d){return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`}
 
-/* ---- Confetti (tiny, dependency-free) ---- */
+/* ---- Confetti ---- */
 const Confetti = (() => {
   const canvas = $('confettiCanvas');
   const ctx = canvas.getContext('2d');
@@ -512,17 +460,11 @@ const Confetti = (() => {
   function burst(){
     const n = 140;
     pieces = new Array(n).fill(0).map(()=>({
-      x: w/2 + rand(-80,80),
-      y: h/3 + rand(-40,40),
-      r: rand(2,4),
-      a: rand(0,2*Math.PI),
-      vx: rand(-3,3),
-      vy: rand(-6,-2),
-      g: rand(0.08,0.14),
-      s: rand(0.01,0.03),
+      x: w/2 + rand(-80,80), y: h/3 + rand(-40,40), r: rand(2,4), a: rand(0,2*Math.PI),
+      vx: rand(-3,3), vy: rand(-6,-2), g: rand(0.08,0.14), s: rand(0.01,0.03),
       col: Math.random()<0.5 ? '#8cc6ff' : '#4da3ff'
     }));
-    endTime = performance.now() + 1200; // 1.2s
+    endTime = performance.now() + 1200;
     if(!rafId) tick();
   }
   function tick(){
@@ -531,26 +473,17 @@ const Confetti = (() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){ ctx.clearRect(0,0,w,h); cancelAnimationFrame(rafId); rafId=null; return; }
     ctx.clearRect(0,0,w,h);
     pieces.forEach(p=>{
-      p.vy += p.g;
-      p.x += p.vx; p.y += p.vy; p.a += p.s;
-      ctx.save();
-      ctx.translate(p.x,p.y);
-      ctx.rotate(p.a);
-      ctx.fillStyle = p.col;
-      ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2);
-      ctx.restore();
+      p.vy += p.g; p.x += p.vx; p.y += p.vy; p.a += p.s;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle = p.col; ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2); ctx.restore();
     });
     pieces = pieces.filter(p=> p.y < h + 20);
     if (now > endTime && pieces.length===0){ cancelAnimationFrame(rafId); rafId=null; }
   }
-  window.addEventListener('resize', resize, {passive:true});
-  resize();
+  window.addEventListener('resize', resize, {passive:true}); resize();
   return { burst };
 })();
 
 /* =================== TRACKER / EXPORT HELPERS =================== */
-
-/* Normalize labels like "13-14%" or "13–14%" -> {min,max} decimals */
 function parsePctRange(label){
   if(!label) return null;
   const clean = String(label).replace(/\s+/g,'').replace('–','-');
@@ -560,7 +493,6 @@ function parsePctRange(label){
 }
 function getPicSet(sex){ return (sex==='female') ? bfPicsFemale : bfPicsMale; }
 
-/* Weekly plan with linear BF drop for checkpoint estimation */
 function buildWeeklyPlan({startDT, startLb, goalLb, weeksRounded, bfCur, bfGoal}){
   const perWeekLoss = (startLb - goalLb) / weeksRounded;
   const weeks = [];
@@ -578,16 +510,14 @@ function buildWeeklyPlan({startDT, startLb, goalLb, weeksRounded, bfCur, bfGoal}
   return weeks;
 }
 
-/* Find milestone weeks when BF crosses the LOWER edge of a traversed bin */
 function findMilestones({sex, bfCur, bfGoal, weeks}){
-  const tol = 0.002; // 0.2%
+  const tol = 0.002;
   const pics = getPicSet(sex);
   const bins = pics.map(p=>{
     const r = parsePctRange(p.label);
     return r ? {label:p.label, img:p.img, alt:p.alt, lower:r.min, upper:r.max, mid:p.pct} : null;
   }).filter(Boolean);
 
-  // Only consider bins between start and goal (we're cutting: bfGoal < bfCur)
   const traversed = bins.filter(b => b.lower <= bfCur && b.upper >= bfGoal);
 
   const milestones = [];
@@ -604,8 +534,6 @@ function findMilestones({sex, bfCur, bfGoal, weeks}){
       }
     }
   }
-
-  // Ensure final goal bin appears at the end
   let goalBin = bins.find(b => bfGoal <= b.upper && bfGoal >= b.lower);
   if(!goalBin){
     goalBin = bins.reduce((best,b)=>{
@@ -617,7 +545,6 @@ function findMilestones({sex, bfCur, bfGoal, weeks}){
   if(goalBin && !seen.has(goalBin.label)){
     milestones.push({ week: weeks[weeks.length-1].week, label: goalBin.label + ' (Final Goal)', img: goalBin.img, alt: goalBin.alt });
   }
-
   milestones.sort((a,b)=>a.week-b.week);
   return milestones;
 }
@@ -642,14 +569,12 @@ function openTrackerPDF({summary, weeks, milestones}){
     .week h3{ margin:0 0 6px; font-size:14px; font-weight:900; }
     .blank{ height:48px; border:1px dashed #e0e3ea; border-radius:8px; }
     .avg{ font-size:12px; color:#6b7484; margin-top:6px; }
-    .milestone{ margin:14px 0; }
+    .milestone{ margin:14px 0; text-align:center; }
     .milestone h4{ margin:0 0 6px; font-size:14px; font-weight:900; }
-    .milestone img{ max-width:100%; height:auto; border:1px solid #eee; border-radius:10px; }
+    /* Smaller, Notes-friendly copy size */
+    .milestone img{ width:320px; max-width:90%; height:auto; border:1px solid #eee; border-radius:10px; display:block; margin:6px auto; }
     .goal img{ transform:translateZ(0); }
-    @media print{
-      .page{ padding:18px; }
-      .blank{ height:40px; }
-    }
+    @media print{ .page{ padding:18px; } .blank{ height:40px; } }
   `;
 
   const weeksHTML = weeks.map(wk=>`
@@ -707,12 +632,11 @@ function openTrackerPDF({summary, weeks, milestones}){
       <\/script>
     </body></html>
   `;
-
   w.document.open(); w.document.write(html); w.document.close();
 }
 
-/* Clean, copy/share-friendly text for Notes */
-function openTrackerNotes({summary, weeks, milestones}){
+/* Copy-only Notes export */
+async function copyTrackerNotes({summary, weeks, milestones}){
   const lines = [];
   lines.push('CUT TRACKER');
   lines.push('────────────────────────');
@@ -728,40 +652,25 @@ function openTrackerNotes({summary, weeks, milestones}){
   lines.push('────────────────────────');
   weeks.forEach(w=>{
     lines.push(`Week ${w.week} — ${w.startNice} • Goal: ${w.targetLb} lb`);
-    lines.push(''); // blank line they can type in
+    lines.push(''); // empty line for their entries
   });
   lines.push('');
   lines.push('MILESTONES');
   lines.push('────────────────────────');
-  milestones.forEach(m=>{
-    lines.push(`Week ${m.week} — ${m.label}`);
-  });
+  milestones.forEach(m=>{ lines.push(`Week ${m.week} — ${m.label}`); });
   const txt = lines.join('\n');
 
-  // Try clipboard (nice for quick paste into Notes)
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(txt).catch(()=>{});
-  }
-
-  // Offer a .txt for iOS Share → Notes
-  const blob = new Blob([txt], {type:'text/plain'});
-  const url = URL.createObjectURL(blob);
-
-  // Prefer Web Share if available (may or may not support files on the device)
-  const canShareFile = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [new File(['a'],'a.txt',{type:'text/plain'})] }).catch?.(()=>false));
-  if(navigator.share && canShareFile){
-    const file = new File([blob], 'cut_tracker.txt', {type:'text/plain'});
-    navigator.share({ files:[file], title:'Cut Tracker', text:'' }).catch(()=>downloadFallback());
-  }else{
-    downloadFallback();
-  }
-
-  function downloadFallback(){
-    const a = document.createElement('a');
-    a.href = url; a.download = 'cut_tracker.txt';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 2000);
+  try{
+    await navigator.clipboard.writeText(txt);
+    alert('Tracker copied. Open Notes and paste!');
+  }catch(e){
+    // Fallback copy
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); alert('Tracker copied. Open Notes and paste!'); }
+    catch(err){ alert('Copy failed. Long-press to paste from here:\n\n'+txt); }
+    finally{ document.body.removeChild(ta); }
   }
 }
 
@@ -806,7 +715,7 @@ $('calc').onclick = ()=>{
 
   const fatToLose_lb = Math.max(0, lb - goalWeight_lb);
 
-  const weeklyLossTarget_lb = lb * 0.01; // 1% BW/week target
+  const weeklyLossTarget_lb = lb * 0.01;
   const targetDailyDeficit  = (weeklyLossTarget_lb * 3500) / 7;
 
   const safetyFloor = (sex==='male') ? 1600 : 1300;
@@ -819,13 +728,13 @@ $('calc').onclick = ()=>{
 
   const weeks = achievableWeeklyLoss_lb > 0 ? fatToLose_lb / achievableWeeklyLoss_lb : 0;
 
-  /* -------- Protein: adaptive per FFM during a deficit -------- */
+  /* Protein */
   const ffm_lb = lb * (1 - bfCur);
-  const deficitPctBW  = achievableWeeklyLoss_lb / lb; // e.g., 0.01 = 1%/wk
+  const deficitPctBW  = achievableWeeklyLoss_lb / lb;
 
-  let multProt = 1.10;                         // base g/lb FFM (~2.4 g/kg)
-  if (deficitPctBW >= 0.0075) multProt += 0.10; // ≥0.75%/wk
-  if (deficitPctBW >= 0.0125) multProt += 0.05; // ≥1.25%/wk
+  let multProt = 1.10;
+  if (deficitPctBW >= 0.0075) multProt += 0.10;
+  if (deficitPctBW >= 0.0125) multProt += 0.05;
 
   const isLeanMale = (sex==='male'   && bfCur <= 0.15);
   const isLeanFem  = (sex==='female' && bfCur <= 0.24);
@@ -834,31 +743,24 @@ $('calc').onclick = ()=>{
   const trains3plus = (['3-4','5-6'].includes($('training').value));
   if (trains3plus) multProt += 0.05;
 
-  multProt = Math.max(1.00, Math.min(1.30, multProt)); // clamp multiplier 1.00–1.30
+  multProt = Math.max(1.00, Math.min(1.30, multProt));
   let protein_g = Math.round(ffm_lb * multProt);
-
-  // scaled protein floor
   const proteinFloor = Math.max(90, Math.round(ffm_lb * 0.8));
   protein_g = Math.max(proteinFloor, protein_g);
 
-  // exact finish date
+  // finish date
   const daysToGoal = Math.ceil(weeks * 7);
   const finishDT = new Date(startDT.getTime() + daysToGoal * 24 * 60 * 60 * 1000);
 
-  // FINISH LINE hero + actions
+  // FINISH hero
   const niceDate = formatLongDate(finishDT);
   $('theDayDate').textContent = niceDate;
   $('theDay').style.display = 'block';
   $('dayActions').style.display = 'flex';
-
-  // confetti + stripe reveal
   Confetti.burst();
-  const box = $('theDay');
-  box.classList.remove('celebrate');           // reset if recalculating
-  void box.offsetWidth;                        // reflow to restart animation
-  box.classList.add('celebrate');
+  const box = $('theDay'); box.classList.remove('celebrate'); void box.offsetWidth; box.classList.add('celebrate');
 
-  // Google Calendar link (all-day)
+  // GCal link
   const ymd = toYMD(finishDT);
   const gStart = ymd, gEnd = toYMD(new Date(finishDT.getTime() + 24*60*60*1000));
   const gTitle = encodeURIComponent('Finish Line – Built With Intention');
@@ -878,13 +780,12 @@ $('calc').onclick = ()=>{
   $('kCals').textContent       = Math.round(calories);
   $('kWeeks').textContent      = Math.max(1, Math.round(weeks));
   $('kWeeklyLoss').textContent = round(achievableWeeklyLoss_lb, 1);
-
   $('kProteinEq').textContent  = `≈ FFM(lb) × ${round(multProt,2)}  (${Math.round(ffm_lb)} × ${round(multProt,2)})`;
 
   $('proteinFoot').style.display = 'block';
   $('kpi').style.display='grid';
 
-  /* ===== Build tracker data for exports ===== */
+  /* Build tracker data for exports */
   const weeksRounded = Math.max(1, Math.round(weeks));
   const weeksPlan = buildWeeklyPlan({
     startDT,
@@ -894,13 +795,7 @@ $('calc').onclick = ()=>{
     bfCur: bfCur,
     bfGoal: bfGoal
   });
-
-  const milestones = findMilestones({
-    sex,
-    bfCur,
-    bfGoal,
-    weeks: weeksPlan
-  });
+  const milestones = findMilestones({ sex, bfCur, bfGoal, weeks: weeksPlan });
 
   _trackerData = {
     summary: {
@@ -918,7 +813,7 @@ $('calc').onclick = ()=>{
   };
 };
 
-/* ===== Tracker tile → action sheet (PDF / Notes) ===== */
+/* Action sheet: PDF / Copy for Notes */
 (function initSheet(){
   const sheet = $('sheet');
   const open = ()=>{ if(!_trackerData){ alert('Calculate your plan first.'); return; } sheet.style.display='grid'; };
@@ -926,7 +821,7 @@ $('calc').onclick = ()=>{
   $('trackerTile').addEventListener('click', open);
   $('btnClose').addEventListener('click', close);
   $('btnPDF').addEventListener('click', ()=>{ close(); openTrackerPDF(_trackerData); });
-  $('btnNotes').addEventListener('click', ()=>{ close(); openTrackerNotes(_trackerData); });
+  $('btnNotes').addEventListener('click', ()=>{ close(); copyTrackerNotes(_trackerData); });
 })();
 </script>
 </body>
