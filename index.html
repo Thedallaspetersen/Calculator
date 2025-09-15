@@ -341,11 +341,14 @@ const $ = id => document.getElementById(id);
 const round = (x,n=0)=>{const p=10**n; return Math.round(x*p)/p;};
 function formatLongDate(dt){return dt.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});}
 
-/* Default start date to today */
+/* Default start date to today — only if empty (won't overwrite history cache) */
 (function setDefaultStartToday(){
-  const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  $('startDate').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  const el = $('startDate');
+  if(!el.value){
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    el.value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  }
 })();
 
 /* Build BF photo grids */
@@ -391,6 +394,20 @@ function refreshPickers(){
   $('bfSection').style.display = 'block';
 }
 $('sex').addEventListener('change', refreshPickers);
+
+/* ----- BUG FIX: ensure BF photos populate when returning via back/forward or reload ----- */
+document.addEventListener('DOMContentLoaded', ()=> {
+  // If sex already has a value (from cache or autofill), build the grids.
+  if ($('sex').value) refreshPickers();
+});
+// Handles bfcache restores (Safari/iOS & others)
+window.addEventListener('pageshow', (e)=>{
+  if (e.persisted || document.readyState === 'complete') {
+    if ($('sex').value && (!$('bfCurrent').children.length || !$('bfGoal').children.length)) {
+      refreshPickers();
+    }
+  }
+});
 
 /* --- Energy model helpers (tuned) --- */
 function activityMultiplier(work, training, cardio){
@@ -669,10 +686,8 @@ async function copyTrackerNotes({summary, weeks /*, milestones*/}){
   weeks.forEach(w=>{
     const shortDate = noYear(w.startNice);
     lines.push(`Week ${w.week} — ${shortDate} • Goal: ${w.targetLb} lb`);
-    lines.push('');
+    lines.push(''); // blank line for their entry
   });
-
-  // Milestones intentionally left out
 
   const txt = lines.join('\n');
 
@@ -687,7 +702,7 @@ async function copyTrackerNotes({summary, weeks /*, milestones*/}){
     catch(err){ alert('Copy failed. Long-press to paste from here:\n\n'+txt); }
     finally{ document.body.removeChild(ta); }
   }
-}}
+}
 
 
 /* =================== MAIN CALCULATE =================== */
