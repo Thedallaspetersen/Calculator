@@ -298,7 +298,7 @@
   <div class="panel">
     <h4>Export Tracker</h4>
     <div class="rowbtns">
-      <button id="btnPDF" type="button">PDF (with photos)</button>
+      <button id="btnPDF" type="button">Checkpoints</button>
       <button id="btnNotes" type="button">Copy for Notes</button>
     </div>
     <button class="close" id="btnClose" type="button">Close</button>
@@ -549,103 +549,114 @@ function findMilestones({sex, bfCur, bfGoal, weeks}){
   return milestones;
 }
 
-/* Print-ready PDF window (Save as PDF) */
-function openTrackerPDF({summary, weeks, milestones}){
+/* ======= VIEW-ONLY CHECKPOINTS (no print, future photos only) ======= */
+function openTrackerPDF({summary, milestones, sex, startLabel}){
   const w = window.open('', '_blank');
-  if(!w){ alert('Popup blocked. Please allow popups for PDF.'); return; }
+  if(!w){ alert('Popup blocked. Please allow popups for Checkpoints.'); return; }
+
+  // Only FUTURE milestones (exclude the current/starting look)
+  const futureMilestones = (milestones || []).filter(m => !startLabel || m.label !== startLabel);
 
   const css = `
-    body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:#0f0f12; margin:0; }
-    .page{ max-width:800px; margin:0 auto; padding:28px; }
-    h1{ font-size:26px; margin:0 0 8px; font-weight:900; }
-    .stripe{ height:3px; border-radius:3px; background:linear-gradient(90deg,#ff3b30,#ff7f50 40%,#4da3ff); margin-bottom:18px; }
-    .card{ border:1px solid #e9eaef; border-radius:12px; padding:14px 16px; margin:10px 0 18px; }
-    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; }
-    .row b{ display:block; font-weight:800; font-size:12px; color:#4a4f58; letter-spacing:.3px; text-transform:uppercase; }
-    .row span{ font-size:14px; margin-top:2px; }
-    h2{ font-size:15px; margin:16px 0 8px; font-weight:900; letter-spacing:.6px; color:#4a4f58; text-transform:uppercase; }
-    .week{ border-top:1px solid #f0f1f5; padding:10px 0 16px; }
-    .week:first-of-type{ border-top:0; }
-    .week h3{ margin:0 0 6px; font-size:14px; font-weight:900; }
-    .blank{ height:48px; border:1px dashed #e0e3ea; border-radius:8px; }
-    .avg{ font-size:12px; color:#6b7484; margin-top:6px; }
-    .milestone{ margin:14px 0; text-align:center; }
-    .milestone h4{ margin:0 0 6px; font-size:14px; font-weight:900; }
-    /* Smaller, Notes-friendly copy size */
-    .milestone img{ width:320px; max-width:90%; height:auto; border:1px solid #eee; border-radius:10px; display:block; margin:6px auto; }
-    .goal img{ transform:translateZ(0); }
-    @media print{ .page{ padding:18px; } .blank{ height:40px; } }
+    :root{
+      --ink:#0f0f12; --muted:#5f6675; --line:#e9ecf2;
+      --grad: linear-gradient(90deg,#ff3b30,#ff7f50 40%,#4da3ff);
+    }
+    *{box-sizing:border-box} body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--ink);}
+    .page{ max-width:980px; margin:0 auto; padding:28px; }
+    header h1{ margin:0 0 6px; font-size:26px; font-weight:1000; letter-spacing:.2px; }
+    .stripe{ height:3px; border-radius:3px; background:var(--grad); opacity:.9; margin:8px 0 18px; }
+
+    /* Summary card */
+    .card{ border:1px solid var(--line); border-radius:14px; padding:14px 16px; background:#fff; }
+    .summary{ display:grid; gap:10px 18px; grid-template-columns:repeat(2,1fr); }
+    .row b{ display:block; font-size:12px; letter-spacing:.25px; color:#70788a; text-transform:uppercase; }
+    .row span{ display:block; margin-top:2px; font-size:14px; }
+
+    /* Gallery */
+    h2{ margin:18px 0 10px; font-size:15px; font-weight:1000; letter-spacing:.35px; color:#3e4656; text-transform:uppercase; }
+    .gallery{
+      display:grid; gap:14px;
+      grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+      align-items:start;
+    }
+    .tile{
+      border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff;
+      box-shadow:0 4px 16px rgba(0,0,0,.06);
+    }
+    .thumb{ display:block; width:100%; height:auto; aspect-ratio:4/5; object-fit:cover; }
+    .meta{ padding:10px 12px; }
+    .cap{ font-weight:900; font-size:14px; }
+    .sub{ color:#7a8396; font-size:12px; margin-top:3px; }
+    .goal .tile{ outline:2px solid rgba(77,163,255,.6); box-shadow:0 6px 22px rgba(77,163,255,.16); }
+    .empty{ color:#7a8396; padding:12px 0 4px; }
+
+    @media print{ @page{ size:auto; margin:12mm; } body{ background:#fff; } }
   `;
 
-  const weeksHTML = weeks.map(wk=>`
-    <div class="week">
-      <h3>Week ${wk.week} — ${wk.startNice} • Goal: ${wk.targetLb} lb</h3>
-      <div class="blank"></div>
-      <div class="avg">Actual weekly avg: __</div>
+  const summaryHTML = `
+    <div class="card">
+      <div class="summary">
+        <div class="row"><b>Start Date</b><span>${summary.startNice}</span></div>
+        <div class="row"><b>Finish Line</b><span>${summary.finishNice}</span></div>
+        <div class="row"><b>Total Weeks</b><span>${summary.totalWeeks}</span></div>
+        <div class="row"><b>Goal Weight</b><span>${summary.goalLb} lb</span></div>
+      </div>
     </div>
-  `).join('');
+  `;
 
-  const milesHTML = milestones.map(m=>`
-    <div class="milestone ${/Final Goal/.test(m.label)?'goal':''}">
-      <h4>Week ${m.week} — ${m.label}</h4>
-      <img src="${m.img}" alt="${m.alt}" loading="eager">
-    </div>
-  `).join('');
+  const galleryHTML = futureMilestones.length
+    ? futureMilestones.map(m=>`
+        <figure class="${/Final Goal/.test(m.label)?'goal':''}">
+          <div class="tile">
+            <img class="thumb" src="${m.img}" alt="${m.alt}" loading="eager">
+            <figcaption class="meta">
+              <div class="cap">${m.label.replace(' (Final Goal)','')}</div>
+              <div class="sub">Week ${m.week}${/Final Goal/.test(m.label)?' • Final Goal':''}</div>
+            </figcaption>
+          </div>
+        </figure>
+      `).join('')
+    : `<div class="empty">No future checkpoints available yet. Calculate your plan to generate them.</div>`;
 
   const html = `
-    <html><head><meta charset="utf-8"><title>Cut Tracker</title><style>${css}</style></head>
-    <body>
-      <div class="page">
-        <h1>CUT TRACKER</h1>
-        <div class="stripe"></div>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Checkpoints</title>
+        <meta name="color-scheme" content="light only">
+        <style>${css}</style>
+      </head>
+      <body>
+        <div class="page">
+          <header>
+            <h1>CHECKPOINTS</h1>
+            <div class="stripe"></div>
+          </header>
 
-        <div class="card">
-          <div class="grid">
-            <div class="row"><b>Start Date</b><span>${summary.startNice}</span></div>
-            <div class="row"><b>Finish Line</b><span>${summary.finishNice}</span></div>
-            <div class="row"><b>Total Weeks</b><span>${summary.totalWeeks}</span></div>
-            <div class="row"><b>Start Weight</b><span>${summary.startLb} lb</span></div>
-            <div class="row"><b>Goal Weight</b><span>${summary.goalLb} lb</span></div>
-            <div class="row"><b>Calories/day</b><span>${summary.cals}</span></div>
-            <div class="row"><b>Protein/day</b><span>${summary.protein} g</span></div>
-          </div>
+          ${summaryHTML}
+
+          <h2>Milestone Photos</h2>
+          <section class="gallery">
+            ${galleryHTML}
+          </section>
         </div>
-
-        <h2>Weekly Log</h2>
-        ${weeksHTML}
-
-        <h2>Milestones</h2>
-        ${milesHTML}
-      </div>
-      <script>
-        const imgs = Array.from(document.images);
-        if(imgs.length){
-          let loaded = 0;
-          imgs.forEach(im=>{
-            if(im.complete){ if(++loaded===imgs.length) setTimeout(()=>print(),100); }
-            else im.addEventListener('load', ()=>{ if(++loaded===imgs.length) setTimeout(()=>print(),100); });
-            im.addEventListener('error', ()=>{ if(++loaded===imgs.length) setTimeout(()=>print(),100); });
-          });
-        }else{
-          setTimeout(()=>print(), 50);
-        }
-      <\/script>
-    </body></html>
+      </body>
+    </html>
   `;
+
   w.document.open(); w.document.write(html); w.document.close();
 }
 
-/* Copy-only Notes export */
-
-// replace your existing copyTrackerNotes with this version
-async function copyTrackerNotes({summary, weeks, milestones}){
-  const noYear = s => String(s).replace(/,\s*\d{4}/, ''); // "September 11, 2025" -> "September 11"
+/* Copy-only Notes export — NO milestones */
+async function copyTrackerNotes({summary, weeks /*, milestones*/}){
+  const noYear = s => String(s).replace(/,\s*\d{4}/, '');
 
   const lines = [];
   lines.push('CUT TRACKER');
   lines.push('────────────────────────');
-  lines.push(`Start Date: ${summary.startNice}`);       // keep year up top
-  lines.push(`Finish Line: ${summary.finishNice}`);     // keep year up top
+  lines.push(`Start Date: ${summary.startNice}`);
+  lines.push(`Finish Line: ${summary.finishNice}`);
   lines.push(`Total Weeks: ${summary.totalWeeks}`);
   lines.push(`Start Weight: ${summary.startLb} lb`);
   lines.push(`Goal Weight: ${summary.goalLb} lb`);
@@ -658,13 +669,10 @@ async function copyTrackerNotes({summary, weeks, milestones}){
   weeks.forEach(w=>{
     const shortDate = noYear(w.startNice);
     lines.push(`Week ${w.week} — ${shortDate} • Goal: ${w.targetLb} lb`);
-    lines.push(''); // one blank line for their entry
+    lines.push('');
   });
 
-  lines.push('');
-  lines.push('MILESTONES');
-  lines.push('────────────────────────');
-  milestones.forEach(m=>{ lines.push(`Week ${m.week} — ${m.label}`); });
+  // Milestones intentionally left out
 
   const txt = lines.join('\n');
 
@@ -679,7 +687,7 @@ async function copyTrackerNotes({summary, weeks, milestones}){
     catch(err){ alert('Copy failed. Long-press to paste from here:\n\n'+txt); }
     finally{ document.body.removeChild(ta); }
   }
-}
+}}
 
 
 /* =================== MAIN CALCULATE =================== */
@@ -805,6 +813,14 @@ $('calc').onclick = ()=>{
   });
   const milestones = findMilestones({ sex, bfCur, bfGoal, weeks: weeksPlan });
 
+  // derive label for CURRENT bin so we can exclude it from the Checkpoints view
+  const _bins = getPicSet(sex).map(p=>{
+    const r = parsePctRange(p.label);
+    return r ? {label:p.label, lower:r.min, upper:r.max} : null;
+  }).filter(Boolean);
+  const startBin = _bins.find(b => bfCur >= b.lower && bfCur <= b.upper);
+  const startLabel = startBin ? startBin.label : null;
+
   _trackerData = {
     summary: {
       startNice: formatLongDate(startDT),
@@ -817,11 +833,12 @@ $('calc').onclick = ()=>{
     },
     weeks: weeksPlan,
     milestones,
-    sex
+    sex,
+    startLabel
   };
 };
 
-/* Action sheet: PDF / Copy for Notes */
+/* Action sheet: Checkpoints / Copy for Notes */
 (function initSheet(){
   const sheet = $('sheet');
   const open = ()=>{ if(!_trackerData){ alert('Calculate your plan first.'); return; } sheet.style.display='grid'; };
