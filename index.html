@@ -1,3 +1,5 @@
+NEEW
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,28 +68,23 @@
   .kpi{display:grid;gap:10px;grid-template-columns:repeat(2,1fr);margin-top:12px}
   @media(min-width:880px){ .kpi{grid-template-columns:repeat(3,1fr)} }
   .tile{background:#121217;border:1px solid #2a2a31;border-radius:12px;padding:12px;text-align:center}
-  .tile span{display:block;font-size:.78rem;font-weight:800;letter-spacing:.25px;color:#muted}
+  .tile span{display:block;font-size:.78rem;font-weight:800;letter-spacing:.25px;color:var(--muted)}
   .tile b{display:block;margin-top:6px;font-size:1.35rem;font-weight:1000}
   .tile small{display:block;margin-top:4px;color:#8fa0b6;font-size:.72rem}
   .tile.tracker{position:relative;cursor:pointer;padding:16px;border:1px solid transparent;background:linear-gradient(180deg,#16161b,#121217) padding-box,linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--pro)) border-box;font-weight:1000;display:flex;align-items:center;justify-content:center;min-height:64px}
   .tile.tracker .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
   .tile.tracker:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
 
-  /* NEW: Create Training Plan tile (full width, sleek gradient border) */
-  .tile.ctp{
-    grid-column:1 / -1;
-    position:relative;
-    cursor:pointer;
-    padding:16px;
-    border:1px solid transparent;
-    background:
-      linear-gradient(180deg,#16161b,#121217) padding-box,
-      linear-gradient(90deg,#8e7cff,#4da3ff 40%,#97c9ff) border-box;
-    display:flex;align-items:center;justify-content:center;min-height:64px;
-    font-weight:1000;
+  /* NEW: Training tile (full width) */
+  .tile.training{
+    position:relative;cursor:pointer;padding:16px;border:1px solid transparent;
+    background:linear-gradient(180deg,#16161b,#121217) padding-box,
+               linear-gradient(90deg,#a78bfa,#7dd3fc 40%,#4da3ff) border-box;
+    font-weight:1000;display:flex;align-items:center;justify-content:center;min-height:64px;
+    grid-column:1 / -1; /* span entire KPI width */
   }
-  .tile.ctp .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
-  .tile.ctp:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
+  .tile.training .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
+  .tile.training:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
 
   .error{border-color:#ff6565 !important;box-shadow:0 0 0 3px rgba(255,101,101,.18) !important}
   .errors{margin-top:10px;color:#ff9a9a;font-size:.92rem}
@@ -99,6 +96,8 @@
   .sheet .rowbtns{display:grid;gap:8px;grid-template-columns:1fr 1fr}
   .sheet button{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;cursor:pointer;background:linear-gradient(180deg,#16161b,#121217);color:#eaeaf2;font-weight:900;font-size:.95rem}
   .sheet .close{margin-top:8px;width:100%;background:#25252c}
+  .sheet .fields{display:grid;gap:8px;margin:8px}
+  .sheet select{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none}
 </style>
 </head>
 <body>
@@ -177,30 +176,16 @@
       <option value="high">High Activity – Labor</option>
     </select>
 
-    <!-- CHANGED: exact sessions/week + added equipment/experience -->
-    <label style="margin-top:8px" for="trainingSessions">
-      Training (gym) <span style="font-size:.82em; color:var(--muted)">enter exact sessions/week, ~45 min each</span>
+    <!-- clarify session length -->
+    <label style="margin-top:8px" for="training">
+      Training (gym) <span style="font-size:.82em; color:var(--muted)">~45 min per session</span>
     </label>
-    <input id="trainingSessions" type="number" inputmode="numeric" min="0" max="14" step="1" value="3" placeholder="e.g., 3">
-
-    <div class="row">
-      <div>
-        <label for="equipment">Equipment</label>
-        <select id="equipment">
-          <option value="full gym" selected>Full gym</option>
-          <option value="dumbbells">Dumbbells</option>
-          <option value="bodyweight">Bodyweight</option>
-        </select>
-      </div>
-      <div>
-        <label for="experience">Experience</label>
-        <select id="experience">
-          <option value="beginner" selected>Beginner</option>
-          <option value="intermediate">Intermediate</option>
-          <option value="experienced">Experienced</option>
-        </select>
-      </div>
-    </div>
+    <select id="training">
+      <option value="0">No training</option>
+      <option value="1-2">1–2 sessions/week</option>
+      <option value="3-4" selected>3–4 sessions/week</option>
+      <option value="5-6">5–6 sessions/week</option>
+    </select>
 
     <label style="margin-top:8px" for="cardio">Cardio (hours/week)</label>
     <select id="cardio">
@@ -245,8 +230,8 @@
       <div class="tile"><span>Protein (g/day)</span><b id="kProtein">—</b><small id="kProteinEq" aria-hidden="true"></small></div>
       <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
       <div class="tile tracker" id="trackerTile"><span class="label">Tracker</span></div>
-      <!-- NEW full-width tile -->
-      <div class="tile ctp" id="ctpTile"><span class="label">Create Training Plan</span></div>
+      <!-- NEW: full-width training tile -->
+      <div class="tile training" id="trainingTile"><span class="label">Create Training Plan</span></div>
     </div>
 
     <div class="hint" id="proteinFoot" style="display:none">Protein set from lean mass & deficit (evidence-based range).</div>
@@ -256,7 +241,7 @@
 
 <footer>© Built With Intention • Educational estimates only</footer>
 
-<!-- Action sheet -->
+<!-- Action sheet (existing) -->
 <div class="sheet" id="sheet">
   <div class="panel">
     <h4>Export Tracker</h4>
@@ -265,6 +250,32 @@
       <button id="btnNotes" type="button">Copy for Notes</button>
     </div>
     <button class="close" id="btnClose" type="button">Close</button>
+  </div>
+</div>
+
+<!-- NEW: Training sheet (asks ONLY equipment + experience; no prompt shown) -->
+<div class="sheet" id="trainingSheet">
+  <div class="panel">
+    <h4>Create Training Plan</h4>
+    <div class="fields">
+      <label for="equipSelect">Equipment</label>
+      <select id="equipSelect">
+        <option value="full gym" selected>Full gym</option>
+        <option value="dumbbells">Dumbbells</option>
+        <option value="bodyweight">Bodyweight</option>
+      </select>
+
+      <label for="expSelect" style="margin-top:6px;">Experience level</label>
+      <select id="expSelect">
+        <option value="beginner" selected>Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="experienced">Experienced</option>
+      </select>
+    </div>
+    <div class="rowbtns" style="margin:8px">
+      <button id="btnCopyPrompt" type="button">Copy Prompt</button>
+      <button class="close" id="btnCloseTraining" type="button">Close</button>
+    </div>
   </div>
 </div>
 
@@ -310,18 +321,9 @@ document.addEventListener('DOMContentLoaded',()=>{ if($('sex').value) refreshPic
 window.addEventListener('pageshow',(e)=>{ if(e.persisted||document.readyState==='complete'){ if($('sex').value&&(!$('bfCurrent').children.length||!$('bfGoal').children.length)){refreshPickers();}}});
 
 /* --- Energy model helpers --- */
-/* Map exact lifting sessions -> added activity */
-function addGymFromSessions(s){
-  const n = Math.max(0, Number(s||0));
-  if(n===0) return 0;
-  if(n<=2) return 0.05;   // matches old 1–2
-  if(n<=4) return 0.10;   // matches old 3–4
-  if(n<=6) return 0.15;   // matches old 5–6
-  return 0.18;            // cap for very high frequency
-}
-function activityMultiplier(work,trainingSessions,cardio){
+function activityMultiplier(work,training,cardio){
   let base=1.35; if(work==='moderate') base=1.55; if(work==='high') base=1.75;
-  const addGym=addGymFromSessions(trainingSessions);
+  let addGym=0; if(training==='1-2') addGym=0.05; if(training==='3-4') addGym=0.10; if(training==='5-6') addGym=0.15;
   let addCardio=0; if(cardio==='1-2') addCardio=0.05; if(cardio==='3-4') addCardio=0.10; if(cardio==='5-6') addCardio=0.12;
   const total=base+addGym+addCardio; return Math.min(2.1,total);
 }
@@ -347,11 +349,7 @@ function validateInputs(){
   if(!cur){errors.push('Pick your current body-fat look.');}
   if(!goal){errors.push('Pick your goal body-fat look.');}
   if(cur&&goal&&goal>=cur){errors.push('Goal body-fat must be lower than current.');}
-  /* sessions check */
-  const sessionsEl=$('trainingSessions'); sessionsEl.classList.remove('error');
-  const sessions=Number(sessionsEl.value||0);
-  if(!Number.isFinite(sessions)||sessions<0||sessions>14){errors.push('Enter valid training sessions/week (0–14).'); markError(sessionsEl,true);}
-  return {errors,cm,age,weight,cur,goal,sessions};
+  return {errors,cm,age,weight,cur,goal};
 }
 function toYMD(d){return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`}
 
@@ -383,7 +381,7 @@ function findMilestones({sex,bfCur,bfGoal,weeks}){
     for(let i=0;i<weeks.length;i++){const cur=weeks[i].bfEst; const prev=(i===0)?bfCur:weeks[i-1].bfEst;
       if(prev>(b.lower+tol)&&cur<=(b.lower+tol)){milestones.push({week:weeks[i].week,label:b.label,img:b.img,alt:b.alt}); seen.add(b.label); break;}}
   }
-  let goalBin=bins.find(b=>bfGoal<=b.upper&&b.goal>=b.lower);
+  let goalBin=bins.find(b=>bfGoal<=b.upper&&bfGoal>=b.lower);
   if(!goalBin){goalBin=bins.reduce((best,b)=>{const dBest=Math.abs(best.mid-bfGoal); const dCur=Math.abs(b.mid-bfGoal); return dCur<dBest?b:best;},bins[0]);}
   if(goalBin&&!seen.has(goalBin.label)){milestones.push({week:weeks[weeks.length-1].week,label:goalBin.label+' (Final Goal)',img:goalBin.img,alt:goalBin.alt});}
   milestones.sort((a,b)=>a.week-b.week); return milestones;
@@ -425,7 +423,7 @@ function openTrackerPDF({summary,milestones,sex,startLabel}){
   w.document.open(); w.document.write(html); w.document.close();
 }
 
-/* Copy-only Notes (kept, now uses exact sessions) */
+/* Copy-only Notes (unchanged) */
 async function copyTrackerNotes({summary,weeks,choices}){
   const noYear=s=>String(s).replace(/,\s*\d{4}/,'');
   const lines=[];
@@ -442,10 +440,8 @@ async function copyTrackerNotes({summary,weeks,choices}){
   lines.push('ACTIVITY SELECTIONS');
   lines.push('────────────────────────');
   lines.push(`Work Activity: ${choices.work}`);
-  lines.push(`Training: ${choices.sessions}/week (~45-min)`);
+  lines.push(`Training: ${choices.training} (~45-min sessions)`);
   lines.push(`Cardio: ${choices.cardio}`);
-  lines.push(`Equipment: ${choices.equipment}`);
-  lines.push(`Experience: ${choices.experience}`);
   lines.push('');
   lines.push('WEEKLY LOG');
   lines.push('────────────────────────');
@@ -455,55 +451,6 @@ async function copyTrackerNotes({summary,weeks,choices}){
   catch(e){const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
     try{document.execCommand('copy'); alert('Tracker copied. Open Notes and paste!');}
     catch(err){alert('Copy failed. Long-press to paste from here:\n\n'+txt);}
-    finally{document.body.removeChild(ta);}
-  }
-}
-
-/* ---------- TRAINING PROMPT BUILDER (hidden; clipboard-only) ---------- */
-function buildTrainingPrompt(ctx){
-  const {summary,sex,startLabel,choices,weeks} = ctx;
-  const age = Number($('age').value||'');
-  const weightLb = summary.startLb;
-  const bfCurPct = Math.round(getSelected('bfCurrent')*1000)/10; // e.g., 18.5
-  const bfGoalPct = Math.round((weeks.length?weeks[weeks.length-1].bfEst: getSelected('bfGoal'))*1000)/10;
-
-  const lines=[];
-  lines.push('Create a strength & hypertrophy training plan tailored to me.');
-  lines.push('');
-  lines.push('MY CONTEXT');
-  lines.push(`- Sex: ${$('sex').value||'—'}`);
-  lines.push(`- Age: ${age||'—'}`);
-  lines.push(`- Current weight: ${weightLb} lb`);
-  lines.push(`- Current est. body-fat: ~${bfCurPct}%`);
-  lines.push(`- Goal est. body-fat: ~${bfGoalPct}%`);
-  lines.push(`- Equipment: ${choices.equipment}`);
-  lines.push(`- Experience level: ${choices.experience}`);
-  lines.push(`- Lifting frequency: ${choices.sessions} sessions/week (~45 min each)`);
-  lines.push(`- Other cardio: ${choices.cardio}`);
-  lines.push('');
-  lines.push('NUTRITION (for context)');
-  lines.push(`- Daily calories: ${summary.cals} kcal`);
-  lines.push(`- Daily protein: ${summary.protein} g`);
-  lines.push('');
-  lines.push('PROGRAM REQUEST');
-  lines.push('- Give a week-by-week split and exercise list for each session.');
-  lines.push('- For each exercise, include sets × reps and a simple effort cue (e.g., “moderate-hard”).');
-  lines.push('- Favor compound movements, include accessories, and ensure balanced push/pull/legs (or full-body) coverage.');
-  lines.push('- Keep it realistic for ~45 minutes per session.');
-  lines.push('- Suggest a simple progression model and when to deload if needed.');
-  lines.push('- Output in a clean, copyable format.');
-  return lines.join('\n');
-}
-async function copyTrainingPrompt(ctx){
-  const prompt = buildTrainingPrompt(ctx);
-  try{
-    await navigator.clipboard.writeText(prompt);
-    alert('✅ Training prompt copied.\n\nOpen ChatGPT and paste to generate your workout plan.');
-  }catch(e){
-    // Fallback
-    const ta=document.createElement('textarea'); ta.value=prompt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
-    try{document.execCommand('copy'); alert('✅ Training prompt copied.\n\nOpen ChatGPT and paste to generate your workout plan.');}
-    catch(err){alert('Copy failed. Long-press to copy from here:\n\n'+prompt);}
     finally{document.body.removeChild(ta);}
   }
 }
@@ -524,9 +471,7 @@ $('calc').onclick=()=>{
   const cm=v.cm;
   let kg=Number($('weight').value||0); if($('wUnit').value==='lb') kg=kg*0.45359237;
   const lb=kg/0.45359237;
-
-  const trainingSessions=v.sessions; // exact number now
-  const mult=activityMultiplier($('work').value, trainingSessions, $('cardio').value);
+  const mult=activityMultiplier($('work').value,$('training').value,$('cardio').value);
 
   const startVal=$('startDate').value;
   const startDT=startVal?new Date(startVal+'T00:00:00'):new Date();
@@ -556,7 +501,7 @@ $('calc').onclick=()=>{
   let multProt=1.10; if(deficitPctBW>=0.0075) multProt+=0.10; if(deficitPctBW>=0.0125) multProt+=0.05;
   const isLeanMale=(sex==='male'&&bfCur<=0.15); const isLeanFem=(sex==='female'&&bfCur<=0.24);
   if(isLeanMale||isLeanFem) multProt+=0.05;
-  const trains3plus=(trainingSessions>=3); if(trains3plus) multProt+=0.05;
+  const trains3plus=(['3-4','5-6'].includes($('training').value)); if(trains3plus) multProt+=0.05;
   multProt=Math.max(1.00,Math.min(1.30,multProt));
   let protein_g=Math.round(ffm_lb*multProt);
   const proteinFloor=Math.max(90,Math.round(ffm_lb*0.8)); protein_g=Math.max(proteinFloor,protein_g);
@@ -586,33 +531,34 @@ $('calc').onclick=()=>{
   const weeksPlan=buildWeeklyPlan({startDT,startLb:lb,goalLb:goalWeight_lb,weeksRounded,bfCur:bfCur,bfGoal:bfGoal});
   const milestones=findMilestones({sex,bfCur,bfGoal,weeks:weeksPlan});
 
-  const pics=(sex==='female')?bfPicsFemale:bfPicsMale;
-  const parsePctRange=(label)=>{const m=String(label).replace('–','-').match(/(\d+)-(\d+)%/); return m?{min:+m[1]/100,max:+m[2]/100}:null;};
-  const _bins=pics.map(p=>{const r=parsePctRange(p.label);return r?{label:p.label,lower:r.min,upper:r.max}:null;}).filter(Boolean);
+  const _bins=getPicSet(sex).map(p=>{const r=parsePctRange(p.label);return r?{label:p.label,lower:r.min,upper:r.max}:null;}).filter(Boolean);
   const startBin=_bins.find(b=>bfCur>=b.lower&&bfCur<=b.upper);
   const startLabel=startBin?startBin.label:null;
 
-  /* Visible text for Notes export */
+  /* visible text of selections for Notes export */
   const workText=$('work').options[$('work').selectedIndex].text;
+  const trainingText=$('training').options[$('training').selectedIndex].text;
   const cardioText=$('cardio').options[$('cardio').selectedIndex].text;
 
   _trackerData={
-    summary:{startNice:formatLongDate(startDT),finishNice:niceDate,totalWeeks:weeksRounded,startLb:Math.round(lb),goalLb:Math.round(goalWeight_lb),cals:Math.round(calories),protein:protein_g},
+    summary:{
+      startNice:formatLongDate(startDT),
+      finishNice:niceDate,
+      totalWeeks:weeksRounded,
+      startLb:Math.round(lb),
+      goalLb:Math.round(goalWeight_lb),
+      cals:Math.round(calories),
+      protein:protein_g
+    },
     weeks:weeksPlan,
     milestones,
     sex,
     startLabel,
-    choices:{
-      work:workText,
-      sessions: trainingSessions,
-      cardio:cardioText,
-      equipment: $('equipment').value,
-      experience: $('experience').value
-    }
+    choices:{work:workText,training:trainingText,cardio:cardioText}
   };
 };
 
-/* Action sheet */
+/* Action sheet (existing) */
 (function initSheet(){
   const sheet=$('sheet');
   const open=()=>{ if(!_trackerData){alert('Calculate your plan first.'); return;} sheet.style.display='grid'; };
@@ -621,11 +567,54 @@ $('calc').onclick=()=>{
   $('btnClose').addEventListener('click',close);
   $('btnPDF').addEventListener('click',()=>{close(); openTrackerPDF(_trackerData);});
   $('btnNotes').addEventListener('click',()=>{close(); copyTrackerNotes(_trackerData);});
+})();
 
-  // Create Training Plan (clipboard only, no prompt shown)
-  $('ctpTile').addEventListener('click', ()=>{
+/* NEW: Training sheet behavior (no prompt shown to user) */
+(function initTraining(){
+  const sheet=$('trainingSheet');
+  const open=()=>{ if(!_trackerData){alert('Calculate your plan first.'); return;} sheet.style.display='grid'; };
+  const close=()=>{ sheet.style.display='none'; };
+
+  $('trainingTile').addEventListener('click',open);
+  $('btnCloseTraining').addEventListener('click',close);
+
+  $('btnCopyPrompt').addEventListener('click', async ()=>{
     if(!_trackerData){ alert('Calculate your plan first.'); return; }
-    copyTrainingPrompt(_trackerData);
+
+    const equip = $('equipSelect').value;                 // Full gym / Dumbbells / Bodyweight
+    const exp   = $('expSelect').value;                   // beginner / intermediate / experienced
+    const days  = $('training').options[$('training').selectedIndex].text; // e.g., "3–4 sessions/week"
+    const { cals, protein } = _trackerData.summary;
+
+    const prompt =
+`You are my personal trainer. Create a resistance-training plan for me optimized with the following information.
+
+Context:
+- Days per week available: ${days}
+- Session length: ~45 minutes
+- Equipment: ${equip}
+- Experience level: ${exp}
+- Daily calories: ${cals}
+- Daily protein: ${protein} g
+
+Requirements: 
+- Each muscle group should be trained at least twice per week.  
+- Workouts should be designed to send a clear “signal” to maintain/grow muscle, not endless junk volume.  
+- Keep volume efficient: only the sets needed to send the signal.
+- Goal: I am in a calorie deficit. I want to keep and even build muscle while losing the fat.
+- Output format ONLY (no explanations): 
+Day 1: Exercise — sets × reps
+Day 2: …
+… (cover the week)`;
+
+    try{
+      await navigator.clipboard.writeText(prompt);
+      close();
+      alert('Copied! Open ChatGPT and paste the prompt to generate your workout plan.');
+    }catch(e){
+      close();
+      alert('Copy failed. After closing, paste this into ChatGPT:\n\n' + prompt);
+    }
   });
 })();
 </script>
