@@ -72,27 +72,21 @@
   .tile.tracker{position:relative;cursor:pointer;padding:16px;border:1px solid transparent;background:linear-gradient(180deg,#16161b,#121217) padding-box,linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--pro)) border-box;font-weight:1000;display:flex;align-items:center;justify-content:center;min-height:64px}
   .tile.tracker .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
   .tile.tracker:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
-
-  /* NEW: full-width sleek CTA with gradient border */
-  .cta-wide{
-    margin-top:10px;
-    grid-column:1/-1;
-    min-height:56px;
-    display:flex;align-items:center;justify-content:center;
-    border-radius:14px;
-    padding:0;
-    background:
-      linear-gradient(180deg,#16161b,#121217) padding-box,
-      linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--pro)) border-box;
-    border:1px solid transparent;
-    font-weight:1000;font-size:1rem;letter-spacing:.25px;color:#eaeaf2;
-    cursor:pointer; user-select:none;
-    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-    text-align:center;
-  }
-  .cta-wide:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.28)}
-  .cta-wide small{opacity:.9;font-weight:800;color:#cfe1ff;margin-left:10px}
-
+.tile.training { 
+  cursor:pointer;
+  padding:16px;
+  border:1px solid transparent;
+  background:linear-gradient(180deg,#16161b,#121217) padding-box,
+             linear-gradient(90deg,#ff3b30,#ff7f50 40%,#4da3ff) border-box;
+  font-weight:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:64px;
+  border-radius:12px;
+}
+.tile.training .label {font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
+.tile.training:hover {transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25);}
   .error{border-color:#ff6565 !important;box-shadow:0 0 0 3px rgba(255,101,101,.18) !important}
   .errors{margin-top:10px;color:#ff9a9a;font-size:.92rem}
   footer{padding:28px;text-align:center;color:#a7a7b3;font-size:.85rem}
@@ -103,14 +97,6 @@
   .sheet .rowbtns{display:grid;gap:8px;grid-template-columns:1fr 1fr}
   .sheet button{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;cursor:pointer;background:linear-gradient(180deg,#16161b,#121217);color:#eaeaf2;font-weight:900;font-size:.95rem}
   .sheet .close{margin-top:8px;width:100%;background:#25252c}
-
-  /* NEW: Training Plan modal styles */
-  .sheet .formgrid{display:grid;gap:8px}
-  .sheet .formgrid .row{grid-template-columns:1fr 1fr}
-  .sheet textarea{width:100%;min-height:120px;border-radius:12px;border:1px solid #2a2a31;background:#0f0f12;color:#eaeaf2;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-  .copybar{display:flex;gap:8px;margin-top:8px}
-  .copybar button{flex:0 0 auto}
-  .copybar .mini{padding:10px 12px}
 </style>
 </head>
 <body>
@@ -189,16 +175,16 @@
       <option value="high">High Activity – Labor</option>
     </select>
 
-    <!-- clarify session length -->
-    <label style="margin-top:8px" for="training">
-      Training (gym) <span style="font-size:.82em; color:var(--muted)">~45 min per session</span>
-    </label>
-    <select id="training">
-      <option value="0">No training</option>
-      <option value="1-2">1–2 sessions/week</option>
-      <option value="3-4" selected>3–4 sessions/week</option>
-      <option value="5-6">5–6 sessions/week</option>
-    </select>
+    <!-- CHANGE 1: clarify session length -->
+  <label style="margin-top:8px" for="training">
+  Training (gym) <span style="font-size:.82em; color:var(--muted)">~45 min per session</span>
+</label>
+<select id="training">
+  <option value="0">No training</option>
+  <option value="1-2">1–2 sessions/week</option>
+  <option value="3-4" selected>3–4 sessions/week</option>
+  <option value="5-6">5–6 sessions/week</option>
+</select>
 
     <label style="margin-top:8px" for="cardio">Cardio (hours/week)</label>
     <select id="cardio">
@@ -243,11 +229,7 @@
       <div class="tile"><span>Protein (g/day)</span><b id="kProtein">—</b><small id="kProteinEq" aria-hidden="true"></small></div>
       <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
       <div class="tile tracker" id="trackerTile"><span class="label">Tracker</span></div>
-
-      <!-- NEW: Create Training Plan CTA -->
-      <button type="button" class="cta-wide" id="planBtn">
-        Create Training Plan <small>— minimal copy for ChatGPT</small>
-      </button>
+      <div class="tile training" id="trainingTile"><span class="label">Create Training Plan</span></div>
     </div>
 
     <div class="hint" id="proteinFoot" style="display:none">Protein set from lean mass & deficit (evidence-based range).</div>
@@ -257,8 +239,30 @@
 
 <footer>© Built With Intention • Educational estimates only</footer>
 
-<!-- Export Tracker sheet -->
+<!-- Action sheet -->
 <div class="sheet" id="sheet">
+  <!-- Training Plan sheet -->
+<div class="sheet" id="trainingSheet">
+  <div class="panel">
+    <h4>Create Training Plan</h4>
+    <label>Equipment</label>
+    <select id="equipSelect">
+      <option value="Full gym">Full gym</option>
+      <option value="Dumbbells">Dumbbells</option>
+      <option value="Bodyweight">Bodyweight</option>
+    </select>
+    <label style="margin-top:10px">Experience</label>
+    <select id="expSelect">
+      <option value="Beginner">Beginner</option>
+      <option value="Intermediate">Intermediate</option>
+      <option value="Experienced">Experienced</option>
+    </select>
+    <div class="rowbtns" style="margin-top:12px">
+      <button id="btnCopyPrompt" type="button">Copy Prompt</button>
+      <button class="close" id="btnCloseTraining" type="button">Close</button>
+    </div>
+  </div>
+</div>
   <div class="panel">
     <h4>Export Tracker</h4>
     <div class="rowbtns">
@@ -266,59 +270,6 @@
       <button id="btnNotes" type="button">Copy for Notes</button>
     </div>
     <button class="close" id="btnClose" type="button">Close</button>
-  </div>
-</div>
-
-<!-- NEW: Training Plan sheet -->
-<div class="sheet" id="planSheet" role="dialog" aria-labelledby="planTitle" aria-modal="true">
-  <div class="panel">
-    <h4 id="planTitle">Create Training Plan Prompt</h4>
-    <div class="formgrid">
-      <div class="row">
-        <div>
-          <label for="pDays">Days per week</label>
-          <select id="pDays">
-            <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
-          </select>
-        </div>
-        <div>
-          <label for="pLen">Session length</label>
-          <select id="pLen">
-            <option>30 minutes</option><option selected>45 minutes</option><option>60 minutes</option>
-          </select>
-        </div>
-      </div>
-      <div class="row">
-        <div>
-          <label for="pEquip">Equipment</label>
-          <select id="pEquip">
-            <option selected>full gym</option>
-            <option>dumbbells</option>
-            <option>bands</option>
-            <option>bodyweight</option>
-          </select>
-        </div>
-        <div>
-          <label for="pExp">Experience</label>
-          <select id="pExp">
-            <option selected>beginner</option>
-            <option>intermediate</option>
-            <option>advanced</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <label for="pEmph">Emphasis (optional)</label>
-        <input id="pEmph" type="text" placeholder="e.g., chest, arms, glutes">
-      </div>
-
-      <label for="pOut">Copy this into ChatGPT</label>
-      <textarea id="pOut" readonly></textarea>
-      <div class="copybar">
-        <button id="copyPlan" class="mini" type="button">Copy prompt</button>
-        <button id="closePlan" class="mini" type="button">Close</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -466,7 +417,7 @@ function openTrackerPDF({summary,milestones,sex,startLabel}){
   w.document.open(); w.document.write(html); w.document.close();
 }
 
-/* Copy tracker notes */
+/* CHANGE 2: Copy-only Notes now includes selections */
 async function copyTrackerNotes({summary,weeks,choices}){
   const noYear=s=>String(s).replace(/,\s*\d{4}/,'');
   const lines=[];
@@ -578,6 +529,7 @@ $('calc').onclick=()=>{
   const startBin=_bins.find(b=>bfCur>=b.lower&&bfCur<=b.upper);
   const startLabel=startBin?startBin.label:null;
 
+  /* Capture the visible text of selections for the Notes export */
   const workText=$('work').options[$('work').selectedIndex].text;
   const trainingText=$('training').options[$('training').selectedIndex].text;
   const cardioText=$('cardio').options[$('cardio').selectedIndex].text;
@@ -602,63 +554,44 @@ $('calc').onclick=()=>{
   $('btnPDF').addEventListener('click',()=>{close(); openTrackerPDF(_trackerData);});
   $('btnNotes').addEventListener('click',()=>{close(); copyTrackerNotes(_trackerData);});
 })();
+/* === Training Plan Tile === */
+(function initTrainingTile(){
+  const sheet=$('trainingSheet');
+  const open=()=>{ sheet.style.display='grid'; };
+  const close=()=>{ sheet.style.display='none'; };
 
-/* ===== NEW: Training Plan modal logic ===== */
-(function initPlanBuilder(){
-  const planBtn=$('planBtn');
-  const planSheet=$('planSheet');
-  const pDays=$('pDays'), pLen=$('pLen'), pEquip=$('pEquip'), pExp=$('pExp'), pEmph=$('pEmph'), pOut=$('pOut');
-  const copyBtn=$('copyPlan'), closeBtn=$('closePlan');
+  $('trainingTile').addEventListener('click',open);
+  $('btnCloseTraining').addEventListener('click',close);
 
-  function buildPrompt(){
-    // Fixed goal you wanted baked-in (not asked):
-    const fixedGoal='Fat loss with maximum muscle retention and gain while in a calorie deficit';
+  $('btnCopyPrompt').addEventListener('click',async()=>{
+    const equip=$('equipSelect').value;
+    const exp=$('expSelect').value;
+    const training=$('training').value;
+    let daysPerWeek="4"; 
+    if(training==="1-2") daysPerWeek="2";
+    if(training==="3-4") daysPerWeek="4";
+    if(training==="5-6") daysPerWeek="6";
 
-    // Minimal output spec for Strong
-    const lines=[];
-    lines.push('You are my personal trainer. Create the best workout plan for me based on:');
-    lines.push(`- Days per week I can train: ${pDays.value}`);
-    lines.push(`- How long per session: ${pLen.value}`);
-    lines.push(`- Equipment I have: ${pEquip.value}`);
-    lines.push(`- Experience level: ${pExp.value}`);
-    lines.push(`- Goal: ${fixedGoal}`);
-    const emph=(pEmph.value||'').trim();
-    if(emph) lines.push(`- Emphasis: ${emph}`);
+    const prompt=`You are my personal trainer. Create the best workout plan for me based on:
+- Days per week I can train: ${daysPerWeek}
+- How long per session: 45 minutes
+- Equipment I have: ${equip}
+- Experience level: ${exp}
+Goal: Fat loss max retention and gain of muscle while in a caloric deficit
+Philosophy to follow:
+- Each muscle group should be trained at least twice per week for efficiency.
+- Workouts should be designed to send a clear “signal” to maintain/grow muscle, not endless junk volume.
+- Keep volume efficient: only the sets needed to send the signal.
+- Output format must be ONLY: Day X: Exercise – sets × rep.`;
 
-    lines.push('');
-    lines.push('Philosophy to follow:');
-    lines.push('- Each muscle group should be trained at least twice per week for efficiency.');
-    lines.push('- Workouts should be designed to send a clear “signal” to maintain/grow muscle, not endless junk volume.');
-    lines.push('- Keep volume efficient: only the sets needed to send the signal.');
-    lines.push('');
-    lines.push('Output format must be ONLY:');
-    lines.push('Day X: Exercise – sets × reps');
-
-    pOut.value=lines.join('\n');
-  }
-
-  function open(){
-    if(!_trackerData){
-      // Still allow opening—training plan can be created independently.
+    try{
+      await navigator.clipboard.writeText(prompt);
+      alert("Training plan prompt copied! Paste it into ChatGPT.");
+    }catch(e){
+      alert("Copy failed. Here’s your prompt:\n\n"+prompt);
     }
-    buildPrompt();
-    planSheet.style.display='grid';
-  }
-  function close(){ planSheet.style.display='none'; }
-
-  planBtn.addEventListener('click',open);
-  [pDays,pLen,pEquip,pExp,pEmph].forEach(el=>el.addEventListener('input',buildPrompt));
-
-  copyBtn.addEventListener('click', async ()=>{
-    try{ await navigator.clipboard.writeText(pOut.value); copyBtn.textContent='Copied!'; setTimeout(()=>copyBtn.textContent='Copy prompt',1200); }
-    catch(e){
-      pOut.select(); document.execCommand('copy');
-    }
+    close();
   });
-  closeBtn.addEventListener('click', close);
-
-  // close on backdrop click
-  planSheet.addEventListener('click', (e)=>{ if(e.target===planSheet) close(); });
 })();
 </script>
 </body>
