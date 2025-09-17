@@ -13,6 +13,10 @@
     --line:#26262c; --radius:16px;
     --shadow:0 6px 24px rgba(0,0,0,.28);
     --pro:#4da3ff; --pro-2:#8cc6ff; --ring: color-mix(in srgb, var(--pro), transparent 80%);
+    /* Sleep gradient colors (soft, calming) */
+    --sleep-a:#a18cd1; /* lavender */
+    --sleep-b:#fbc2eb; /* blush */
+    --sleep-c:#8EC5FC; /* light blue */
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.4}
@@ -34,7 +38,7 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
   .card h3{margin:0 0 10px;font-size:1.05rem;letter-spacing:.3px}
   label{display:block;margin:.35rem 0 .25rem;color:var(--muted);font-size:.9rem}
-  input, select{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:#e8e8f3;outline:none;transition:border .15s ease, box-shadow .15s ease;}
+  input, select{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none;transition:border .15s ease, box-shadow .15s ease;}
   input:focus, select:focus{border-color:var(--hl-strong);box-shadow:0 0 0 3px color-mix(in srgb,var(--hl-strong),transparent 80%)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
@@ -46,6 +50,7 @@
   .bf-tile.active{border:2px solid var(--hl-strong);box-shadow:0 0 0 4px color-mix(in srgb,var(--hl-strong),transparent 72%)}
   .bf-img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:center 45%;background:#0f0f12;transition:transform .18s ease, filter .18s ease;}
   @media(min-width:880px){ .bf-img{aspect-ratio:5/6;object-position:center 47%} }
+  .bf-tile:hover .bf-img{transform:scale(1.02);filter:contrast(1.03) saturate(1.02)}
   .bf-label{position:absolute;left:8px;bottom:8px;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(16,16,21,.8),rgba(10,10,14,.8));color:#fff;font-weight:800;font-size:.78rem;letter-spacing:.15px;pointer-events:none;}
 
   .hint{margin:.35rem 0 0;color:var(--muted);font-size:.85rem}
@@ -68,36 +73,35 @@
   .tile span{display:block;font-size:.78rem;font-weight:800;letter-spacing:.25px;color:var(--muted)}
   .tile b{display:block;margin-top:6px;font-size:1.35rem;font-weight:1000}
   .tile small{display:block;margin-top:4px;color:#8fa0b6;font-size:.72rem}
-
-  /* existing tracker tile */
   .tile.tracker{position:relative;cursor:pointer;padding:16px;border:1px solid transparent;background:linear-gradient(180deg,#16161b,#121217) padding-box,linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--pro)) border-box;font-weight:1000;display:flex;align-items:center;justify-content:center;min-height:64px}
   .tile.tracker .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
   .tile.tracker:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
 
-  /* NEW: width helpers so the training tile spans full row */
-  .tile.wide{grid-column:span 2;}
-  @media(min-width:880px){ .tile.wide{grid-column:span 3;} }
-
-  /* NEW: training tile with sleek gradient border */
-  .tile.training{position:relative;cursor:pointer;padding:16px;border:1px solid transparent;background:linear-gradient(180deg,#16161b,#121217) padding-box,linear-gradient(90deg,var(--accent),#ff7f50 40%,var(--pro)) border-box;display:flex;align-items:center;justify-content:center;min-height:64px}
-  .tile.training .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2;font-weight:1000}
+  /* NEW: Create Training Plan tile (full width, sleep gradient border) */
+  .tile.training{
+    position:relative;cursor:pointer;padding:18px;border:1px solid transparent;
+    background:linear-gradient(180deg,#16161b,#121217) padding-box,
+               linear-gradient(90deg,var(--sleep-a),var(--sleep-b) 40%,var(--sleep-c)) border-box;
+    font-weight:1000;display:flex;align-items:center;justify-content:center;min-height:72px;
+    grid-column:1 / -1; /* span all columns at any breakpoint */
+  }
+  .tile.training .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
   .tile.training:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
 
   .error{border-color:#ff6565 !important;box-shadow:0 0 0 3px rgba(255,101,101,.18) !important}
   .errors{margin-top:10px;color:#ff9a9a;font-size:.92rem}
   footer{padding:28px;text-align:center;color:#a7a7b3;font-size:.85rem}
   #confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:999}
-
-  /* shared sheet style (reused) */
   .sheet{position:fixed;inset:0;display:none;place-items:end center;background:rgba(0,0,0,.35);z-index:9999}
   .sheet .panel{width:min(520px,92vw);margin:18px;background:#15151a;border:1px solid #2a2a31;border-radius:16px;padding:12px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
   .sheet h4{margin:4px 8px 10px;color:#cfd3df;font-size:.95rem;font-weight:900;letter-spacing:.3px}
   .sheet .rowbtns{display:grid;gap:8px;grid-template-columns:1fr 1fr}
   .sheet button{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;cursor:pointer;background:linear-gradient(180deg,#16161b,#121217);color:#eaeaf2;font-weight:900;font-size:.95rem}
   .sheet .close{margin-top:8px;width:100%;background:#25252c}
-
-  /* NEW: training sheet specifics */
-  #trainPrompt{width:100%;height:160px;margin-top:8px;padding:10px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:#e8e8f3;resize:vertical}
+  /* NEW: training sheet controls */
+  .sheet .field{margin:8px 8px}
+  .sheet .field label{margin:.25rem 0 .35rem}
+  .sheet textarea{width:100%;min-height:160px;padding:12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:#eaeaf2;resize:vertical}
 </style>
 </head>
 <body>
@@ -176,7 +180,7 @@
       <option value="high">High Activity – Labor</option>
     </select>
 
-    <!-- Training freq (already on your site) -->
+    <!-- clarify session length -->
     <label style="margin-top:8px" for="training">
       Training (gym) <span style="font-size:.82em; color:var(--muted)">~45 min per session</span>
     </label>
@@ -219,6 +223,7 @@
         <button class="action-btn" id="copyDateBtn" type="button">Copy date</button>
         <a class="action-link" id="gcalLink" target="_blank" rel="noopener">Google Calendar</a>
       </div>
+
       <div class="finish-stripe" aria-hidden="true"></div>
     </div>
 
@@ -230,8 +235,8 @@
       <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
       <div class="tile tracker" id="trackerTile"><span class="label">Tracker</span></div>
 
-      <!-- NEW: wide training plan tile spanning full row -->
-      <div class="tile training wide" id="trainingTile"><span class="label">Create Training Plan</span></div>
+      <!-- NEW: full-width Create Training Plan tile -->
+      <div class="tile training" id="planTile"><span class="label">Create Training Plan</span></div>
     </div>
 
     <div class="hint" id="proteinFoot" style="display:none">Protein set from lean mass & deficit (evidence-based range).</div>
@@ -241,7 +246,7 @@
 
 <footer>© Built With Intention • Educational estimates only</footer>
 
-<!-- Existing sheet -->
+<!-- Existing Action sheet -->
 <div class="sheet" id="sheet">
   <div class="panel">
     <h4>Export Tracker</h4>
@@ -253,32 +258,38 @@
   </div>
 </div>
 
-<!-- NEW: Training Plan prompt sheet -->
-<div class="sheet" id="trainSheet">
+<!-- NEW: Training Plan sheet -->
+<div class="sheet" id="planSheet" aria-hidden="true">
   <div class="panel">
-    <h4>Create Training Plan Prompt</h4>
+    <h4>Create Training Plan</h4>
 
-    <label for="equipSel">Equipment</label>
-    <select id="equipSel">
-      <option value="full gym" selected>Full gym</option>
-      <option value="dumbbells">Dumbbells</option>
-      <option value="bodyweight">Bodyweight</option>
-    </select>
-
-    <label style="margin-top:8px" for="xpSel">Experience</label>
-    <select id="xpSel">
-      <option value="beginner" selected>Beginner</option>
-      <option value="intermediate">Intermediate</option>
-      <option value="experienced">Experienced</option>
-    </select>
-
-    <textarea id="trainPrompt" readonly></textarea>
-
-    <div class="rowbtns" style="margin-top:8px">
-      <button id="buildPrompt" type="button">Build Prompt</button>
-      <button id="copyPrompt" type="button">Copy Prompt</button>
+    <div class="field">
+      <label for="equipSel">Equipment</label>
+      <select id="equipSel">
+        <option value="Full gym" selected>Full gym</option>
+        <option value="Dumbbells">Dumbbells</option>
+        <option value="Bodyweight">Bodyweight</option>
+      </select>
     </div>
-    <button class="close" id="trainClose" type="button">Close</button>
+
+    <div class="field">
+      <label for="xpSel">Experience level</label>
+      <select id="xpSel">
+        <option value="Beginner" selected>Beginner</option>
+        <option value="Intermediate">Intermediate</option>
+        <option value="Experienced">Experienced</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="trainPrompt">Prompt (read-only)</label>
+      <textarea id="trainPrompt" readonly></textarea>
+    </div>
+
+    <div class="rowbtns" style="margin:8px">
+      <button id="btnCopyPrompt" type="button">Copy Prompt</button>
+      <button id="btnClosePlan" type="button" class="close">Close</button>
+    </div>
   </div>
 </div>
 
@@ -333,7 +344,7 @@ function activityMultiplier(work,training,cardio){
 function bmr(sex,kg,cm,age){return sex==='male'?(10*kg+6.25*cm-5*age+5):(10*kg+6.25*cm-5*age-161);}
 
 /* --- Validation helpers --- */
-function markError(el,cond){ if(!el) return; el classList? el.classList.toggle('error',!!cond) : null; }
+function markError(el,cond){ if(!el) return; el.classList.toggle('error',!!cond); }
 function validateInputs(){
   const errors=[]; const ageEl=$('age'), sexEl=$('sex'), startEl=$('startDate');
   const heightMode=$('heightUnit').value; const ftEl=$('ft'), inEl=$('inch'), cmEl=$('cm'); const weightEl=$('weight');
@@ -426,7 +437,7 @@ function openTrackerPDF({summary,milestones,sex,startLabel}){
   w.document.open(); w.document.write(html); w.document.close();
 }
 
-/* Copy Notes (unchanged) */
+/* Copy-only Notes (existing) */
 async function copyTrackerNotes({summary,weeks,choices}){
   const noYear=s=>String(s).replace(/,\s*\d{4}/,'');
   const lines=[];
@@ -458,7 +469,7 @@ async function copyTrackerNotes({summary,weeks,choices}){
   }
 }
 
-/* =================== MAIN CALCULATE =================== */
+/* =================== MAIN CALCULATE (existing) =================== */
 let _trackerData=null;
 
 $('calc').onclick=()=>{
@@ -538,7 +549,7 @@ $('calc').onclick=()=>{
   const startBin=_bins.find(b=>bfCur>=b.lower&&bfCur<=b.upper);
   const startLabel=startBin?startBin.label:null;
 
-  /* Capture selections for Notes export */
+  /* Capture the visible text of selections for the Notes export */
   const workText=$('work').options[$('work').selectedIndex].text;
   const trainingText=$('training').options[$('training').selectedIndex].text;
   const cardioText=$('cardio').options[$('cardio').selectedIndex].text;
@@ -553,7 +564,7 @@ $('calc').onclick=()=>{
   };
 };
 
-/* ---------- Existing Action sheet ---------- */
+/* Action sheet (existing) */
 (function initSheet(){
   const sheet=$('sheet');
   const open=()=>{ if(!_trackerData){alert('Calculate your plan first.'); return;} sheet.style.display='grid'; };
@@ -564,75 +575,98 @@ $('calc').onclick=()=>{
   $('btnNotes').addEventListener('click',()=>{close(); copyTrackerNotes(_trackerData);});
 })();
 
-/* ---------- NEW: Training Plan tile + prompt sheet ---------- */
+/* =================== NEW: Training Plan tile + prompt sheet =================== */
 (function initTrainingTile(){
-  const tile=$('trainingTile');
-  const sheet=$('trainSheet');
-  const closeBtn=$('trainClose');
-  const buildBtn=$('buildPrompt');
-  const copyBtn=$('copyPrompt');
-  const out=$('trainPrompt');
+  const planTile=$('planTile');
+  const planSheet=$('planSheet');
   const equipSel=$('equipSel');
   const xpSel=$('xpSel');
+  const promptBox=$('trainPrompt');
+  const btnCopy=$('btnCopyPrompt');
+  const btnClose=$('btnClosePlan');
 
-  const mapTrainingToDays=(val)=>{
-    if(val==='0') return 0;
+  function mapTrainingToDays(val){
     if(val==='1-2') return 2;
     if(val==='3-4') return 4;
     if(val==='5-6') return 6;
-    const n=parseInt(val,10); return isNaN(n)?4:n;
-  };
+    return 0;
+  }
 
-  function open(){ sheet.style.display='grid'; if(!out.value) build(); }
-  function close(){ sheet.style.display='none'; }
+  function buildPrompt(){
+    const days = mapTrainingToDays($('training').value);
+    const equip = equipSel.value;
+    const xp = xpSel.value;
 
-  function build(){
-    const days=mapTrainingToDays($('training').value);
-    const equip=equipSel.value;
-    const xp=xpSel.value;
+    // Pull answered sex and current weight from existing inputs
+    const sexVal = $('sex').value; // 'male' | 'female' | ''
+    const sexLine = sexVal ? `- Biological sex: ${sexVal==='male'?'Male':'Female'}` : null;
+
+    let weightNum = Number($('weight').value || 0);
+    const unit = $('wUnit') ? $('wUnit').value : 'lb';
+    let weightLb = Number.isFinite(weightNum) && weightNum>0 ? (unit==='kg' ? Math.round(weightNum*2.20462262185) : Math.round(weightNum)) : null;
+    const weightLine = weightLb ? `- Current bodyweight: ${weightLb} lb` : null;
+
+    const details = [
+      `- Days per week I can train: ${days}`,
+      `- How long per session: 45 minutes`,
+      `- Equipment I have: ${equip}`,
+      `- Experience level: ${xp}`,
+    ];
+    if(sexLine) details.push(sexLine);
+    if(weightLine) details.push(weightLine);
 
     const prompt = [
-"You are my personal trainer. Create the best workout plan for me based on:",
-`- Days per week I can train: ${days}`,
-`- How long per session: 45 minutes`,
-`- Equipment I have: ${equip}`,
-`- Experience level: ${xp}`,
-"",
-"Goal: Fat loss with maximum muscle retention (and gain if possible) while in a caloric deficit.",
-"",
-"Philosophy to follow:",
-"- Train each muscle group at least twice per week.",
-"- Use only the sets needed to send the signal; no junk volume.",
-"",
-"Output format MUST be ONLY (no extra text):",
-"Day 1: Exercise – sets × reps",
-"Day 1: Exercise – sets × reps",
-"Day 1: Exercise – sets × reps",
-"Day 2: Exercise – sets × reps",
-"..."
-    ].join("\n");
+      "You are my personal trainer. Create the best strength-hypertrophy program for me based on:",
+      ...details,
+      "",
+      "Goal: Fat loss with maximum muscle retention (and gain if possible) while in a caloric deficit.",
+      "",
+      "Principles:",
+      "- Train each muscle group at least 2x/week.",
+      "- Use only the sets needed to drive adaptation; avoid junk volume.",
+      "- Prefer compound lifts, add accessories where needed.",
+      "- List exercises I can actually do with the equipment I have.",
+      "",
+      "Output format ONLY (no extra commentary):",
+      "Day 1: Exercise – sets × reps",
+      "Day 1: Exercise – sets × reps",
+      "Day 1: Exercise – sets × reps",
+      "Day 2: Exercise – sets × reps",
+      "..."
+    ].join("\\n");
 
-    out.value = prompt;
+    promptBox.value = prompt;
   }
 
-  async function copy(){
+  function openSheet(){
+    buildPrompt();
+    planSheet.style.display='grid';
+    planSheet.setAttribute('aria-hidden','false');
+  }
+  function closeSheet(){
+    planSheet.style.display='none';
+    planSheet.setAttribute('aria-hidden','true');
+  }
+
+  planTile.addEventListener('click', openSheet);
+  btnClose.addEventListener('click', closeSheet);
+  equipSel.addEventListener('change', buildPrompt);
+  xpSel.addEventListener('change', buildPrompt);
+
+  btnCopy.addEventListener('click', async ()=>{
+    const txt = promptBox.value || '';
     try{
-      await navigator.clipboard.writeText(out.value);
-      alert('Prompt copied! Paste it into ChatGPT.');
+      await navigator.clipboard.writeText(txt);
+      btnCopy.textContent='Copied!';
+      setTimeout(()=>{btnCopy.textContent='Copy Prompt';},1200);
     }catch(e){
       const ta=document.createElement('textarea');
-      ta.value=out.value; ta.style.position='fixed'; ta.style.opacity='0';
-      document.body.appendChild(ta); ta.select();
-      try{ document.execCommand('copy'); alert('Prompt copied! Paste it into ChatGPT.'); }
-      catch(err){ alert('Copy failed. Long-press to select and copy.'); }
-      finally{ document.body.removeChild(ta); }
+      ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
+      try{document.execCommand('copy'); btnCopy.textContent='Copied!'; setTimeout(()=>{btnCopy.textContent='Copy Prompt';},1200);}
+      catch(err){alert('Copy failed. You can manually select and copy the text.');}
+      finally{document.body.removeChild(ta);}
     }
-  }
-
-  tile.addEventListener('click', open);
-  closeBtn.addEventListener('click', close);
-  buildBtn.addEventListener('click', build);
-  copyBtn.addEventListener('click', copy);
+  });
 })();
 </script>
 </body>
