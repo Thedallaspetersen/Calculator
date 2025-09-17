@@ -13,10 +13,6 @@
     --line:#26262c; --radius:16px;
     --shadow:0 6px 24px rgba(0,0,0,.28);
     --pro:#4da3ff; --pro-2:#8cc6ff; --ring: color-mix(in srgb, var(--pro), transparent 80%);
-    /* Sleep gradient colors (soft, calming) */
-    --sleep-a:#a18cd1; /* lavender */
-    --sleep-b:#fbc2eb; /* blush */
-    --sleep-c:#8EC5FC; /* light blue */
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.4}
@@ -77,13 +73,13 @@
   .tile.tracker .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
   .tile.tracker:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
 
-  /* NEW: Create Training Plan tile (full width, sleep gradient border) */
+  /* NEW: Training tile (full width) */
   .tile.training{
-    position:relative;cursor:pointer;padding:18px;border:1px solid transparent;
+    position:relative;cursor:pointer;padding:16px;border:1px solid transparent;
     background:linear-gradient(180deg,#16161b,#121217) padding-box,
-               linear-gradient(90deg,var(--sleep-a),var(--sleep-b) 40%,var(--sleep-c)) border-box;
-    font-weight:1000;display:flex;align-items:center;justify-content:center;min-height:72px;
-    grid-column:1 / -1; /* span all columns at any breakpoint */
+               linear-gradient(90deg,#a78bfa,#7dd3fc 40%,#4da3ff) border-box;
+    font-weight:1000;display:flex;align-items:center;justify-content:center;min-height:64px;
+    grid-column:1 / -1; /* span entire KPI width */
   }
   .tile.training .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
   .tile.training:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
@@ -98,10 +94,8 @@
   .sheet .rowbtns{display:grid;gap:8px;grid-template-columns:1fr 1fr}
   .sheet button{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;cursor:pointer;background:linear-gradient(180deg,#16161b,#121217);color:#eaeaf2;font-weight:900;font-size:.95rem}
   .sheet .close{margin-top:8px;width:100%;background:#25252c}
-  /* NEW: training sheet controls */
-  .sheet .field{margin:8px 8px}
-  .sheet .field label{margin:.25rem 0 .35rem}
-  .sheet textarea{width:100%;min-height:160px;padding:12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:#eaeaf2;resize:vertical}
+  .sheet .fields{display:grid;gap:8px;margin:8px}
+  .sheet select{width:100%;padding:12px;border-radius:12px;border:1px solid #2a2a31;background:#121217;color:var(--ink);outline:none}
 </style>
 </head>
 <body>
@@ -234,9 +228,8 @@
       <div class="tile"><span>Protein (g/day)</span><b id="kProtein">—</b><small id="kProteinEq" aria-hidden="true"></small></div>
       <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
       <div class="tile tracker" id="trackerTile"><span class="label">Tracker</span></div>
-
-      <!-- NEW: full-width Create Training Plan tile -->
-      <div class="tile training" id="planTile"><span class="label">Create Training Plan</span></div>
+      <!-- NEW: full-width training tile -->
+      <div class="tile training" id="trainingTile"><span class="label">Create Training Plan</span></div>
     </div>
 
     <div class="hint" id="proteinFoot" style="display:none">Protein set from lean mass & deficit (evidence-based range).</div>
@@ -246,7 +239,7 @@
 
 <footer>© Built With Intention • Educational estimates only</footer>
 
-<!-- Existing Action sheet -->
+<!-- Action sheet (existing) -->
 <div class="sheet" id="sheet">
   <div class="panel">
     <h4>Export Tracker</h4>
@@ -258,37 +251,28 @@
   </div>
 </div>
 
-<!-- NEW: Training Plan sheet -->
-<div class="sheet" id="planSheet" aria-hidden="true">
+<!-- NEW: Training sheet (asks ONLY equipment + experience; no prompt shown) -->
+<div class="sheet" id="trainingSheet">
   <div class="panel">
     <h4>Create Training Plan</h4>
+    <div class="fields">
+      <label for="equipSelect">Equipment</label>
+      <select id="equipSelect">
+        <option value="full gym" selected>Full gym</option>
+        <option value="dumbbells">Dumbbells</option>
+        <option value="bodyweight">Bodyweight</option>
+      </select>
 
-    <div class="field">
-      <label for="equipSel">Equipment</label>
-      <select id="equipSel">
-        <option value="Full gym" selected>Full gym</option>
-        <option value="Dumbbells">Dumbbells</option>
-        <option value="Bodyweight">Bodyweight</option>
+      <label for="expSelect" style="margin-top:6px;">Experience level</label>
+      <select id="expSelect">
+        <option value="beginner" selected>Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="experienced">Experienced</option>
       </select>
     </div>
-
-    <div class="field">
-      <label for="xpSel">Experience level</label>
-      <select id="xpSel">
-        <option value="Beginner" selected>Beginner</option>
-        <option value="Intermediate">Intermediate</option>
-        <option value="Experienced">Experienced</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label for="trainPrompt">Prompt (read-only)</label>
-      <textarea id="trainPrompt" readonly></textarea>
-    </div>
-
     <div class="rowbtns" style="margin:8px">
       <button id="btnCopyPrompt" type="button">Copy Prompt</button>
-      <button id="btnClosePlan" type="button" class="close">Close</button>
+      <button class="close" id="btnCloseTraining" type="button">Close</button>
     </div>
   </div>
 </div>
@@ -437,7 +421,7 @@ function openTrackerPDF({summary,milestones,sex,startLabel}){
   w.document.open(); w.document.write(html); w.document.close();
 }
 
-/* Copy-only Notes (existing) */
+/* Copy-only Notes (unchanged) */
 async function copyTrackerNotes({summary,weeks,choices}){
   const noYear=s=>String(s).replace(/,\s*\d{4}/,'');
   const lines=[];
@@ -469,7 +453,7 @@ async function copyTrackerNotes({summary,weeks,choices}){
   }
 }
 
-/* =================== MAIN CALCULATE (existing) =================== */
+/* =================== MAIN CALCULATE =================== */
 let _trackerData=null;
 
 $('calc').onclick=()=>{
@@ -549,13 +533,21 @@ $('calc').onclick=()=>{
   const startBin=_bins.find(b=>bfCur>=b.lower&&bfCur<=b.upper);
   const startLabel=startBin?startBin.label:null;
 
-  /* Capture the visible text of selections for the Notes export */
+  /* visible text of selections for Notes export */
   const workText=$('work').options[$('work').selectedIndex].text;
   const trainingText=$('training').options[$('training').selectedIndex].text;
   const cardioText=$('cardio').options[$('cardio').selectedIndex].text;
 
   _trackerData={
-    summary:{startNice:formatLongDate(startDT),finishNice:niceDate,totalWeeks:weeksRounded,startLb:Math.round(lb),goalLb:Math.round(goalWeight_lb),cals:Math.round(calories),protein:protein_g},
+    summary:{
+      startNice:formatLongDate(startDT),
+      finishNice:niceDate,
+      totalWeeks:weeksRounded,
+      startLb:Math.round(lb),
+      goalLb:Math.round(goalWeight_lb),
+      cals:Math.round(calories),
+      protein:protein_g
+    },
     weeks:weeksPlan,
     milestones,
     sex,
@@ -575,96 +567,51 @@ $('calc').onclick=()=>{
   $('btnNotes').addEventListener('click',()=>{close(); copyTrackerNotes(_trackerData);});
 })();
 
-/* =================== NEW: Training Plan tile + prompt sheet =================== */
-(function initTrainingTile(){
-  const planTile=$('planTile');
-  const planSheet=$('planSheet');
-  const equipSel=$('equipSel');
-  const xpSel=$('xpSel');
-  const promptBox=$('trainPrompt');
-  const btnCopy=$('btnCopyPrompt');
-  const btnClose=$('btnClosePlan');
+/* NEW: Training sheet behavior (no prompt shown to user) */
+(function initTraining(){
+  const sheet=$('trainingSheet');
+  const open=()=>{ if(!_trackerData){alert('Calculate your plan first.'); return;} sheet.style.display='grid'; };
+  const close=()=>{ sheet.style.display='none'; };
 
-  function mapTrainingToDays(val){
-    if(val==='1-2') return 2;
-    if(val==='3-4') return 4;
-    if(val==='5-6') return 6;
-    return 0;
-  }
+  $('trainingTile').addEventListener('click',open);
+  $('btnCloseTraining').addEventListener('click',close);
 
-  function buildPrompt(){
-    const days = mapTrainingToDays($('training').value);
-    const equip = equipSel.value;
-    const xp = xpSel.value;
+  $('btnCopyPrompt').addEventListener('click', async ()=>{
+    if(!_trackerData){ alert('Calculate your plan first.'); return; }
 
-    // Pull answered sex and current weight from existing inputs
-    const sexVal = $('sex').value; // 'male' | 'female' | ''
-    const sexLine = sexVal ? `- Biological sex: ${sexVal==='male'?'Male':'Female'}` : null;
+    const equip = $('equipSelect').value;                 // Full gym / Dumbbells / Bodyweight
+    const exp   = $('expSelect').value;                   // beginner / intermediate / experienced
+    const days  = $('training').options[$('training').selectedIndex].text; // e.g., "3–4 sessions/week"
+    const { cals, protein } = _trackerData.summary;
 
-    let weightNum = Number($('weight').value || 0);
-    const unit = $('wUnit') ? $('wUnit').value : 'lb';
-    let weightLb = Number.isFinite(weightNum) && weightNum>0 ? (unit==='kg' ? Math.round(weightNum*2.20462262185) : Math.round(weightNum)) : null;
-    const weightLine = weightLb ? `- Current bodyweight: ${weightLb} lb` : null;
+    const prompt =
+`You are my personal trainer. Create a progressive resistance-training plan for me.
 
-    const details = [
-      `- Days per week I can train: ${days}`,
-      `- How long per session: 45 minutes`,
-      `- Equipment I have: ${equip}`,
-      `- Experience level: ${xp}`,
-    ];
-    if(sexLine) details.push(sexLine);
-    if(weightLine) details.push(weightLine);
+Context:
+- Days per week available: ${days}
+- Session length: ~45 minutes
+- Equipment: ${equip}
+- Experience level: ${exp}
+- Daily calories: ${cals}
+- Daily protein: ${protein} g
 
-    const prompt = [
-      "You are my personal trainer. Create the best strength-hypertrophy program for me based on:",
-      ...details,
-      "",
-      "Goal: Fat loss with maximum muscle retention (and gain if possible) while in a caloric deficit.",
-      "",
-      "Principles:",
-      "- Train each muscle group at least 2x/week.",
-      "- Use only the sets needed to drive adaptation; avoid junk volume.",
-      "- Prefer compound lifts, add accessories where needed.",
-      "- List exercises I can actually do with the equipment I have.",
-      "",
-      "Output format ONLY (no extra commentary):",
-      "Day 1: Exercise – sets × reps",
-      "Day 1: Exercise – sets × reps",
-      "Day 1: Exercise – sets × reps",
-      "Day 2: Exercise – sets × reps",
-      "..."
-    ].join("\\n");
+Requirements:
+- Prioritize big compounds; include accessories where they add value.
+- Train each muscle group at least 2x/week with efficient, non-junk volume.
+- Use RIR/RPE guidance; include warm-up guidance in one short line per day.
+- Progression: double-progression or load/reps where appropriate.
+- Output format ONLY (no explanations): 
+Day 1: Exercise — sets × reps (RIR)
+Day 2: …
+… (cover the week)`;
 
-    promptBox.value = prompt;
-  }
-
-  function openSheet(){
-    buildPrompt();
-    planSheet.style.display='grid';
-    planSheet.setAttribute('aria-hidden','false');
-  }
-  function closeSheet(){
-    planSheet.style.display='none';
-    planSheet.setAttribute('aria-hidden','true');
-  }
-
-  planTile.addEventListener('click', openSheet);
-  btnClose.addEventListener('click', closeSheet);
-  equipSel.addEventListener('change', buildPrompt);
-  xpSel.addEventListener('change', buildPrompt);
-
-  btnCopy.addEventListener('click', async ()=>{
-    const txt = promptBox.value || '';
     try{
-      await navigator.clipboard.writeText(txt);
-      btnCopy.textContent='Copied!';
-      setTimeout(()=>{btnCopy.textContent='Copy Prompt';},1200);
+      await navigator.clipboard.writeText(prompt);
+      close();
+      alert('Copied! Open ChatGPT and paste the prompt to generate your workout plan.');
     }catch(e){
-      const ta=document.createElement('textarea');
-      ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
-      try{document.execCommand('copy'); btnCopy.textContent='Copied!'; setTimeout(()=>{btnCopy.textContent='Copy Prompt';},1200);}
-      catch(err){alert('Copy failed. You can manually select and copy the text.');}
-      finally{document.body.removeChild(ta);}
+      close();
+      alert('Copy failed. After closing, paste this into ChatGPT:\n\n' + prompt);
     }
   });
 })();
