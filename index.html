@@ -162,13 +162,14 @@
     </select>
 
     <!-- CHANGE 1: clarify session length -->
-    <label style="margin-top:8px" for="training">Training (gym) — <strong>1 session = 45 minutes</strong></label>
-    <select id="training">
-      <option value="0">No training</option>
-      <option value="1-2">1–2 sessions/week</option>
-      <option value="3-4" selected>3–4 sessions/week</option>
-      <option value="5-6">5–6 sessions/week</option>
-    </select>
+   <label style="margin-top:8px" for="training">Training (gym)</label>
+<select id="training">
+  <option value="0">No training</option>
+  <option value="1-2">1–2 sessions/week</option>
+  <option value="3-4" selected>3–4 sessions/week</option>
+  <option value="5-6">5–6 sessions/week</option>
+</select>
+<div class="hint" aria-hidden="true">~45 min per session</div>
 
     <label style="margin-top:8px" for="cardio">Cardio (hours/week)</label>
     <select id="cardio">
@@ -392,10 +393,10 @@ async function copyTrackerNotes({summary,weeks,choices}){
   lines.push(`Calories/day: ${summary.cals}`);
   lines.push(`Protein/day: ${summary.protein} g`);
   lines.push('');
-  lines.push('YOUR SELECTIONS');
+  lines.push('ACTIVITY SELECTIONS');
   lines.push('────────────────────────');
   lines.push(`Work Activity: ${choices.work}`);
-  lines.push(`Training: ${choices.training} (45-min sessions)`);
+	lines.push(`Training: ${choices.training} (~45-min sessions)`);
   lines.push(`Cardio: ${choices.cardio}`);
   lines.push('');
   lines.push('WEEKLY LOG');
