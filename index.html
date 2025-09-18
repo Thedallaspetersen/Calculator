@@ -79,10 +79,23 @@
     background:linear-gradient(180deg,#16161b,#121217) padding-box,
                linear-gradient(90deg,#a78bfa,#7dd3fc 40%,#4da3ff) border-box;
     font-weight:1000;display:flex;align-items:center;justify-content:center;min-height:64px;
-    grid-column:1 / -1; /* span entire KPI width */
+    grid-column:1 / -1;
   }
   .tile.training .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
   .tile.training:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
+
+  /* Segmented buttons for training sessions */
+  .seg{display:flex;gap:8px;flex-wrap:wrap}
+  .seg-btn{
+    padding:10px 14px;border-radius:12px;border:1px solid #2a2a31;
+    background:linear-gradient(180deg,#16161b,#121217);color:#eaeaf2;
+    font-weight:900;cursor:pointer
+  }
+  .seg-btn:hover{border-color:#3a3a44;box-shadow:0 6px 16px rgba(0,0,0,.22);transform:translateY(-1px)}
+  .seg-btn.active{
+    border-color:var(--hl-strong);
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--hl-strong),transparent 80%);
+  }
 
   .error{border-color:#ff6565 !important;box-shadow:0 0 0 3px rgba(255,101,101,.18) !important}
   .errors{margin-top:10px;color:#ff9a9a;font-size:.92rem}
@@ -174,11 +187,18 @@
       <option value="high">High Activity – Labor</option>
     </select>
 
-    <!-- EXACT sessions input -->
-    <label style="margin-top:8px" for="training">
+    <!-- EXACT sessions: clickable 1–5, default none -->
+    <label style="margin-top:8px">
       Training (gym) <span style="font-size:.82em; color:var(--muted)">~45 min per session</span>
     </label>
-    <input id="training" type="number" inputmode="numeric" min="0" max="7" step="1" value="3" placeholder="sessions/week">
+    <div id="trainingSeg" class="seg" role="radiogroup" aria-label="Training sessions per week">
+      <button type="button" class="seg-btn" data-value="1" aria-pressed="false" aria-label="1 session per week">1</button>
+      <button type="button" class="seg-btn" data-value="2" aria-pressed="false" aria-label="2 sessions per week">2</button>
+      <button type="button" class="seg-btn" data-value="3" aria-pressed="false" aria-label="3 sessions per week">3</button>
+      <button type="button" class="seg-btn" data-value="4" aria-pressed="false" aria-label="4 sessions per week">4</button>
+      <button type="button" class="seg-btn" data-value="5" aria-pressed="false" aria-label="5 sessions per week">5</button>
+    </div>
+    <div class="hint">Default is none until you select 1–5.</div>
 
     <label style="margin-top:8px" for="cardio">Cardio (hours/week)</label>
     <select id="cardio">
@@ -223,7 +243,6 @@
       <div class="tile"><span>Protein (g/day)</span><b id="kProtein">—</b><small id="kProteinEq" aria-hidden="true"></small></div>
       <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
       <div class="tile tracker" id="trackerTile"><span class="label">Tracker</span></div>
-      <!-- NEW: full-width training tile -->
       <div class="tile training" id="trainingTile"><span class="label">Create Training Plan</span></div>
     </div>
 
@@ -234,7 +253,7 @@
 
 <footer>© Built With Intention • Educational estimates only</footer>
 
-<!-- Action sheet (existing) -->
+<!-- Action sheet -->
 <div class="sheet" id="sheet">
   <div class="panel">
     <h4>Export Tracker</h4>
@@ -246,7 +265,7 @@
   </div>
 </div>
 
-<!-- NEW: Training sheet (asks ONLY equipment + experience; no prompt shown) -->
+<!-- Training sheet -->
 <div class="sheet" id="trainingSheet">
   <div class="panel">
     <h4>Create Training Plan</h4>
@@ -313,14 +332,30 @@ $('sex').addEventListener('change',refreshPickers);
 document.addEventListener('DOMContentLoaded',()=>{ if($('sex').value) refreshPickers(); });
 window.addEventListener('pageshow',(e)=>{ if(e.persisted||document.readyState==='complete'){ if($('sex').value&&(!$('bfCurrent').children.length||!$('bfGoal').children.length)){refreshPickers();}}});
 
+/* --- Training segmented control --- */
+(function initTrainingSeg(){
+  const group = $('trainingSeg');
+  group.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.seg-btn'); if(!btn) return;
+    const isActive = btn.classList.contains('active');
+    [...group.querySelectorAll('.seg-btn')].forEach(b=>{b.classList.remove('active'); b.setAttribute('aria-pressed','false');});
+    if(!isActive){ btn.classList.add('active'); btn.setAttribute('aria-pressed','true'); }
+    // if was active and clicked again, we leave all unselected -> "none" (0)
+  });
+})();
+function getTrainingSessions(){
+  const btn = document.querySelector('#trainingSeg .seg-btn.active');
+  return btn ? Number(btn.dataset.value) : 0; // default none
+}
+
 /* --- Energy model helpers --- */
 function activityMultiplier(work, trainingSessions, cardio){
   let base=1.35; if(work==='moderate') base=1.55; if(work==='high') base=1.75;
 
-  // Exact sessions → additive bump (~0.03 per session), with a reasonable cap
+  // Exact sessions → additive bump (~0.03 per session), capped
   const s = Math.max(0, Math.min(14, Number(trainingSessions||0)));
-  let addGym = 0.03 * s;               // e.g., 0→0.00, 3→0.09, 5→0.15, 6→0.18
-  addGym = Math.min(addGym, 0.21);     // keep TDEE sane
+  let addGym = 0.03 * s;               // 0→0.00, 3→0.09, 5→0.15
+  addGym = Math.min(addGym, 0.21);
 
   let addCardio=0; if(cardio==='1-2') addCardio=0.05; if(cardio==='3-4') addCardio=0.10; if(cardio==='5-6') addCardio=0.12;
 
@@ -423,7 +458,7 @@ function openTrackerPDF({summary,milestones,sex,startLabel}){
   w.document.open(); w.document.write(html); w.document.close();
 }
 
-/* Copy-only Notes (unchanged) */
+/* Copy-only Notes */
 async function copyTrackerNotes({summary,weeks,choices}){
   const noYear=s=>String(s).replace(/,\s*\d{4}/,'');
   const lines=[];
@@ -472,7 +507,7 @@ $('calc').onclick=()=>{
   let kg=Number($('weight').value||0); if($('wUnit').value==='lb') kg=kg*0.45359237;
   const lb=kg/0.45359237;
 
-  const trainingSessions = Number($('training').value||0);
+  const trainingSessions = getTrainingSessions(); // 0 if none selected
   const mult = activityMultiplier($('work').value, trainingSessions, $('cardio').value);
 
   const startVal=$('startDate').value;
@@ -537,7 +572,6 @@ $('calc').onclick=()=>{
   const startBin=_bins.find(b=>bfCur>=b.lower&&bfCur<=b.upper);
   const startLabel=startBin?startBin.label:null;
 
-  /* visible text of selections for Notes export */
   const workText=$('work').options[$('work').selectedIndex].text;
   const trainingText=`${trainingSessions} sessions/week`;
   const cardioText=$('cardio').options[$('cardio').selectedIndex].text;
@@ -560,7 +594,7 @@ $('calc').onclick=()=>{
   };
 };
 
-/* Action sheet (existing) */
+/* Action sheet */
 (function initSheet(){
   const sheet=$('sheet');
   const open=()=>{ if(!_trackerData){alert('Calculate your plan first.'); return;} sheet.style.display='grid'; };
@@ -571,7 +605,7 @@ $('calc').onclick=()=>{
   $('btnNotes').addEventListener('click',()=>{close(); copyTrackerNotes(_trackerData);});
 })();
 
-/* NEW: Training sheet behavior (no prompt shown to user) */
+/* Training sheet behavior */
 (function initTraining(){
   const sheet=$('trainingSheet');
   const open=()=>{ if(!_trackerData){alert('Calculate your plan first.'); return;} sheet.style.display='grid'; };
@@ -583,9 +617,10 @@ $('calc').onclick=()=>{
   $('btnCopyPrompt').addEventListener('click', async ()=>{
     if(!_trackerData){ alert('Calculate your plan first.'); return; }
 
-    const equip = $('equipSelect').value;                 // Full gym / Dumbbells / Bodyweight
-    const exp   = $('expSelect').value;                   // beginner / intermediate / experienced
-    const days  = `${Number($('training').value||0)} sessions/week`;
+    const equip = $('equipSelect').value;
+    const exp   = $('expSelect').value;
+    const sessions = getTrainingSessions();
+    const days  = `${sessions} sessions/week`;
     const { cals, protein } = _trackerData.summary;
 
     const prompt =
