@@ -73,7 +73,7 @@
   .tile.tracker .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
   .tile.tracker:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
 
-  /* NEW: Training tile (full width) */
+  /* Training tile (full width) */
   .tile.training{
     position:relative;cursor:pointer;padding:16px;border:1px solid transparent;
     background:linear-gradient(180deg,#16161b,#121217) padding-box,
@@ -83,19 +83,6 @@
   }
   .tile.training .label{font-size:1.1rem;letter-spacing:.25px;color:#eaeaf2}
   .tile.training:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
-
-  /* Segmented buttons for training sessions */
-  .seg{display:flex;gap:8px;flex-wrap:wrap}
-  .seg-btn{
-    padding:10px 14px;border-radius:12px;border:1px solid #2a2a31;
-    background:linear-gradient(180deg,#16161b,#121217);color:#eaeaf2;
-    font-weight:900;cursor:pointer
-  }
-  .seg-btn:hover{border-color:#3a3a44;box-shadow:0 6px 16px rgba(0,0,0,.22);transform:translateY(-1px)}
-  .seg-btn.active{
-    border-color:var(--hl-strong);
-    box-shadow:0 0 0 3px color-mix(in srgb,var(--hl-strong),transparent 80%);
-  }
 
   .error{border-color:#ff6565 !important;box-shadow:0 0 0 3px rgba(255,101,101,.18) !important}
   .errors{margin-top:10px;color:#ff9a9a;font-size:.92rem}
@@ -113,7 +100,7 @@
 </head>
 <body>
 <header>
-  <h1 class="title">5-STEP CALCULATOR</h1>
+  <h1 class="title">TRANSFORMATION CALCULATOR</h1>
   <div class="yt">
     <a class="pill" href="https://www.youtube.com/@thedallaspetersen" target="_blank" rel="noopener">
       <svg class="ytmark" viewBox="0 0 64 64" aria-hidden="true">
@@ -187,18 +174,18 @@
       <option value="high">High Activity – Labor</option>
     </select>
 
-    <!-- EXACT sessions: clickable 1–5, default none -->
-    <label style="margin-top:8px">
+    <!-- UPDATED: exact sessions with visible 0–5 -->
+    <label style="margin-top:8px" for="training">
       Training (gym) <span style="font-size:.82em; color:var(--muted)">~45 min per session</span>
     </label>
-    <div id="trainingSeg" class="seg" role="radiogroup" aria-label="Training sessions per week">
-      <button type="button" class="seg-btn" data-value="1" aria-pressed="false" aria-label="1 session per week">1</button>
-      <button type="button" class="seg-btn" data-value="2" aria-pressed="false" aria-label="2 sessions per week">2</button>
-      <button type="button" class="seg-btn" data-value="3" aria-pressed="false" aria-label="3 sessions per week">3</button>
-      <button type="button" class="seg-btn" data-value="4" aria-pressed="false" aria-label="4 sessions per week">4</button>
-      <button type="button" class="seg-btn" data-value="5" aria-pressed="false" aria-label="5 sessions per week">5</button>
-    </div>
-    <div class="hint">Default is none until you select 1–5.</div>
+    <select id="training">
+      <option value="0" selected>0 sessions/week</option>
+      <option value="1">1 session/week</option>
+      <option value="2">2 sessions/week</option>
+      <option value="3">3 sessions/week</option>
+      <option value="4">4 sessions/week</option>
+      <option value="5">5 sessions/week</option>
+    </select>
 
     <label style="margin-top:8px" for="cardio">Cardio (hours/week)</label>
     <select id="cardio">
@@ -243,6 +230,7 @@
       <div class="tile"><span>Protein (g/day)</span><b id="kProtein">—</b><small id="kProteinEq" aria-hidden="true"></small></div>
       <div class="tile"><span>Weekly Loss (lb)</span><b id="kWeeklyLoss">—</b></div>
       <div class="tile tracker" id="trackerTile"><span class="label">Tracker</span></div>
+      <!-- full-width training tile -->
       <div class="tile training" id="trainingTile"><span class="label">Create Training Plan</span></div>
     </div>
 
@@ -253,7 +241,7 @@
 
 <footer>© Built With Intention • Educational estimates only</footer>
 
-<!-- Action sheet -->
+<!-- Export sheet -->
 <div class="sheet" id="sheet">
   <div class="panel">
     <h4>Export Tracker</h4>
@@ -332,34 +320,17 @@ $('sex').addEventListener('change',refreshPickers);
 document.addEventListener('DOMContentLoaded',()=>{ if($('sex').value) refreshPickers(); });
 window.addEventListener('pageshow',(e)=>{ if(e.persisted||document.readyState==='complete'){ if($('sex').value&&(!$('bfCurrent').children.length||!$('bfGoal').children.length)){refreshPickers();}}});
 
-/* --- Training segmented control --- */
-(function initTrainingSeg(){
-  const group = $('trainingSeg');
-  group.addEventListener('click', (e)=>{
-    const btn = e.target.closest('.seg-btn'); if(!btn) return;
-    const isActive = btn.classList.contains('active');
-    [...group.querySelectorAll('.seg-btn')].forEach(b=>{b.classList.remove('active'); b.setAttribute('aria-pressed','false');});
-    if(!isActive){ btn.classList.add('active'); btn.setAttribute('aria-pressed','true'); }
-    // if was active and clicked again, we leave all unselected -> "none" (0)
-  });
-})();
-function getTrainingSessions(){
-  const btn = document.querySelector('#trainingSeg .seg-btn.active');
-  return btn ? Number(btn.dataset.value) : 0; // default none
-}
-
 /* --- Energy model helpers --- */
 function activityMultiplier(work, trainingSessions, cardio){
   let base=1.35; if(work==='moderate') base=1.55; if(work==='high') base=1.75;
 
-  // Exact sessions → additive bump (~0.03 per session), capped
-  const s = Math.max(0, Math.min(14, Number(trainingSessions||0)));
-  let addGym = 0.03 * s;               // 0→0.00, 3→0.09, 5→0.15
-  addGym = Math.min(addGym, 0.21);
+  // Exact sessions (0–5) → ~0.03 bump per session, cap for sanity
+  const s = Math.max(0, Math.min(5, Number(trainingSessions||0)));
+  let addGym = 0.03 * s;                // 0→0.00, 3→0.09, 5→0.15
 
   let addCardio=0; if(cardio==='1-2') addCardio=0.05; if(cardio==='3-4') addCardio=0.10; if(cardio==='5-6') addCardio=0.12;
 
-  const total=base+addGym+addCardio; 
+  const total=base+addGym+addCardio;
   return Math.min(2.1,total);
 }
 function bmr(sex,kg,cm,age){return sex==='male'?(10*kg+6.25*cm-5*age+5):(10*kg+6.25*cm-5*age-161);}
@@ -507,7 +478,7 @@ $('calc').onclick=()=>{
   let kg=Number($('weight').value||0); if($('wUnit').value==='lb') kg=kg*0.45359237;
   const lb=kg/0.45359237;
 
-  const trainingSessions = getTrainingSessions(); // 0 if none selected
+  const trainingSessions = Number($('training').value||0);
   const mult = activityMultiplier($('work').value, trainingSessions, $('cardio').value);
 
   const startVal=$('startDate').value;
@@ -572,6 +543,7 @@ $('calc').onclick=()=>{
   const startBin=_bins.find(b=>bfCur>=b.lower&&bfCur<=b.upper);
   const startLabel=startBin?startBin.label:null;
 
+  /* visible text of selections for Notes export */
   const workText=$('work').options[$('work').selectedIndex].text;
   const trainingText=`${trainingSessions} sessions/week`;
   const cardioText=$('cardio').options[$('cardio').selectedIndex].text;
@@ -594,7 +566,7 @@ $('calc').onclick=()=>{
   };
 };
 
-/* Action sheet */
+/* Export sheet */
 (function initSheet(){
   const sheet=$('sheet');
   const open=()=>{ if(!_trackerData){alert('Calculate your plan first.'); return;} sheet.style.display='grid'; };
@@ -619,7 +591,7 @@ $('calc').onclick=()=>{
 
     const equip = $('equipSelect').value;
     const exp   = $('expSelect').value;
-    const sessions = getTrainingSessions();
+    const sessions = Number($('training').value||0);
     const days  = `${sessions} sessions/week`;
     const { cals, protein } = _trackerData.summary;
 
